@@ -658,3 +658,26 @@ function Overlay({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
+/** Sparkle bolt that animates from Mariposa to the target via a 2-frame style swap. */
+function BoltSparkle({ bolt }: { bolt: Bolt }) {
+  const [pos, setPos] = useState({ x: bolt.x, y: bolt.y });
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setPos({ x: bolt.tx, y: bolt.ty }));
+    return () => cancelAnimationFrame(raf);
+  }, [bolt.tx, bolt.ty]);
+  return (
+    <span
+      aria-hidden
+      className="pointer-events-none absolute z-20 grid h-6 w-6 -translate-x-1/2 -translate-y-1/2 place-items-center text-xl drop-shadow-[0_0_10px_rgba(255,209,102,0.9)]"
+      style={{
+        left: `${pos.x}%`,
+        top: `${pos.y}%`,
+        transition: `left ${BOLT_MS}ms linear, top ${BOLT_MS}ms linear`,
+      }}
+    >
+      ✦
+    </span>
+  );
+}
+
