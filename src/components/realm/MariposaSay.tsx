@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Mariposa } from "@/components/Mariposa";
-import { pickLine, type MomentKey } from "@/data/realm1/mariposa-lines";
+import { MARIPOSA_LINES, pickLine, type MomentKey } from "@/data/realm1/mariposa-lines";
 import { cn } from "@/lib/utils";
 
 const MUTE_KEY = "pp.voice.muted";
