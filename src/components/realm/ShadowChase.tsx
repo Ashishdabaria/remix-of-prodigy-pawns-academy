@@ -73,7 +73,8 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
     setStatus("playing");
   }, []);
 
-  // Pointer tracking
+  // Pointer tracking — listen on window while playing so the cursor
+  // doesn't have to start over the arena.
   useEffect(() => {
     const arena = arenaRef.current;
     if (!arena || status !== "playing") return;
@@ -86,8 +87,8 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
         y: Math.max(8, Math.min(92, y)),
       });
     }
-    arena.addEventListener("pointermove", onMove);
-    return () => arena.removeEventListener("pointermove", onMove);
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => window.removeEventListener("pointermove", onMove);
   }, [status]);
 
   // Timer
@@ -115,16 +116,17 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
           id: nextId.current++,
           x: 6 + Math.random() * 88,
           y: -6,
-          vy: 12 + Math.random() * 10,
-          vx: (Math.random() - 0.5) * 6,
+          vy: FALL_MIN + Math.random() * FALL_RANGE,
+          vx: (Math.random() - 0.5) * 5,
           size: 56 + Math.floor(Math.random() * 28),
         },
       ]);
-    }, 900);
+    }, SPAWN_MS);
     return () => clearInterval(spawn);
   }, [status]);
 
-  // Physics tick
+  // Physics tick — pure state update, no side effects in the updater.
+  // We collect "lost" ids in a local and apply heart loss via a normal setState.
   useEffect(() => {
     if (status !== "playing") return;
     let raf = 0;
@@ -132,9 +134,9 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
     function tick(now: number) {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
+      let lostHere = 0;
       setShadows((prev) => {
         const next: Shadow[] = [];
-        let lostHere = 0;
         for (const s of prev) {
           if (s.popping) {
             next.push(s);
@@ -148,16 +150,13 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
           }
           next.push({ ...s, x: nx, y: ny });
         }
-        if (lostHere > 0) {
-          setHearts((h) => {
-            const nh = Math.max(0, h - lostHere);
-            return nh;
-          });
-          setShake(true);
-          setTimeout(() => setShake(false), 500);
-        }
         return next;
       });
+      if (lostHere > 0) {
+        setHearts((h) => Math.max(0, h - lostHere));
+        setShake(true);
+        window.setTimeout(() => setShake(false), 450);
+      }
       raf = requestAnimationFrame(tick);
     }
     raf = requestAnimationFrame(tick);
