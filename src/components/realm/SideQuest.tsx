@@ -267,13 +267,21 @@ function MiniBoard({ highlight }: { highlight: { file: number; rank: number } })
       squares.push(
         <div
           key={`${f}-${r}`}
-          className={`h-7 w-7 ${dark ? "bg-ink/70" : "bg-parchment"} ${hi ? "ring-4 ring-shard-sun ring-offset-1 ring-offset-card relative z-10" : ""}`}
-        />,
+          className={`grid h-7 w-7 place-items-center ${
+            hi
+              ? "bg-shard-sun text-ink font-black animate-pulse"
+              : dark
+                ? "bg-ink/70"
+                : "bg-parchment"
+          }`}
+        >
+          {hi ? "★" : null}
+        </div>,
       );
     }
   }
   return (
-    <div className="grid grid-cols-8 overflow-hidden rounded-md border-2 border-ink/30">
+    <div className="grid grid-cols-8 rounded-md border-2 border-ink/30">
       {squares}
     </div>
   );
