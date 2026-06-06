@@ -33,11 +33,20 @@ const WIN_SCORE = 12;
 const START_HEARTS = 3;
 const GAME_SECONDS = 45;
 
+/** Intro dialogue between Smudge (the mischievous shadow imp) and Mariposa. */
+const INTRO: { who: "smudge" | "mariposa"; line: string }[] = [
+  { who: "smudge", line: "Hehe! I'm Smudge — the giggliest little shadow in all the realms!" },
+  { who: "mariposa", line: "Smudge! You've been hiding the Pawn Village's giggles, haven't you?" },
+  { who: "smudge", line: "Maaaybe. I bonk into things and the giggles fall out! Catch me if you can, butterfly!" },
+  { who: "mariposa", line: "Ready, hero? Move me with your finger and tap each little Smudge to set the giggles free!" },
+];
+
 type Status = "ready" | "playing" | "won" | "lost";
 
 export function ShadowChase({ onClose }: ShadowChaseProps) {
   const arenaRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<Status>("ready");
+  const [introStep, setIntroStep] = useState(0);
   const [score, setScore] = useState(0);
   const [hearts, setHearts] = useState(START_HEARTS);
   const [timeLeft, setTimeLeft] = useState(GAME_SECONDS);
@@ -173,7 +182,7 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
         {/* HUD */}
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div className="font-display text-lg font-black">
-            🦋⚔️ Shadow Moth Showdown
+            🦋✦ Catch the Giggle Thief
           </div>
           <div className="flex items-center gap-3 text-sm font-black">
             <span className="rounded-full bg-shard-sun/30 px-3 py-1">⭐ {score}/{WIN_SCORE}</span>
@@ -218,21 +227,79 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
             </span>
           ))}
 
-          {/* Ready overlay */}
+          {/* Ready overlay with intro dialogue */}
           {status === "ready" && (
             <Overlay>
-              <h3 className="font-display text-3xl font-black text-parchment">A shadow has crept in…</h3>
-              <p className="mt-2 max-w-md text-parchment/80">
-                Move your finger or mouse to fly Mariposa.
-                <br />
-                Tap each shadow moth to <strong>zap it</strong>. Don't let any reach the ground!
+              <div className="text-[10px] font-black uppercase tracking-widest text-shard-sun">
+                Meet your opponent
+              </div>
+              <h3 className="mt-1 font-display text-2xl font-black text-parchment sm:text-3xl">
+                Smudge, the Giggle Thief
+              </h3>
+
+              <div className="mt-4 flex items-end justify-center gap-4">
+                <img
+                  src={shadowImg}
+                  alt="Smudge"
+                  width={110}
+                  height={110}
+                  draggable={false}
+                  className={`animate-float drop-shadow-[0_0_18px_rgba(160,80,220,0.7)] ${
+                    INTRO[introStep].who === "smudge" ? "" : "opacity-60 saturate-50"
+                  }`}
+                  style={{ width: 110, height: 110 }}
+                />
+                <img
+                  src={mariposaImg}
+                  alt="Mariposa"
+                  width={90}
+                  height={90}
+                  draggable={false}
+                  className={`animate-flutter drop-shadow-[0_0_14px_rgba(255,209,102,0.6)] ${
+                    INTRO[introStep].who === "mariposa" ? "" : "opacity-60"
+                  }`}
+                  style={{ width: 90, height: 90 }}
+                />
+              </div>
+
+              <div className="mt-3 max-w-md rounded-2xl border-2 border-parchment/30 bg-parchment/95 px-4 py-3 text-ink card-pop animate-fade-in" key={introStep}>
+                <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                  {INTRO[introStep].who === "smudge" ? "Smudge" : "Mariposa"}
+                </div>
+                <p className="mt-0.5 text-sm font-semibold">{INTRO[introStep].line}</p>
+              </div>
+
+              <div className="mt-4 flex items-center gap-2">
+                <div className="flex gap-1" aria-hidden>
+                  {INTRO.map((_, i) => (
+                    <span
+                      key={i}
+                      className={`h-1.5 w-4 rounded-full ${
+                        i <= introStep ? "bg-shard-sun" : "bg-parchment/30"
+                      }`}
+                    />
+                  ))}
+                </div>
+                {introStep < INTRO.length - 1 ? (
+                  <button
+                    onClick={() => setIntroStep((s) => s + 1)}
+                    className="rounded-full border-2 border-parchment/40 px-4 py-1.5 text-xs font-black text-parchment"
+                  >
+                    Next →
+                  </button>
+                ) : (
+                  <button
+                    onClick={reset}
+                    className="rounded-full bg-shard-sun px-5 py-2 font-display text-base font-black text-ink hover-scale animate-glow"
+                  >
+                    ▶ Begin the chase
+                  </button>
+                )}
+              </div>
+
+              <p className="mt-2 text-[11px] text-parchment/60">
+                Goal: free {WIN_SCORE} giggles • {GAME_SECONDS}s • {START_HEARTS} ♥
               </p>
-              <button
-                onClick={reset}
-                className="mt-4 rounded-full bg-shard-sun px-6 py-2 font-display text-lg font-black text-ink hover-scale animate-glow"
-              >
-                ▶ Begin the chase
-              </button>
             </Overlay>
           )}
 
@@ -261,7 +328,7 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
                 }}
                 className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full ${s.popping ? "pointer-events-none" : "cursor-crosshair"}`}
                 style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.size, height: s.size }}
-                aria-label="Zap shadow moth"
+                aria-label="Catch Smudge"
               >
                 <img
                   src={shadowImg}

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Mariposa } from "@/components/Mariposa";
-import { pickLine, type MomentKey } from "@/data/realm1/mariposa-lines";
+import { MARIPOSA_LINES, pickLine, type MomentKey } from "@/data/realm1/mariposa-lines";
 import { cn } from "@/lib/utils";
 
 const MUTE_KEY = "pp.voice.muted";
@@ -52,8 +52,18 @@ interface MariposaSayProps {
  * silently on muted devices.
  */
 export function MariposaSay({ moment, nonce = 0, text, size = 72, className }: MariposaSayProps) {
-  const [line, setLine] = useState<string>(() => text ?? pickLine(moment));
+  // Use a deterministic line for SSR so hydration matches; randomize on the client.
+  const [line, setLine] = useState<string>(() => text ?? MARIPOSA_LINES[moment][0]);
   const lastNonce = useRef<{ moment: MomentKey; nonce: number; text?: string }>({ moment, nonce, text });
+
+  // On mount (client-only): roll a random line and speak it.
+  useEffect(() => {
+    const next = text ?? pickLine(moment);
+    setLine(next);
+    lastNonce.current = { moment, nonce, text };
+    speak(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const prev = lastNonce.current;
@@ -64,12 +74,6 @@ export function MariposaSay({ moment, nonce = 0, text, size = 72, className }: M
       speak(next);
     }
   }, [moment, nonce, text]);
-
-  // initial mount: speak once
-  useEffect(() => {
-    speak(line);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <div className={cn("flex items-start gap-3", className)}>

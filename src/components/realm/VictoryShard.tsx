@@ -89,7 +89,7 @@ export function VictoryShard({
             />
             <div className="text-left">
               <div className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">Reward unlocked</div>
-              <div className="font-display text-lg font-black">A shadow has crept into the realm…</div>
+              <div className="font-display text-lg font-black">Smudge stole the village's giggles!</div>
             </div>
           </div>
           <button
@@ -97,7 +97,7 @@ export function VictoryShard({
             onClick={() => setShowGame(true)}
             className="mt-3 rounded-full bg-shard-amethyst px-5 py-2 font-display text-base font-black text-parchment hover-scale animate-glow"
           >
-            🦋⚔️ Battle the Shadow Moth
+            🦋✦ Catch Smudge, the Giggle Thief
           </button>
         </div>
 
