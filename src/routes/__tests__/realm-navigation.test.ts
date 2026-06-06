@@ -25,7 +25,8 @@ const PLAY_ROUTE_PATH = "/realm/$realmId/play";
 
 function collectRouteIds(node: any, acc: string[] = []): string[] {
   if (!node) return acc;
-  if (node.id) acc.push(node.id);
+  const id = node.id ?? node.options?.id;
+  if (id) acc.push(id);
   const children = node.children ?? node.options?.children;
   if (Array.isArray(children)) for (const c of children) collectRouteIds(c, acc);
   else if (children && typeof children === "object")
