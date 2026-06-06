@@ -76,11 +76,36 @@ export function VictoryShard({
           <MariposaSay moment="SHARD_WON" />
         </div>
 
+        {/* Reward mini-game CTA */}
+        <div className="mt-6 rounded-2xl border-2 border-dashed border-shard-amethyst/50 bg-shard-amethyst/10 p-4">
+          <div className="flex items-center justify-center gap-3">
+            <img
+              src={shadowImg}
+              alt=""
+              width={56}
+              height={56}
+              className="animate-float drop-shadow-[0_0_12px_rgba(120,40,180,0.6)]"
+              style={{ width: 56, height: 56 }}
+            />
+            <div className="text-left">
+              <div className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">Reward unlocked</div>
+              <div className="font-display text-lg font-black">A shadow has crept into the realm…</div>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowGame(true)}
+            className="mt-3 rounded-full bg-shard-amethyst px-5 py-2 font-display text-base font-black text-parchment hover-scale animate-glow"
+          >
+            🦋⚔️ Battle the Shadow Moth
+          </button>
+        </div>
+
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link
             to="/"
             onClick={() => router.invalidate()}
-            className="rounded-full bg-ink px-5 py-2 font-display font-black text-parchment"
+            className="rounded-full bg-ink px-5 py-2 font-display font-black text-parchment hover-scale"
           >
             Back to the map →
           </Link>
@@ -93,6 +118,8 @@ export function VictoryShard({
           </button>
         </div>
       </div>
+
+      {showGame && <ShadowChase onClose={() => setShowGame(false)} />}
     </div>
   );
 }
