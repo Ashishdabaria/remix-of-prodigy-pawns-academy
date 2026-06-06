@@ -33,11 +33,20 @@ const WIN_SCORE = 12;
 const START_HEARTS = 3;
 const GAME_SECONDS = 45;
 
+/** Intro dialogue between Smudge (the mischievous shadow imp) and Mariposa. */
+const INTRO: { who: "smudge" | "mariposa"; line: string }[] = [
+  { who: "smudge", line: "Hehe! I'm Smudge — the giggliest little shadow in all the realms!" },
+  { who: "mariposa", line: "Smudge! You've been hiding the Pawn Village's giggles, haven't you?" },
+  { who: "smudge", line: "Maaaybe. I bonk into things and the giggles fall out! Catch me if you can, butterfly!" },
+  { who: "mariposa", line: "Ready, hero? Move me with your finger and tap each little Smudge to set the giggles free!" },
+];
+
 type Status = "ready" | "playing" | "won" | "lost";
 
 export function ShadowChase({ onClose }: ShadowChaseProps) {
   const arenaRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<Status>("ready");
+  const [introStep, setIntroStep] = useState(0);
   const [score, setScore] = useState(0);
   const [hearts, setHearts] = useState(START_HEARTS);
   const [timeLeft, setTimeLeft] = useState(GAME_SECONDS);
