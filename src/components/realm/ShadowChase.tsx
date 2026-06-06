@@ -315,6 +315,107 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
             </Overlay>
           )}
 
+          {/* Tutorial overlay — 3-step how-to before the round starts */}
+          {status === "tutorial" && (
+            <Overlay>
+              <div className="text-[10px] font-black uppercase tracking-widest text-shard-sun">
+                How to play
+              </div>
+              <h3 className="mt-1 font-display text-2xl font-black text-parchment sm:text-3xl">
+                {TUTORIAL[introStep].title}
+              </h3>
+
+              {/* Visual demo per step */}
+              <div className="relative mt-4 grid h-32 w-72 max-w-full place-items-center rounded-2xl border-2 border-parchment/30 bg-ink/50">
+                {introStep === 0 && (
+                  <>
+                    <img
+                      src={mariposaImg}
+                      alt=""
+                      width={56}
+                      height={56}
+                      className="absolute top-1/2 -translate-y-1/2 animate-tut-drag drop-shadow-[0_0_12px_rgba(255,209,102,0.7)]"
+                      style={{ width: 56, height: 56 }}
+                    />
+                    <span aria-hidden className="absolute right-4 bottom-3 animate-bounce text-2xl">👆</span>
+                  </>
+                )}
+                {introStep === 1 && (
+                  <>
+                    <img
+                      src={shadowImg}
+                      alt=""
+                      width={64}
+                      height={64}
+                      className="animate-float drop-shadow-[0_0_14px_rgba(160,80,220,0.7)]"
+                      style={{ width: 64, height: 64 }}
+                    />
+                    <span aria-hidden className="absolute -mt-2 text-3xl animate-zap-pop">✨</span>
+                  </>
+                )}
+                {introStep === 2 && (
+                  <>
+                    <img
+                      src={shadowImg}
+                      alt=""
+                      width={48}
+                      height={48}
+                      className="absolute top-1 animate-tut-fall drop-shadow-[0_0_10px_rgba(160,80,220,0.6)]"
+                      style={{ width: 48, height: 48 }}
+                    />
+                    <div className="absolute bottom-1 left-0 right-0 h-1 bg-rose/70" />
+                    <span aria-hidden className="absolute bottom-2 right-3 text-2xl">♥♥♥</span>
+                  </>
+                )}
+              </div>
+
+              <p className="mt-3 max-w-md text-sm text-parchment/85">
+                {TUTORIAL[introStep].body}
+              </p>
+
+              <div className="mt-4 flex items-center gap-3">
+                <div className="flex gap-1" aria-hidden>
+                  {TUTORIAL.map((_, i) => (
+                    <span
+                      key={i}
+                      className={`h-1.5 w-5 rounded-full ${
+                        i <= introStep ? "bg-shard-sun" : "bg-parchment/30"
+                      }`}
+                    />
+                  ))}
+                </div>
+                {introStep > 0 && (
+                  <button
+                    onClick={() => setIntroStep((s) => s - 1)}
+                    className="rounded-full border-2 border-parchment/40 px-3 py-1.5 text-xs font-black text-parchment"
+                  >
+                    ← Back
+                  </button>
+                )}
+                {introStep < TUTORIAL.length - 1 ? (
+                  <button
+                    onClick={() => setIntroStep((s) => s + 1)}
+                    className="rounded-full border-2 border-parchment/40 px-4 py-1.5 text-xs font-black text-parchment"
+                  >
+                    Next →
+                  </button>
+                ) : (
+                  <button
+                    onClick={reset}
+                    className="rounded-full bg-shard-sun px-5 py-2 font-display text-base font-black text-ink hover-scale animate-glow"
+                  >
+                    ▶ Begin the chase
+                  </button>
+                )}
+              </div>
+
+              <p className="mt-2 text-[11px] text-parchment/60">
+                Goal: free {WIN_SCORE} giggles • {GAME_SECONDS}s • {START_HEARTS} ♥
+              </p>
+            </Overlay>
+          )}
+
+
           {/* Mariposa */}
           {status === "playing" && (
             <img
