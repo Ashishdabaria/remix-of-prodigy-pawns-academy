@@ -1,115 +1,76 @@
 
-# Prodigy Pawns: The Kingdom of 64 Realms
+# Realm 1 — Pawn Village: Playable Loop
 
-A magical, kid-safe chess academy quest map with student & parent dashboards. No auth, no backend — all mock data so the experience can be reviewed end-to-end now and wired to real progress later.
+Turn the existing Pawn Village realm page into a full playable experience: portal intro → 3 mini-lessons → puzzle set → Board Guardian boss → Pearl Shard celebration. Mock progress only (no auth yet).
 
-## Routes
+## Route structure
+
+Add a nested play flow under the existing realm route. Keep the current realm detail page as the "lobby"; add a new playable sub-route.
 
 ```
-/                     Quest Map (the hero experience)
-/realm/$realmId       Realm detail (theme, mini-boss, boss, shard, side quests)
-/poster               Printable wall-poster version (large canvas, no UI chrome)
-/student              Student dashboard (current shard, XP, gold, gems, Brave Hearts, badges, daily quests)
-/parent               Parent dashboard (progress summary, weekly activity, encouragement)
-/codex                Mariposa & lore codex (story, ranks, badges, Mariposa transformations)
+src/routes/realm.$realmId.tsx         (existing — realm lobby, adds "Enter Realm" CTA)
+src/routes/realm.$realmId.play.tsx    (NEW — playable loop host with stage state)
 ```
 
-Each route gets its own `head()` meta (title, description, og:title/description). Leaf realm and codex routes get an `og:image` derived from the hero illustration.
+The play route is a single page that walks through stages in order (portal → lesson 1 → lesson 2 → lesson 3 → puzzles → boss → victory). Stage state lives in React state; a small top bar shows progress dots so a child sees where they are. "Skip" and "Back to map" always available.
 
-## The Quest Map (`/`)
+Only Realm 1 (`pawn-village`) ships playable content in v1. Other realms render a friendly "Coming soon — Mariposa is still painting this realm!" panel from the same route, so the structure is in place for realms 2–8 later.
 
-- Single illustrated world with a winding hero's path connecting all 8 realms in order: Pawn Village → Castle of Kings → Centerland Plains → Detective Forest → Tactical Mountains → Crystal Labyrinth → Endgame Desert → Citadel of Checkmate.
-- AI-generated full map background illustration (warm, bright, RPG world-map look — Pokémon/Zelda/Mario inflected, no scary motifs).
-- SVG overlay on top of the illustration carries the interactive layer:
-  - 8 realm nodes, each with name plate + Shard gem **+ unique shape icon** (☾ ☀ ▲ ♣ ❄ ★ ◆ ♛) so rank reads without color.
-  - Mini-boss + boss markers per realm, side-quest pins, treasure-chest pins.
-  - Hidden markers: Mariposa's Secret Mate Garden gates (glowing), secret tactical caves, and the Astral Academy floating above the Citadel.
-  - Mariposa butterfly appearing beside several realms (pointing, perched on signposts), and a larger Mariposa hero portrait near the title banner.
-  - Title banner area reserved for "Prodigy Pawns: The Kingdom of 64 Realms" with academy-logo space.
-- Clicking a realm node → `/realm/$realmId`. Hover/tap shows a friendly tooltip card with shard, rank, mini-boss, boss.
-- A small persistent HUD shows the mock student's progress (current rank, shards collected as a row of 8 shape icons — filled/unfilled).
+## The 7 stages
 
-## Realm Detail (`/realm/$realmId`)
+1. **Portal intro (4–6s, skippable)** — Pearl-shard colored swirl, Mariposa flutters in, speaks one of 2–3 random intro lines via SpeechSynthesis. Tap-to-skip.
+2. **Lesson 1 — How pieces move.** Interactive `react-chessboard` with only one piece on the board at a time (pawn, then knight, then bishop, rook, queen, king). Legal target squares highlighted. Child must make one legal move per piece to advance. Mariposa says the piece name + a one-line tip.
+3. **Lesson 2 — Safe captures.** Mini-positions (3 of them) where one of the child's pieces can capture a free enemy piece. Child taps the capture. Bad taps get a gentle Mariposa "almost! try again" + 1 Brave Heart.
+4. **Lesson 3 — Piece values.** Visual values panel (♙1 ♘3 ♗3 ♜5 ♛9). 3 quick "which capture is better?" choices using two highlighted target pieces. Tap the higher-value piece.
+5. **Puzzle set — 3 mate-in-1 puzzles.** Hand-authored FENs (no external fetch in v1) themed for beginners: back-rank, queen mate, rook ladder finish. Solve = +40 XP +5 gold. Miss = +1 Brave Heart, Mariposa hint, retry.
+6. **Boss — The Board Guardian.** A friendly stone-guardian card with a 5-question rapid quiz (mix of move/value/capture questions drawn from lessons). 4 of 5 correct = victory. Any miss earns Brave Hearts, never a fail screen.
+7. **Victory — Pearl Shard won.** Confetti + shard gem animation + Mariposa "shard won" line. Buttons: "Back to map" (updates mock student to include `pearl` shard + advance currentRealmId) and "Play again".
 
-For each of the 8 realms:
-- Hero illustration of the realm (AI-generated, themed).
-- Shard card (gem + shape + name + the hero rank it grants).
-- "What you learn here" list (the chess curriculum from the spec).
-- Mini-boss card with friendly character art + name + 1-line description.
-- Boss card with friendly character art + name + 1-line description.
-- Side-quest list and treasure-chest reward.
-- Mariposa appearance for that realm with her transformation note (wings gain that shard's gem glow).
-- Prev/next realm navigation along the path.
+## Components (new, all in `src/components/realm/`)
 
-## Rank System — The 8 Crown Shards
+- `PlayShell.tsx` — stage host: top progress bar, skip/back, transitions between stages.
+- `PortalIntro.tsx` — CSS swirl + Mariposa float-in + speech, auto-advances or on tap.
+- `ChessboardLesson.tsx` — wraps `react-chessboard` + `chess.js`, accepts a setup config (pieces to place, target behavior: "make any legal move" | "capture target" | "pick higher value").
+- `PuzzleBoard.tsx` — loads a FEN, validates the single correct move, calls onSolve/onMiss.
+- `BossQuiz.tsx` — 5-question multiple-choice/board-tap quiz.
+- `VictoryShard.tsx` — celebration screen with Pearl Shard art and reward summary.
+- `MariposaSay.tsx` — small util component: takes a `moment` key (INTRO/HINT/CORRECT/MISSED/BOSS/SHARD_WON/SIGNOFF), picks a random line, speaks via `window.speechSynthesis`, renders the line as on-screen caption (accessibility + sound-off devices).
 
-Reusable `<ShardBadge>` component renders gem color + **shape icon + label** together. Used in the map HUD, realm cards, dashboards, codex, and poster. Never color-only. A "Crown Progress" strip shows all 8 shapes; collected ones glow, uncollected are outlined.
+## Data (new, in `src/data/realm1/`)
 
-## Codex (`/codex`)
+- `lessons.ts` — typed array of lesson configs (piece, starting square, instruction text, Mariposa moment key).
+- `puzzles.ts` — 3 hand-authored mate-in-1 entries: `{ fen, solution: "e7e8q" | "h7h8", hint, theme }`.
+- `boss.ts` — 5 quiz questions: `{ kind: "value" | "move" | "capture", prompt, options, correctIndex }`.
+- `mariposa-lines.ts` — full script-bible map: `Record<MomentKey, string[]>` seeded from the launch plan (intro x3, hint x3, correct x4, missed x3, boss x2, shard-won x2, signoff x2).
 
-- The softened main story.
-- Mariposa character sheet with her 8 transformations (one per shard).
-- Full rank table (shape, shard, hero rank, realm).
-- Badge gallery: First Checkmate, Double Trouble Master, Freeze Master, Rook Commander, Endgame Hero, Puzzle Ninja, Tournament Warrior, Grandmaster Explorer, Square Detective, Brave Heart, Mariposa's Friend.
-- Diverse hero cast portraits (varied skin tones, hair, abilities, including a child using a wheelchair).
-- Hidden areas explainer: Mate Garden, Astral Academy, secret caves.
+## State (mock, in-memory for v1)
 
-## Student Dashboard (`/student`)
+Extend `src/data/student.ts` with helpers `addShard(id)` and `setCurrentRealm(id)` that mutate the in-memory `STUDENT` object and use a small React context (`StudentProvider` in `__root.tsx`) so the map HUD and dashboards re-render after victory. No persistence yet — refresh resets. Structured so a future Lovable Cloud pass swaps the context's setter for a server-fn call.
 
-Mock data only. Sections:
-- Greeting with Mariposa + current rank shape badge.
-- Crown Progress strip (8 shape icons).
-- XP bar to next rank, Gold Coins, Gems, Brave Heart Points (with a "Great try!" banner motif explaining the anti-frustration mechanic).
-- Daily Quests (3), Weekly Quests (2), Side Quests, next Boss Battle card.
-- Recent badges earned + locked badges preview.
-- Avatar shop preview (capes, crowns, pet companions — visual only).
+## Mariposa voice
 
-## Parent Dashboard (`/parent`)
+Use `window.speechSynthesis` with a friendly voice pick (prefer a female en-* voice if available, fall back to default). Wrap in a tiny `useMariposaVoice()` hook with a global mute toggle stored in `localStorage` (`pp.voice.muted`). Captions always render regardless of mute. Doc's "tap to skip" honored on the portal and any spoken line.
 
-Mock data only. Sections:
-- Child summary (name, current rank with shape badge, shards collected).
-- This week: quests completed, puzzles solved, time spent, Brave Hearts earned.
-- Curriculum coverage so far (which realms' learning goals are in progress / done).
-- Encouragement panel explaining the kid-safe tone, Brave Heart mechanic, and what's next.
-- Simple printable summary button.
+## Brave Hearts (anti-frustration)
 
-## Printable Poster (`/poster`)
+A miss never blocks progress. Each miss bumps `STUDENT.braveHearts` and shows a small "+1 Brave Heart — great try!" toast. The boss always lets you finish; below 4/5 it shows "Great try! Let's practice once more" and replays the quiz with fresh question order.
 
-- Large fixed canvas (e.g. 2400×3200 viewport) with no app chrome, white margins, the full illustrated map, all 8 realms labeled with shard shapes, Mariposa appearances, hidden markers, rank legend, badge legend, and academy title banner. Optimized for "print to PDF" / large-format printing.
+## Dependencies to add
 
-## Art & Assets (AI-generated)
+- `chess.js`
+- `react-chessboard`
+- `canvas-confetti` (tiny, for victory)
 
-Generate as 16:9 / portrait / square as appropriate, saved into `src/assets/`:
-- 1 full quest-map background (large, landscape).
-- 8 realm hero illustrations (one per realm).
-- 8 mini-boss + 9 boss character cards (friendly, rounded, big-eyed; final boss King Obsidian = mischievous Bowser-energy, never scary).
-- Mariposa hero portrait + 8 transformation variants (caterpillar → butterfly with shard-colored wing glow).
-- Diverse hero kids cast illustration for the codex.
-- Badge icons (11) and shard gems (8) — vector/SVG hand-built for crispness, not AI.
+No backend, no auth, no external puzzle DB in v1 — all content is local and hand-authored so the loop is reliably delightful.
 
-All illustrations use a bright warm palette and rounded shapes per the spec.
+## Out of scope (deliberately)
 
-## Design System
+- Real persistence / accounts (next pass with Lovable Cloud).
+- Realms 2–8 playable content (same shell, content later).
+- Voice-actor / ElevenLabs audio (SpeechSynthesis only for now; component is swap-ready).
+- Rive/Lottie animations (CSS + Motion only for v1 portal).
+- Stockfish opponent (boss is a quiz, not a full game, per MLP scope).
 
-- Tailwind v4 tokens in `src/styles.css` only (no hardcoded colors in components). Add semantic tokens for: parchment background, ink, royal-gold accent, sky, leaf, and one accent per shard (pearl, sun, amber, emerald, sapphire, amethyst, topaz, crown-gold). Color is decorative; shape carries the meaning.
-- Typography: a friendly display font for titles (e.g. Fraunces or Cabin Sketch via @fontsource) and a clean rounded body font (e.g. Nunito). Installed via `bun add @fontsource/...` and imported once.
-- Subtle Motion-style animations: Mariposa gentle hover/float, sparkle pulses on hidden markers, soft scale on realm hover. Restrained — no constant motion.
+## Acceptance check
 
-## Mock Data
-
-`src/data/realms.ts`, `src/data/student.ts`, `src/data/parent.ts`, `src/data/badges.ts` — typed, single source of truth used by every route. Structured so a future Lovable Cloud + auth pass can swap mock for real.
-
-## Out of Scope (deliberately, for v1)
-
-- No login, no per-user persistence, no real XP economy logic — all numbers are mock.
-- No real puzzle/game play inside realms — realm pages describe the curriculum and quests, they don't run chess.
-- No payments, no email, no AI tutor.
-
-These are clean follow-ups once you approve the look and structure.
-
-## Technical Notes
-
-- TanStack Start file-based routing under `src/routes/` (`index.tsx`, `realm.$realmId.tsx`, `poster.tsx`, `student.tsx`, `parent.tsx`, `codex.tsx`). Every route sets its own `head()` meta.
-- Shared header/nav in `__root.tsx` (hidden on `/poster`).
-- Map interactive layer is an SVG positioned over the illustrated background, with realm node coordinates defined in `realms.ts` as percentages so it scales responsively and reuses on the poster.
-- Accessibility: every shard reference renders shape + label, all nodes are real `<button>`/`<Link>` with aria-labels, focus rings visible, color contrast checked in both light and dark.
+From `/` → click Pawn Village → "Enter Realm" → portal plays → 3 lessons complete → 3 puzzles solved (or skipped with Brave Hearts) → boss passed → Pearl Shard victory → "Back to map" shows the Pearl shard filled in the HUD and on `/student`.
