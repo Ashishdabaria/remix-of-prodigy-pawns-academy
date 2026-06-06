@@ -51,6 +51,8 @@ function RealmPage() {
   const next = REALMS[idx + 1];
   const [activeQuest, setActiveQuest] = useState<{ index: number; title: string } | null>(null);
   const [completed, setCompleted] = useState<Record<number, boolean>>({});
+  const [encounter, setEncounter] = useState<null | "miniBoss" | "boss" | "treasure">(null);
+  const [encDone, setEncDone] = useState<{ miniBoss?: boolean; boss?: boolean; treasure?: boolean }>({});
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
