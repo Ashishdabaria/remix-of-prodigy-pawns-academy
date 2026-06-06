@@ -183,7 +183,38 @@
   0%, 100% { transform: scale(1); opacity: 0.7; }
   50%      { transform: scale(1.15); opacity: 1; }
 }
+@keyframes float-y {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50%      { transform: translateY(-14px) translateX(6px); }
+}
+@keyframes drift {
+  0%   { transform: translate3d(-10vw, 0, 0); opacity: 0; }
+  10%  { opacity: 0.7; }
+  100% { transform: translate3d(110vw, -40px, 0); opacity: 0; }
+}
+@keyframes glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 6px color-mix(in oklab, var(--color-shard-sun) 60%, transparent)); }
+  50%      { filter: drop-shadow(0 0 18px color-mix(in oklab, var(--color-shard-sun) 90%, transparent)); }
+}
+@keyframes shake-x {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(6px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}
+@keyframes zap-pop {
+  0%   { transform: scale(0.4); opacity: 0; }
+  50%  { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
 .animate-flutter { animation: flutter 4s ease-in-out infinite; }
 .animate-sparkle { animation: sparkle 2.4s ease-in-out infinite; }
+.animate-float   { animation: float-y 5s ease-in-out infinite; }
+.animate-drift   { animation: drift 14s linear infinite; }
+.animate-glow    { animation: glow-pulse 2.2s ease-in-out infinite; }
+.animate-shake   { animation: shake-x 0.5s ease-in-out; }
+.animate-zap-pop { animation: zap-pop 0.5s ease-out forwards; }
 .portal-swirl { animation: portal-spin 8s linear infinite; transform-origin: center; filter: blur(8px); }
 .portal-pulse { animation: portal-pulse 2.4s ease-in-out infinite; }
+
