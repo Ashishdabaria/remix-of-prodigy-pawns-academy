@@ -281,7 +281,7 @@ function MiniBoard({ highlight }: { highlight: { file: number; rank: number } })
     }
   }
   return (
-    <div className="grid grid-cols-8 rounded-md border-2 border-ink/30">
+    <div className="grid grid-cols-8 rounded-md border-2 border-ink/30 p-1 bg-shard-emerald">
       {squares}
     </div>
   );
