@@ -328,7 +328,7 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
                 }}
                 className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full ${s.popping ? "pointer-events-none" : "cursor-crosshair"}`}
                 style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.size, height: s.size }}
-                aria-label="Zap shadow moth"
+                aria-label="Catch Smudge"
               >
                 <img
                   src={shadowImg}
