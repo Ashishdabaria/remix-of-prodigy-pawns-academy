@@ -1,7 +1,9 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useState } from "react";
 import { getRealm, REALMS, SHARDS, type Realm } from "@/data/realms";
 import { ShardBadge } from "@/components/ShardBadge";
 import { Mariposa } from "@/components/Mariposa";
+import { SideQuest } from "@/components/realm/SideQuest";
 
 export const Route = createFileRoute("/realm/$realmId")({
   loader: ({ params }) => {
