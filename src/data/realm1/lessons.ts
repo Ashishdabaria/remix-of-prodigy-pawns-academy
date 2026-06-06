@@ -99,9 +99,10 @@ export const LESSONS: Lesson[] = [
         id: "cap2",
         pieceName: "Rook",
         title: "Roll for it!",
-        instruction: "Roll the rook across to capture the enemy pawn.",
-        fen: "4k3/8/8/8/8/8/4p3/R3K3 w - - 0 1",
-        goal: { kind: "capture-target", targetSquare: "e2" },
+        instruction: "Roll the rook up the file to grab the enemy pawn.",
+        // White rook a1, black pawn a5 (straight-line capture)
+        fen: "4k3/8/8/p7/8/8/8/R3K3 w - - 0 1",
+        goal: { kind: "capture-target", targetSquare: "a5" },
         spotlightSquare: "a1",
       },
       {
@@ -109,8 +110,9 @@ export const LESSONS: Lesson[] = [
         pieceName: "Bishop",
         title: "Diagonal snack",
         instruction: "Slide your bishop along the diagonal to capture.",
-        fen: "4k3/8/8/8/6n1/8/8/2B1K3 w - - 0 1",
-        goal: { kind: "capture-target", targetSquare: "g4" },
+        // White bishop c1 (dark) → g5 (dark) capturing black knight
+        fen: "4k3/8/8/6n1/8/8/8/2B1K3 w - - 0 1",
+        goal: { kind: "capture-target", targetSquare: "g5" },
         spotlightSquare: "c1",
       },
     ],
