@@ -48,6 +48,8 @@ function RealmPage() {
   const idx = REALMS.findIndex((r) => r.id === realm.id);
   const prev = REALMS[idx - 1];
   const next = REALMS[idx + 1];
+  const [activeQuest, setActiveQuest] = useState<{ index: number; title: string } | null>(null);
+  const [completed, setCompleted] = useState<Record<number, boolean>>({});
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
