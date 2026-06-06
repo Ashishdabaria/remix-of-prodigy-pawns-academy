@@ -97,7 +97,7 @@ export function VictoryShard({
             onClick={() => setShowGame(true)}
             className="mt-3 rounded-full bg-shard-amethyst px-5 py-2 font-display text-base font-black text-parchment hover-scale animate-glow"
           >
-            🦋⚔️ Battle the Shadow Moth
+            🦋✦ Catch Smudge, the Giggle Thief
           </button>
         </div>
 
