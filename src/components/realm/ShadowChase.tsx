@@ -302,7 +302,7 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
                 The shadows slipped past — but every brave try makes you stronger.
               </p>
               <div className="mt-3 rounded-2xl bg-parchment/95 p-2 text-ink">
-                <MariposaSay moment="PUZZLE_MISS" size={56} />
+                <MariposaSay moment="MISSED" size={56} />
               </div>
               <div className="mt-4 flex gap-2">
                 <button onClick={reset} className="rounded-full bg-shard-sun px-4 py-2 text-sm font-black text-ink hover-scale">
