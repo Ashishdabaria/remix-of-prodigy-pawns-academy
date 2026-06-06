@@ -29,19 +29,29 @@ interface Shadow {
   popping?: boolean;
 }
 
-const WIN_SCORE = 12;
+const WIN_SCORE = 8;
 const START_HEARTS = 3;
-const GAME_SECONDS = 45;
+const GAME_SECONDS = 50;
+const SPAWN_MS = 1100;
+const FALL_MIN = 9;
+const FALL_RANGE = 7;
 
 /** Intro dialogue between Smudge (the mischievous shadow imp) and Mariposa. */
 const INTRO: { who: "smudge" | "mariposa"; line: string }[] = [
   { who: "smudge", line: "Hehe! I'm Smudge — the giggliest little shadow in all the realms!" },
   { who: "mariposa", line: "Smudge! You've been hiding the Pawn Village's giggles, haven't you?" },
   { who: "smudge", line: "Maaaybe. I bonk into things and the giggles fall out! Catch me if you can, butterfly!" },
-  { who: "mariposa", line: "Ready, hero? Move me with your finger and tap each little Smudge to set the giggles free!" },
+  { who: "mariposa", line: "Ready, hero? Let me show you how we'll set the giggles free!" },
 ];
 
-type Status = "ready" | "playing" | "won" | "lost";
+/** Three-step tutorial shown before the game begins. */
+const TUTORIAL: { icon: string; title: string; body: string }[] = [
+  { icon: "👆", title: "Move Mariposa", body: "Drag your finger (or move your mouse) anywhere inside the night sky. Mariposa flies wherever you point." },
+  { icon: "✨", title: "Tap a Smudge", body: "Tap each little Smudge to set a giggle free. Each one you catch counts toward 8 giggles!" },
+  { icon: "♥", title: "Don't let them land", body: "If a Smudge floats all the way to the ground, you lose a heart. You have 3 — be quick!" },
+];
+
+type Status = "ready" | "tutorial" | "playing" | "won" | "lost";
 
 export function ShadowChase({ onClose }: ShadowChaseProps) {
   const arenaRef = useRef<HTMLDivElement>(null);
