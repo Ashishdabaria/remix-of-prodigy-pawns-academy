@@ -206,6 +206,28 @@ function RealmPage() {
         />
       )}
 
+      {encounter === "miniBoss" && (
+        <MiniBossEncounter
+          realm={realm}
+          onWin={() => setEncDone((d) => ({ ...d, miniBoss: true }))}
+          onClose={() => setEncounter(null)}
+        />
+      )}
+      {encounter === "boss" && (
+        <BossEncounter
+          realm={realm}
+          onWin={() => setEncDone((d) => ({ ...d, boss: true }))}
+          onClose={() => setEncounter(null)}
+        />
+      )}
+      {encounter === "treasure" && (
+        <TreasureChest
+          realm={realm}
+          onOpen={() => setEncDone((d) => ({ ...d, treasure: true }))}
+          onClose={() => setEncounter(null)}
+        />
+      )}
+
       {/* Prev / next */}
       <nav className="mt-8 flex flex-wrap items-center justify-between gap-3">
         {prev ? (
