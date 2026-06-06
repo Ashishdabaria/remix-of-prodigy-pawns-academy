@@ -77,7 +77,7 @@ export function SideQuest({ questId, questIndex, title, reward, onClose }: SideQ
 
         {stage === "intro" && (
           <div className="mt-4">
-            <MariposaSay text={challenge.intro} size={56} />
+            <MariposaSay moment="HINT" text={challenge.intro} size={56} />
             <button
               onClick={() => setStage("playing")}
               className="mt-4 w-full rounded-full bg-shard-emerald px-5 py-3 font-display text-base font-black text-parchment hover-scale animate-glow"
