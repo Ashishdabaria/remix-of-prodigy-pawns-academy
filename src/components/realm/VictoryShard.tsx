@@ -27,6 +27,7 @@ export function VictoryShard({
 }: VictoryShardProps) {
   const router = useRouter();
   const shard = SHARDS[shardId];
+  const [showGame, setShowGame] = useState(false);
 
   useEffect(() => {
     // commit the rewards once on mount
