@@ -4,6 +4,7 @@ import { getRealm, REALMS, SHARDS, type Realm } from "@/data/realms";
 import { ShardBadge } from "@/components/ShardBadge";
 import { Mariposa } from "@/components/Mariposa";
 import { SideQuest } from "@/components/realm/SideQuest";
+import { MiniBossEncounter, BossEncounter, TreasureChest } from "@/components/realm/RealmEncounters";
 
 export const Route = createFileRoute("/realm/$realmId")({
   loader: ({ params }) => {
@@ -50,6 +51,8 @@ function RealmPage() {
   const next = REALMS[idx + 1];
   const [activeQuest, setActiveQuest] = useState<{ index: number; title: string } | null>(null);
   const [completed, setCompleted] = useState<Record<number, boolean>>({});
+  const [encounter, setEncounter] = useState<null | "miniBoss" | "boss" | "treasure">(null);
+  const [encDone, setEncDone] = useState<{ miniBoss?: boolean; boss?: boolean; treasure?: boolean }>({});
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
@@ -101,24 +104,58 @@ function RealmPage() {
         </aside>
 
         {/* Mini-boss */}
-        <section className="rounded-2xl border-2 border-ink/15 bg-card p-5 card-pop">
-          <div className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">Mini-boss</div>
-          <h3 className="mt-1 font-display text-xl font-black">{realm.miniBoss.name}</h3>
+        <button
+          type="button"
+          onClick={() => setEncounter("miniBoss")}
+          className={`text-left rounded-2xl border-2 p-5 card-pop hover-scale ${
+            encDone.miniBoss ? "border-shard-emerald/60 bg-shard-emerald/15" : "border-ink/15 bg-card"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">Mini-boss</div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-ink/60">
+              {encDone.miniBoss ? "✓ Done" : "Play →"}
+            </span>
+          </div>
+          <h3 className="mt-1 font-display text-xl font-black">🐴 {realm.miniBoss.name}</h3>
           <p className="mt-2 text-sm text-ink/80">{realm.miniBoss.description}</p>
-        </section>
+        </button>
 
         {/* Boss */}
-        <section className="rounded-2xl border-2 border-ink/15 bg-shard-sun/15 p-5 card-pop">
-          <div className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">Boss battle</div>
-          <h3 className="mt-1 font-display text-xl font-black">{realm.boss.name}</h3>
+        <button
+          type="button"
+          onClick={() => setEncounter("boss")}
+          className={`text-left rounded-2xl border-2 p-5 card-pop hover-scale ${
+            encDone.boss ? "border-shard-emerald/60 bg-shard-emerald/15" : "border-ink/15 bg-shard-sun/15"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">Boss battle</div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-ink/60">
+              {encDone.boss ? "✓ Bested" : "Duel →"}
+            </span>
+          </div>
+          <h3 className="mt-1 font-display text-xl font-black">🗿 {realm.boss.name}</h3>
           <p className="mt-2 text-sm text-ink/80">{realm.boss.description}</p>
-        </section>
+        </button>
 
         {/* Treasure */}
-        <section className="rounded-2xl border-2 border-ink/15 bg-shard-emerald/10 p-5 card-pop">
-          <div className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">Treasure chest</div>
+        <button
+          type="button"
+          onClick={() => setEncounter("treasure")}
+          className={`text-left rounded-2xl border-2 p-5 card-pop hover-scale ${
+            encDone.treasure ? "border-shard-emerald/60 bg-shard-emerald/15" : "border-ink/15 bg-shard-emerald/10"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">Treasure chest</div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-ink/60">
+              {encDone.treasure ? "✓ Opened" : "Open →"}
+            </span>
+          </div>
           <h3 className="mt-1 font-display text-lg font-black">🎁 {realm.treasure}</h3>
-        </section>
+        </button>
+
 
         {/* Side quests */}
         <section className="rounded-2xl border-2 border-ink/15 bg-card p-5 card-pop lg:col-span-3">
@@ -166,6 +203,28 @@ function RealmPage() {
             setCompleted((c) => ({ ...c, [activeQuest.index]: true }));
             setActiveQuest(null);
           }}
+        />
+      )}
+
+      {encounter === "miniBoss" && (
+        <MiniBossEncounter
+          realm={realm}
+          onWin={() => setEncDone((d) => ({ ...d, miniBoss: true }))}
+          onClose={() => setEncounter(null)}
+        />
+      )}
+      {encounter === "boss" && (
+        <BossEncounter
+          realm={realm}
+          onWin={() => setEncDone((d) => ({ ...d, boss: true }))}
+          onClose={() => setEncounter(null)}
+        />
+      )}
+      {encounter === "treasure" && (
+        <TreasureChest
+          realm={realm}
+          onOpen={() => setEncDone((d) => ({ ...d, treasure: true }))}
+          onClose={() => setEncounter(null)}
         />
       )}
 
