@@ -22,6 +22,18 @@ export const STUDENT: StudentProfile = {
   braveHearts: 17,
 };
 
+// Mock mutators — in-memory only. A future Lovable Cloud pass swaps these for
+// server-fn calls. Pair with router.invalidate() after a mutation to refresh
+// consumers that read STUDENT at render time.
+export function addShard(id: ShardId) {
+  if (!STUDENT.shardsCollected.includes(id)) STUDENT.shardsCollected.push(id);
+}
+export function addXP(n: number) { STUDENT.xp += n; }
+export function addGold(n: number) { STUDENT.gold += n; }
+export function addGems(n: number) { STUDENT.gems += n; }
+export function addBraveHeart(n: number) { STUDENT.braveHearts += n; }
+export function setCurrentRealm(id: string) { STUDENT.currentRealmId = id; }
+
 export interface QuestItem {
   id: string;
   title: string;

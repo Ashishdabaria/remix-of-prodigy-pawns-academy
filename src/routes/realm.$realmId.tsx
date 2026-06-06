@@ -58,6 +58,13 @@ function RealmPage() {
             <div className="text-xs font-black uppercase tracking-widest opacity-80">Realm {realm.number} of 8</div>
             <h1 className="font-display text-3xl font-black ink-shadow sm:text-5xl">{realm.name}</h1>
             <p className="mt-1 max-w-2xl text-sm sm:text-base">{realm.tagline}</p>
+            <Link
+              to="/realm/$realmId/play"
+              params={{ realmId: realm.id }}
+              className="mt-3 inline-flex items-center gap-2 rounded-full bg-shard-sun px-5 py-2 font-display text-base font-black text-ink shadow-lg ring-2 ring-parchment hover:scale-105 transition-transform"
+            >
+              ▶ Enter Realm
+            </Link>
           </div>
           <div className="rounded-2xl bg-parchment/90 p-3 text-ink card-pop">
             <ShardBadge shardId={realm.shard} size="lg" showLabel />
