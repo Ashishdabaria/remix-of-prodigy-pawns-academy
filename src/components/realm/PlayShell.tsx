@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { MuteToggle } from "./MariposaSay";
+import { AmbientLayer } from "./AmbientLayer";
 
 export type StageKey = "portal" | "lesson1" | "lesson2" | "lesson3" | "puzzles" | "boss" | "victory";
 
@@ -24,7 +25,8 @@ interface PlayShellProps {
 export function PlayShell({ realmId, realmName, stage, onSkip, children }: PlayShellProps) {
   const idx = STAGES.findIndex((s) => s.key === stage);
   return (
-    <div className="mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-6">
+    <div className="relative mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-6">
+      <AmbientLayer />
       <header className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-ink/15 bg-card/90 p-3 card-pop">
         <div className="flex items-center gap-3">
           <Link
@@ -73,7 +75,7 @@ export function PlayShell({ realmId, realmName, stage, onSkip, children }: PlayS
         </div>
       </header>
 
-      <main>{children}</main>
+      <main key={stage} className="animate-fade-in">{children}</main>
     </div>
   );
 }
