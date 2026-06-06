@@ -41,7 +41,7 @@ describe("Realm navigation: Enter Realm → /realm/$realmId/play", () => {
 
   it("realm lobby links to the play route via params, not a string", () => {
     const src = readFileSync(
-      resolve(import.meta.dir, "../realm.$realmId.tsx"),
+      resolve(__dir, "../realm.$realmId.tsx"),
       "utf8",
     );
     expect(src).toContain(`to="/realm/$realmId/play"`);
