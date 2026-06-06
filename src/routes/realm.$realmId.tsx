@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { getRealm, REALMS, SHARDS } from "@/data/realms";
+import { getRealm, REALMS, SHARDS, type Realm } from "@/data/realms";
 import { ShardBadge } from "@/components/ShardBadge";
 import { Mariposa } from "@/components/Mariposa";
 
@@ -41,7 +41,7 @@ export const Route = createFileRoute("/realm/$realmId")({
 });
 
 function RealmPage() {
-  const { realm } = Route.useLoaderData();
+  const { realm } = Route.useLoaderData() as { realm: Realm };
   const shard = SHARDS[realm.shard];
   const idx = REALMS.findIndex((r) => r.id === realm.id);
   const prev = REALMS[idx - 1];
