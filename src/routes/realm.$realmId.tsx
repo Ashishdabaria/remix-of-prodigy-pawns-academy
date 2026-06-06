@@ -122,16 +122,52 @@ function RealmPage() {
 
         {/* Side quests */}
         <section className="rounded-2xl border-2 border-ink/15 bg-card p-5 card-pop lg:col-span-3">
-          <h2 className="font-display text-2xl font-black">Side quests</h2>
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <h2 className="font-display text-2xl font-black">Side quests</h2>
+            <p className="text-xs font-bold text-ink/60">
+              Tap any quest to play a tiny challenge • +20 XP, +5 🪙 each
+            </p>
+          </div>
           <div className="mt-3 grid gap-3 sm:grid-cols-3">
-            {realm.sideQuests.map((q) => (
-              <div key={q} className="rounded-xl border-2 border-dashed border-ink/20 bg-parchment/60 p-3 text-sm font-semibold">
-                ⚑ {q}
-              </div>
-            ))}
+            {realm.sideQuests.map((q, i) => {
+              const done = completed[i];
+              return (
+                <button
+                  key={q}
+                  type="button"
+                  onClick={() => setActiveQuest({ index: i, title: q })}
+                  className={`group text-left rounded-xl border-2 border-dashed p-3 text-sm font-semibold transition-all hover-scale ${
+                    done
+                      ? "border-shard-emerald/60 bg-shard-emerald/15"
+                      : "border-ink/20 bg-parchment/60 hover:bg-parchment/90"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span aria-hidden className="text-lg">{done ? "✓" : "⚑"}</span>
+                    <span className="flex-1">{q}</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground group-hover:text-ink">
+                      Play →
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </section>
       </div>
+
+      {activeQuest && (
+        <SideQuest
+          questId={`${realm.id}:${activeQuest.index}`}
+          questIndex={activeQuest.index}
+          title={activeQuest.title}
+          reward="+20 XP, +5 🪙"
+          onClose={() => {
+            setCompleted((c) => ({ ...c, [activeQuest.index]: true }));
+            setActiveQuest(null);
+          }}
+        />
+      )}
 
       {/* Prev / next */}
       <nav className="mt-8 flex flex-wrap items-center justify-between gap-3">
