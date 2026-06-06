@@ -4,6 +4,7 @@ import { getRealm, REALMS, SHARDS, type Realm } from "@/data/realms";
 import { ShardBadge } from "@/components/ShardBadge";
 import { Mariposa } from "@/components/Mariposa";
 import { SideQuest } from "@/components/realm/SideQuest";
+import { MiniBossEncounter, BossEncounter, TreasureChest } from "@/components/realm/RealmEncounters";
 
 export const Route = createFileRoute("/realm/$realmId")({
   loader: ({ params }) => {
