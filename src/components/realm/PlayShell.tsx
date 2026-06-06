@@ -75,7 +75,7 @@ export function PlayShell({ realmId, realmName, stage, onSkip, children }: PlayS
         </div>
       </header>
 
-      <main>{children}</main>
+      <main key={stage} className="animate-fade-in">{children}</main>
     </div>
   );
 }
