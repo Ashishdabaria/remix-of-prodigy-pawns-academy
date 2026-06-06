@@ -1,10 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import confetti from "canvas-confetti";
 import { Link, useRouter } from "@tanstack/react-router";
 import { ShardBadge } from "@/components/ShardBadge";
 import { SHARDS, type ShardId } from "@/data/realms";
 import { addShard, addXP, addGold } from "@/data/student";
 import { MariposaSay } from "./MariposaSay";
+import { ShadowChase } from "./ShadowChase";
+import shadowImg from "@/assets/shadow-moth.png";
 
 interface VictoryShardProps {
   shardId: ShardId;
