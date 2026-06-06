@@ -29,19 +29,29 @@ interface Shadow {
   popping?: boolean;
 }
 
-const WIN_SCORE = 12;
+const WIN_SCORE = 8;
 const START_HEARTS = 3;
-const GAME_SECONDS = 45;
+const GAME_SECONDS = 50;
+const SPAWN_MS = 1100;
+const FALL_MIN = 9;
+const FALL_RANGE = 7;
 
 /** Intro dialogue between Smudge (the mischievous shadow imp) and Mariposa. */
 const INTRO: { who: "smudge" | "mariposa"; line: string }[] = [
   { who: "smudge", line: "Hehe! I'm Smudge — the giggliest little shadow in all the realms!" },
   { who: "mariposa", line: "Smudge! You've been hiding the Pawn Village's giggles, haven't you?" },
   { who: "smudge", line: "Maaaybe. I bonk into things and the giggles fall out! Catch me if you can, butterfly!" },
-  { who: "mariposa", line: "Ready, hero? Move me with your finger and tap each little Smudge to set the giggles free!" },
+  { who: "mariposa", line: "Ready, hero? Let me show you how we'll set the giggles free!" },
 ];
 
-type Status = "ready" | "playing" | "won" | "lost";
+/** Three-step tutorial shown before the game begins. */
+const TUTORIAL: { icon: string; title: string; body: string }[] = [
+  { icon: "👆", title: "Move Mariposa", body: "Drag your finger (or move your mouse) anywhere inside the night sky. Mariposa flies wherever you point." },
+  { icon: "✨", title: "Tap a Smudge", body: "Tap each little Smudge to set a giggle free. Each one you catch counts toward 8 giggles!" },
+  { icon: "♥", title: "Don't let them land", body: "If a Smudge floats all the way to the ground, you lose a heart. You have 3 — be quick!" },
+];
+
+type Status = "ready" | "tutorial" | "playing" | "won" | "lost";
 
 export function ShadowChase({ onClose }: ShadowChaseProps) {
   const arenaRef = useRef<HTMLDivElement>(null);
@@ -63,7 +73,8 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
     setStatus("playing");
   }, []);
 
-  // Pointer tracking
+  // Pointer tracking — listen on window while playing so the cursor
+  // doesn't have to start over the arena.
   useEffect(() => {
     const arena = arenaRef.current;
     if (!arena || status !== "playing") return;
@@ -76,8 +87,8 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
         y: Math.max(8, Math.min(92, y)),
       });
     }
-    arena.addEventListener("pointermove", onMove);
-    return () => arena.removeEventListener("pointermove", onMove);
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => window.removeEventListener("pointermove", onMove);
   }, [status]);
 
   // Timer
@@ -105,16 +116,17 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
           id: nextId.current++,
           x: 6 + Math.random() * 88,
           y: -6,
-          vy: 12 + Math.random() * 10,
-          vx: (Math.random() - 0.5) * 6,
+          vy: FALL_MIN + Math.random() * FALL_RANGE,
+          vx: (Math.random() - 0.5) * 5,
           size: 56 + Math.floor(Math.random() * 28),
         },
       ]);
-    }, 900);
+    }, SPAWN_MS);
     return () => clearInterval(spawn);
   }, [status]);
 
-  // Physics tick
+  // Physics tick — pure state update, no side effects in the updater.
+  // We collect "lost" ids in a local and apply heart loss via a normal setState.
   useEffect(() => {
     if (status !== "playing") return;
     let raf = 0;
@@ -122,9 +134,9 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
     function tick(now: number) {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
+      let lostHere = 0;
       setShadows((prev) => {
         const next: Shadow[] = [];
-        let lostHere = 0;
         for (const s of prev) {
           if (s.popping) {
             next.push(s);
@@ -138,16 +150,13 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
           }
           next.push({ ...s, x: nx, y: ny });
         }
-        if (lostHere > 0) {
-          setHearts((h) => {
-            const nh = Math.max(0, h - lostHere);
-            return nh;
-          });
-          setShake(true);
-          setTimeout(() => setShake(false), 500);
-        }
         return next;
       });
+      if (lostHere > 0) {
+        setHearts((h) => Math.max(0, h - lostHere));
+        setShake(true);
+        window.setTimeout(() => setShake(false), 450);
+      }
       raf = requestAnimationFrame(tick);
     }
     raf = requestAnimationFrame(tick);
@@ -289,6 +298,109 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
                   </button>
                 ) : (
                   <button
+                    onClick={() => {
+                      setIntroStep(0);
+                      setStatus("tutorial");
+                    }}
+                    className="rounded-full bg-shard-sun px-5 py-2 font-display text-base font-black text-ink hover-scale animate-glow"
+                  >
+                    How to play →
+                  </button>
+                )}
+              </div>
+
+              <p className="mt-2 text-[11px] text-parchment/60">
+                Goal: free {WIN_SCORE} giggles • {GAME_SECONDS}s • {START_HEARTS} ♥
+              </p>
+            </Overlay>
+          )}
+
+          {/* Tutorial overlay — 3-step how-to before the round starts */}
+          {status === "tutorial" && (
+            <Overlay>
+              <div className="text-[10px] font-black uppercase tracking-widest text-shard-sun">
+                How to play
+              </div>
+              <h3 className="mt-1 font-display text-2xl font-black text-parchment sm:text-3xl">
+                {TUTORIAL[introStep].title}
+              </h3>
+
+              {/* Visual demo per step */}
+              <div className="relative mt-4 grid h-32 w-72 max-w-full place-items-center rounded-2xl border-2 border-parchment/30 bg-ink/50">
+                {introStep === 0 && (
+                  <>
+                    <img
+                      src={mariposaImg}
+                      alt=""
+                      width={56}
+                      height={56}
+                      className="absolute top-1/2 -translate-y-1/2 animate-tut-drag drop-shadow-[0_0_12px_rgba(255,209,102,0.7)]"
+                      style={{ width: 56, height: 56 }}
+                    />
+                    <span aria-hidden className="absolute right-4 bottom-3 animate-bounce text-2xl">👆</span>
+                  </>
+                )}
+                {introStep === 1 && (
+                  <>
+                    <img
+                      src={shadowImg}
+                      alt=""
+                      width={64}
+                      height={64}
+                      className="animate-float drop-shadow-[0_0_14px_rgba(160,80,220,0.7)]"
+                      style={{ width: 64, height: 64 }}
+                    />
+                    <span aria-hidden className="absolute -mt-2 text-3xl animate-zap-pop">✨</span>
+                  </>
+                )}
+                {introStep === 2 && (
+                  <>
+                    <img
+                      src={shadowImg}
+                      alt=""
+                      width={48}
+                      height={48}
+                      className="absolute top-1 animate-tut-fall drop-shadow-[0_0_10px_rgba(160,80,220,0.6)]"
+                      style={{ width: 48, height: 48 }}
+                    />
+                    <div className="absolute bottom-1 left-0 right-0 h-1 bg-rose/70" />
+                    <span aria-hidden className="absolute bottom-2 right-3 text-2xl">♥♥♥</span>
+                  </>
+                )}
+              </div>
+
+              <p className="mt-3 max-w-md text-sm text-parchment/85">
+                {TUTORIAL[introStep].body}
+              </p>
+
+              <div className="mt-4 flex items-center gap-3">
+                <div className="flex gap-1" aria-hidden>
+                  {TUTORIAL.map((_, i) => (
+                    <span
+                      key={i}
+                      className={`h-1.5 w-5 rounded-full ${
+                        i <= introStep ? "bg-shard-sun" : "bg-parchment/30"
+                      }`}
+                    />
+                  ))}
+                </div>
+                {introStep > 0 && (
+                  <button
+                    onClick={() => setIntroStep((s) => s - 1)}
+                    className="rounded-full border-2 border-parchment/40 px-3 py-1.5 text-xs font-black text-parchment"
+                  >
+                    ← Back
+                  </button>
+                )}
+                {introStep < TUTORIAL.length - 1 ? (
+                  <button
+                    onClick={() => setIntroStep((s) => s + 1)}
+                    className="rounded-full border-2 border-parchment/40 px-4 py-1.5 text-xs font-black text-parchment"
+                  >
+                    Next →
+                  </button>
+                ) : (
+                  <button
                     onClick={reset}
                     className="rounded-full bg-shard-sun px-5 py-2 font-display text-base font-black text-ink hover-scale animate-glow"
                   >
@@ -302,6 +414,7 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
               </p>
             </Overlay>
           )}
+
 
           {/* Mariposa */}
           {status === "playing" && (

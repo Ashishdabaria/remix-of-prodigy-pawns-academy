@@ -215,6 +215,18 @@
 .animate-glow    { animation: glow-pulse 2.2s ease-in-out infinite; }
 .animate-shake   { animation: shake-x 0.5s ease-in-out; }
 .animate-zap-pop { animation: zap-pop 0.5s ease-out forwards; }
+@keyframes tut-drag {
+  0%   { left: 12%; }
+  50%  { left: 78%; }
+  100% { left: 12%; }
+}
+@keyframes tut-fall {
+  0%   { top: 4px; opacity: 1; }
+  85%  { opacity: 1; }
+  100% { top: calc(100% - 52px); opacity: 0.7; }
+}
+.animate-tut-drag { animation: tut-drag 2.4s ease-in-out infinite; }
+.animate-tut-fall { animation: tut-fall 2.2s ease-in infinite; }
 .portal-swirl { animation: portal-spin 8s linear infinite; transform-origin: center; filter: blur(8px); }
 .portal-pulse { animation: portal-pulse 2.4s ease-in-out infinite; }
 
