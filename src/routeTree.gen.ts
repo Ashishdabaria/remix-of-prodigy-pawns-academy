@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as RealmRealmIdRouteImport } from './routes/realm.$realmId'
 import { Route as RealmRealmIdPlayRouteImport } from './routes/realm.$realmId_.play'
 
+
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
   path: '/student',
