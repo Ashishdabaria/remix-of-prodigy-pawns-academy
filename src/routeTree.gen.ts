@@ -15,6 +15,7 @@ import { Route as ParentRouteImport } from './routes/parent'
 import { Route as CodexRouteImport } from './routes/codex'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RealmRealmIdRouteImport } from './routes/realm.$realmId'
+import { Route as RealmRealmIdPlayRouteImport } from './routes/realm.$realmId.play'
 
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
@@ -46,6 +47,11 @@ const RealmRealmIdRoute = RealmRealmIdRouteImport.update({
   path: '/realm/$realmId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RealmRealmIdPlayRoute = RealmRealmIdPlayRouteImport.update({
+  id: '/play',
+  path: '/play',
+  getParentRoute: () => RealmRealmIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -53,7 +59,8 @@ export interface FileRoutesByFullPath {
   '/parent': typeof ParentRoute
   '/poster': typeof PosterRoute
   '/student': typeof StudentRoute
-  '/realm/$realmId': typeof RealmRealmIdRoute
+  '/realm/$realmId': typeof RealmRealmIdRouteWithChildren
+  '/realm/$realmId/play': typeof RealmRealmIdPlayRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -61,7 +68,8 @@ export interface FileRoutesByTo {
   '/parent': typeof ParentRoute
   '/poster': typeof PosterRoute
   '/student': typeof StudentRoute
-  '/realm/$realmId': typeof RealmRealmIdRoute
+  '/realm/$realmId': typeof RealmRealmIdRouteWithChildren
+  '/realm/$realmId/play': typeof RealmRealmIdPlayRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -70,7 +78,8 @@ export interface FileRoutesById {
   '/parent': typeof ParentRoute
   '/poster': typeof PosterRoute
   '/student': typeof StudentRoute
-  '/realm/$realmId': typeof RealmRealmIdRoute
+  '/realm/$realmId': typeof RealmRealmIdRouteWithChildren
+  '/realm/$realmId/play': typeof RealmRealmIdPlayRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,8 +90,16 @@ export interface FileRouteTypes {
     | '/poster'
     | '/student'
     | '/realm/$realmId'
+    | '/realm/$realmId/play'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/codex' | '/parent' | '/poster' | '/student' | '/realm/$realmId'
+  to:
+    | '/'
+    | '/codex'
+    | '/parent'
+    | '/poster'
+    | '/student'
+    | '/realm/$realmId'
+    | '/realm/$realmId/play'
   id:
     | '__root__'
     | '/'
@@ -91,6 +108,7 @@ export interface FileRouteTypes {
     | '/poster'
     | '/student'
     | '/realm/$realmId'
+    | '/realm/$realmId/play'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -99,7 +117,7 @@ export interface RootRouteChildren {
   ParentRoute: typeof ParentRoute
   PosterRoute: typeof PosterRoute
   StudentRoute: typeof StudentRoute
-  RealmRealmIdRoute: typeof RealmRealmIdRoute
+  RealmRealmIdRoute: typeof RealmRealmIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -146,8 +164,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RealmRealmIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/realm/$realmId/play': {
+      id: '/realm/$realmId/play'
+      path: '/play'
+      fullPath: '/realm/$realmId/play'
+      preLoaderRoute: typeof RealmRealmIdPlayRouteImport
+      parentRoute: typeof RealmRealmIdRoute
+    }
   }
 }
+
+interface RealmRealmIdRouteChildren {
+  RealmRealmIdPlayRoute: typeof RealmRealmIdPlayRoute
+}
+
+const RealmRealmIdRouteChildren: RealmRealmIdRouteChildren = {
+  RealmRealmIdPlayRoute: RealmRealmIdPlayRoute,
+}
+
+const RealmRealmIdRouteWithChildren = RealmRealmIdRoute._addFileChildren(
+  RealmRealmIdRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -155,8 +192,18 @@ const rootRouteChildren: RootRouteChildren = {
   ParentRoute: ParentRoute,
   PosterRoute: PosterRoute,
   StudentRoute: StudentRoute,
-  RealmRealmIdRoute: RealmRealmIdRoute,
+  RealmRealmIdRoute: RealmRealmIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
