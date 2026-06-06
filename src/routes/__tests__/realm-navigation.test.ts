@@ -52,7 +52,7 @@ describe("Realm navigation: Enter Realm → /realm/$realmId/play", () => {
 
   it.each(REALMS.map((r) => [r.id, r.name]))(
     "resolves play URL for realm %s (%s)",
-    (id) => {
+    (id: string) => {
       expect(typeof id).toBe("string");
       expect(id.length).toBeGreaterThan(0);
       const url = PLAY_ROUTE_PATH.replace("$realmId", id);
