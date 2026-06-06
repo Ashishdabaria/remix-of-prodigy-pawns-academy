@@ -298,10 +298,13 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
                   </button>
                 ) : (
                   <button
-                    onClick={reset}
+                    onClick={() => {
+                      setIntroStep(0);
+                      setStatus("tutorial");
+                    }}
                     className="rounded-full bg-shard-sun px-5 py-2 font-display text-base font-black text-ink hover-scale animate-glow"
                   >
-                    ▶ Begin the chase
+                    How to play →
                   </button>
                 )}
               </div>
