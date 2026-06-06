@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { MuteToggle } from "./MariposaSay";
+import { AmbientLayer } from "./AmbientLayer";
 
 export type StageKey = "portal" | "lesson1" | "lesson2" | "lesson3" | "puzzles" | "boss" | "victory";
 
