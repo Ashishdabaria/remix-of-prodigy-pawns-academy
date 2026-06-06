@@ -25,7 +25,8 @@ interface PlayShellProps {
 export function PlayShell({ realmId, realmName, stage, onSkip, children }: PlayShellProps) {
   const idx = STAGES.findIndex((s) => s.key === stage);
   return (
-    <div className="mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-6">
+    <div className="relative mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-6">
+      <AmbientLayer />
       <header className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-ink/15 bg-card/90 p-3 card-pop">
         <div className="flex items-center gap-3">
           <Link
