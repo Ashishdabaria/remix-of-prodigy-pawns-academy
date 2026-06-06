@@ -182,7 +182,7 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
         {/* HUD */}
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div className="font-display text-lg font-black">
-            🦋⚔️ Shadow Moth Showdown
+            🦋✦ Catch the Giggle Thief
           </div>
           <div className="flex items-center gap-3 text-sm font-black">
             <span className="rounded-full bg-shard-sun/30 px-3 py-1">⭐ {score}/{WIN_SCORE}</span>
