@@ -13,7 +13,7 @@ import { PUZZLES } from "@/data/realm1/puzzles";
 import { addBraveHeart } from "@/data/student";
 import { Mariposa } from "@/components/Mariposa";
 
-export const Route = createFileRoute("/realm/$realmId/play")({
+export const Route = createFileRoute("/realm/$realmId_/play")({
   loader: ({ params }) => {
     const realm = getRealm(params.realmId);
     if (!realm) throw notFound();
