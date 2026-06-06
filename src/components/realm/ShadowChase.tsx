@@ -520,24 +520,7 @@ export function ShadowChase({ onClose }: ShadowChaseProps) {
           )}
 
           {/* Sparkle bolts */}
-          {status === "playing" &&
-            bolts.map((b) => (
-              <span
-                key={b.id}
-                aria-hidden
-                className="pointer-events-none absolute z-20 grid h-6 w-6 -translate-x-1/2 -translate-y-1/2 place-items-center text-xl drop-shadow-[0_0_10px_rgba(255,209,102,0.9)]"
-                style={{
-                  left: `${b.tx}%`,
-                  top: `${b.ty}%`,
-                  transition: `left ${BOLT_MS}ms linear, top ${BOLT_MS}ms linear`,
-                  // start position is the inline style applied on first render;
-                  // we set the target immediately so the browser interpolates.
-                  // Hack: use a CSS var trick — render with starting offset via key.
-                }}
-              >
-                ✦
-              </span>
-            ))}
+          {status === "playing" && bolts.map((b) => <BoltSparkle key={b.id} bolt={b} />)}
 
           {/* Shadows */}
           {status === "playing" &&
