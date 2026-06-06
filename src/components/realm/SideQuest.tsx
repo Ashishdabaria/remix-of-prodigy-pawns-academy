@@ -179,7 +179,7 @@ function buildChallenge(variant: number, seedId: string): Challenge {
   if (variant === 0) {
     // Name the file of a highlighted square
     const fileIdx = seed % 8;
-    const rank = (seed >> 3) % 8; // 0..7 (0 = rank 1)
+    const rank = (seed >>> 3) % 8; // 0..7 (0 = rank 1) — unsigned shift!
     const file = FILES[fileIdx];
     const choices = [
       file,
