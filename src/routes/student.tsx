@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Mariposa } from "@/components/Mariposa";
+import { Buddy } from "@/components/Buddy";
 import { CrownProgress } from "@/components/CrownProgress";
 import { ShardBadge } from "@/components/ShardBadge";
 import { REALMS, SHARDS } from "@/data/realms";
@@ -39,6 +40,7 @@ function StudentDashboard() {
       <section className="rounded-3xl border-2 border-ink/15 bg-card/80 p-5 card-pop sm:p-7">
         <div className="flex flex-wrap items-center gap-4">
           <Mariposa size={80} />
+          <Buddy size={56} label="Buddy" />
           <div className="flex-1">
             <h1 className="font-display text-3xl font-black ink-shadow sm:text-4xl">Hi {STUDENT.name}!</h1>
             <p className="text-ink/75">You're a <strong>{SHARDS[currentRealm.shard].rank}</strong> exploring <strong>{currentRealm.name}</strong>.</p>
