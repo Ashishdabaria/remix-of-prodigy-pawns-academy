@@ -11,7 +11,7 @@ interface LessonScreenProps {
 }
 
 export function LessonScreen({ title, text, board, onComplete, isSaving }: LessonScreenProps) {
-  const fen = !board ? null : board === "start" ? undefined : board;
+  const fen = !board ? undefined : board === "start" ? undefined : board;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
