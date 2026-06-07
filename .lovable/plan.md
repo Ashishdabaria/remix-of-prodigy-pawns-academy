@@ -1,76 +1,154 @@
+# RealmPath — Pawn Village "Climb to the Pearl Shard"
 
-# Realm 1 — Pawn Village: Playable Loop
+A storybook quest-path screen styled to match the Kingdom of 64 Realms theme. The hub's **Begin your quest** button opens it; tapping the current level clears it (placeholder for now) and the hero climbs upward.
 
-Turn the existing Pawn Village realm page into a full playable experience: portal intro → 3 mini-lessons → puzzle set → Board Guardian boss → Pearl Shard celebration. Mock progress only (no auth yet).
+## Route
 
-## Route structure
-
-Add a nested play flow under the existing realm route. Keep the current realm detail page as the "lobby"; add a new playable sub-route.
+You asked for `/realm/pawn-village`, but that path already renders the Realm Hub (the "What you'll learn" screen with the **Begin your quest** button). To keep both, the new screen will live at:
 
 ```
-src/routes/realm.$realmId.tsx         (existing — realm lobby, adds "Enter Realm" CTA)
-src/routes/realm.$realmId.play.tsx    (NEW — playable loop host with stage state)
+/realm/pawn-village/path   →  src/routes/realm.$realmId_.path.tsx
 ```
 
-The play route is a single page that walks through stages in order (portal → lesson 1 → lesson 2 → lesson 3 → puzzles → boss → victory). Stage state lives in React state; a small top bar shows progress dots so a child sees where they are. "Skip" and "Back to map" always available.
+The existing `path` route is a Supabase-backed winding map; it will be **replaced** with the new "floating platforms" design described here. The Hub's `Begin your quest` button already points to `/realm/$realmId/path` — no hub change needed beyond verifying that link.
 
-Only Realm 1 (`pawn-village`) ships playable content in v1. Other realms render a friendly "Coming soon — Mariposa is still painting this realm!" panel from the same route, so the structure is in place for realms 2–8 later.
+If you actually want the hub gone and `/realm/pawn-village` to land directly on the climb, say so and I'll fold the hub's reward/back chrome into the new screen instead.
 
-## The 7 stages
+## Screen anatomy
 
-1. **Portal intro (4–6s, skippable)** — Pearl-shard colored swirl, Mariposa flutters in, speaks one of 2–3 random intro lines via SpeechSynthesis. Tap-to-skip.
-2. **Lesson 1 — How pieces move.** Interactive `react-chessboard` with only one piece on the board at a time (pawn, then knight, then bishop, rook, queen, king). Legal target squares highlighted. Child must make one legal move per piece to advance. Mariposa says the piece name + a one-line tip.
-3. **Lesson 2 — Safe captures.** Mini-positions (3 of them) where one of the child's pieces can capture a free enemy piece. Child taps the capture. Bad taps get a gentle Mariposa "almost! try again" + 1 Brave Heart.
-4. **Lesson 3 — Piece values.** Visual values panel (♙1 ♘3 ♗3 ♜5 ♛9). 3 quick "which capture is better?" choices using two highlighted target pieces. Tap the higher-value piece.
-5. **Puzzle set — 3 mate-in-1 puzzles.** Hand-authored FENs (no external fetch in v1) themed for beginners: back-rank, queen mate, rook ladder finish. Solve = +40 XP +5 gold. Miss = +1 Brave Heart, Mariposa hint, retry.
-6. **Boss — The Board Guardian.** A friendly stone-guardian card with a 5-question rapid quiz (mix of move/value/capture questions drawn from lessons). 4 of 5 correct = victory. Any miss earns Brave Hearts, never a fail screen.
-7. **Victory — Pearl Shard won.** Confetti + shard gem animation + Mariposa "shard won" line. Buttons: "Back to map" (updates mock student to include `pearl` shard + advance currentRealmId) and "Play again".
+```text
+┌─────────────────────────────────────────┐  sticky parchment banner + gold border
+│  ‹  THE PAWN VILLAGE          🔊       │  Cinzel Decorative title
+│     Climb all 12 quests to win…         │  subtitle
+│  [Quests 0/12] [★ 0] [☾ Pearl Shard +   │  pill row
+│                  Apprentice Cape]       │
+├─────────────────────────────────────────┤
+│   ☾  GRAND PRIZE platform (spinning)    │  top of scroll
+│        ╲                                │
+│         ●  12  Board Guardian (Boss)    │  red ring
+│        ╱                                │
+│       ●  11  Setting up the board       │
+│        ╲                                │
+│        ●  10  Treasure: piece values    │  gold ring
+│         …                               │  zig-zag continues
+│        ●   2  Meet the King             │
+│         ╲                               │
+│          ●  1  Meet the board   ◀ PLAY  │  glowing, bobbing
+│         🦋  Mariposa at the base        │
+└─────────────────────────────────────────┘  initial scroll position
+```
 
-## Components (new, all in `src/components/realm/`)
+- Background: vertical gradient — sky blue at top → warm meadow gold at bottom; 3–4 slow drifting cloud SVGs with `prefers-reduced-motion` respected.
+- Scroll container starts at the bottom on mount (`scrollTo({ top: maxScroll })`).
+- Trail: single SVG `<path>` connecting node centers; rendered twice — faint dashed (full path) + bright gold (stroke-dasharray reveal up to the current level's index).
+- Platforms: reusable grassy stepping-stone SVG component, zig-zag x positions `[50, 30, 65, 28, 70, 35, 60, 25, 72, 40, 58, 50]` (% of width).
+- Grand prize platform at the very top: larger, with the Pearl Shard crescent (`☾`) inside a slowly rotating glow ring.
 
-- `PlayShell.tsx` — stage host: top progress bar, skip/back, transitions between stages.
-- `PortalIntro.tsx` — CSS swirl + Mariposa float-in + speech, auto-advances or on tap.
-- `ChessboardLesson.tsx` — wraps `react-chessboard` + `chess.js`, accepts a setup config (pieces to place, target behavior: "make any legal move" | "capture target" | "pick higher value").
-- `PuzzleBoard.tsx` — loads a FEN, validates the single correct move, calls onSolve/onMiss.
-- `BossQuiz.tsx` — 5-question multiple-choice/board-tap quiz.
-- `VictoryShard.tsx` — celebration screen with Pearl Shard art and reward summary.
-- `MariposaSay.tsx` — small util component: takes a `moment` key (INTRO/HINT/CORRECT/MISSED/BOSS/SHARD_WON/SIGNOFF), picks a random line, speaks via `window.speechSynthesis`, renders the line as on-screen caption (accessibility + sound-off devices).
+## The 12 levels
 
-## Data (new, in `src/data/realm1/`)
+Hard-coded array in `src/data/realm1/climb-levels.ts`:
 
-- `lessons.ts` — typed array of lesson configs (piece, starting square, instruction text, Mariposa moment key).
-- `puzzles.ts` — 3 hand-authored mate-in-1 entries: `{ fen, solution: "e7e8q" | "h7h8", hint, theme }`.
-- `boss.ts` — 5 quiz questions: `{ kind: "value" | "move" | "capture", prompt, options, correctIndex }`.
-- `mariposa-lines.ts` — full script-bible map: `Record<MomentKey, string[]>` seeded from the launch plan (intro x3, hint x3, correct x4, missed x3, boss x2, shard-won x2, signoff x2).
+| # | Name | Type | Ring color |
+|---|---|---|---|
+| 1 | Meet the board | Lesson | green |
+| 2 | Meet the King | Lesson | green |
+| 3 | The Pawn & Rook | Lesson | green |
+| 4 | The Bishop & Queen | Lesson | green |
+| 5 | The Knight's hop | Lesson | green |
+| 6 | Move-it challenge | Challenge | blue |
+| 7 | Catch the Lost Knight | Mini-boss | orange |
+| 8 | Capturing safely | Lesson | green |
+| 9 | Capture 3 targets | Challenge | blue |
+| 10 | Treasure: piece values | Treasure | gold |
+| 11 | Setting up the board | Lesson | green |
+| 12 | The Board Guardian | Boss | deep red (crown ♛) |
 
-## State (mock, in-memory for v1)
+## Node states
 
-Extend `src/data/student.ts` with helpers `addShard(id)` and `setCurrentRealm(id)` that mutate the in-memory `STUDENT` object and use a small React context (`StudentProvider` in `__root.tsx`) so the map HUD and dashboards re-render after victory. No persistence yet — refresh resets. Structured so a future Lovable Cloud pass swaps the context's setter for a server-fn call.
+- **locked** — grey medallion, padlock, level number badge, not interactive.
+- **current** — gold medallion w/ glow + gentle bob (framer-motion `y: [0,-6,0]` loop), small parchment "PLAY" tag (crown ♛ on Boss), tappable.
+- **done** — green medallion, checkmark, 1–3 stars below.
+
+Each node has a parchment name-tag floating above with the level name in Cinzel.
+
+## Interaction
+
+- Tap **current** node →
+  1. Award random 2–3 stars.
+  2. Medallion "pop" (scale 1 → 1.25 → 1) + sparkles.
+  3. Trail dash-offset animates forward to the next node.
+  4. Smooth-scroll the container so the next node sits roughly center-screen.
+  5. Next node becomes `current` (unlocks + starts pulse/bob).
+  6. Header `Quests x/12` and `★` count update.
+  7. Mariposa speaks a random cheer.
+- Tap **locked** node → Mariposa says *"Not yet — climb the glowing step first."*
+- Clearing Level 12 → full-screen celebration overlay (confetti + spinning Pearl Shard) and Mariposa says *"WE DID IT! The Pearl Shard is yours!"* (No Supabase / no rank-up wiring yet — just the overlay with a "Back to realm" button.)
 
 ## Mariposa voice
 
-Use `window.speechSynthesis` with a friendly voice pick (prefer a female en-* voice if available, fall back to default). Wrap in a tiny `useMariposaVoice()` hook with a global mute toggle stored in `localStorage` (`pp.voice.muted`). Captions always render regardless of mute. Doc's "tap to skip" honored on the portal and any spoken line.
+Reuse the existing `MariposaSay` / SpeechSynthesis pattern from `MariposaSay.tsx` (respects the `pp.voice.muted` localStorage flag, pitch 1.15, rate 1.0). Cheer pool (random):
 
-## Brave Hearts (anti-frustration)
+```
+"Yes! You cleared it!"  "Brilliant climbing, hero!"  "One more step up!"
+"Star power!"  "You're flying now!"  "Onward and upward!"
+```
 
-A miss never blocks progress. Each miss bumps `STUDENT.braveHearts` and shows a small "+1 Brave Heart — great try!" toast. The boss always lets you finish; below 4/5 it shows "Great try! Let's practice once more" and replays the quiz with fresh question order.
+Locked-tap line pool: `"Not yet — climb the glowing step first."` / `"Finish the bright one first, hero."`.
 
-## Dependencies to add
+Header voice toggle reuses the existing `MuteToggle`.
 
-- `chess.js`
-- `react-chessboard`
-- `canvas-confetti` (tiny, for victory)
+## State (local only, no Supabase)
 
-No backend, no auth, no external puzzle DB in v1 — all content is local and hand-authored so the loop is reliably delightful.
+```ts
+// inside the route component
+const [cleared, setCleared] = useState<Record<number, number>>({}); // levelId → stars
+const currentId = useMemo(() => {
+  for (const l of LEVELS) if (cleared[l.id] === undefined) return l.id;
+  return null; // all done
+}, [cleared]);
+```
 
-## Out of scope (deliberately)
+Persist to `localStorage["pp.pawn-village.climb"]` so reloads keep progress.
 
-- Real persistence / accounts (next pass with Lovable Cloud).
-- Realms 2–8 playable content (same shell, content later).
-- Voice-actor / ElevenLabs audio (SpeechSynthesis only for now; component is swap-ready).
-- Rive/Lottie animations (CSS + Motion only for v1 portal).
-- Stockfish opponent (boss is a quiz, not a full game, per MLP scope).
+## Files
 
-## Acceptance check
+**New**
+- `src/data/realm1/climb-levels.ts` — the 12-level array + types + `RING_COLORS` map.
+- `src/components/realm/climb/ClimbBackground.tsx` — gradient sky + drifting clouds.
+- `src/components/realm/climb/ClimbTrail.tsx` — SVG dashed + gold-reveal trail.
+- `src/components/realm/climb/Platform.tsx` — grassy floating platform SVG.
+- `src/components/realm/climb/LevelMedallion.tsx` — locked/current/done states + ring color + stars + PLAY/♛ tag.
+- `src/components/realm/climb/GrandPrize.tsx` — top treasure platform with spinning Pearl Shard.
+- `src/components/realm/climb/ClimbVictory.tsx` — full-screen win overlay.
 
-From `/` → click Pawn Village → "Enter Realm" → portal plays → 3 lessons complete → 3 puzzles solved (or skipped with Brave Hearts) → boss passed → Pearl Shard victory → "Back to map" shows the Pearl shard filled in the HUD and on `/student`.
+**Replaced**
+- `src/routes/realm.$realmId_.path.tsx` — rewritten as `RealmPath`. The current Supabase-backed implementation (uses `fetchLevels`, `fetchProgress`, `NodeClearAnimation`) is removed in favor of the local-state climb. `progress.ts` and the DB tables are left untouched and can be re-wired later.
+
+**Unchanged**
+- `src/routes/realm.$realmId.tsx` — hub already links to `/realm/$realmId/path`; verify the button label says **Begin your quest**.
+
+## Theme tokens
+
+Reuse existing tokens from `src/styles.css`: `--parchment`, `--ink`, `--shard-sun`, `--shard-emerald`, `font-display` (Cinzel Decorative). Ring colors map to:
+
+```
+lesson    → var(--shard-emerald)
+challenge → oklch(0.70 0.16 240)   // sky blue
+miniboss  → oklch(0.72 0.18 50)    // orange
+treasure  → var(--shard-sun)
+boss      → oklch(0.55 0.22 25)    // deep red
+```
+
+(New ring colors added as `--ring-challenge`, `--ring-miniboss`, `--ring-boss` so components stay token-based.)
+
+## Accessibility
+
+- Each node is a `<button>` with `aria-label="Level 3: The Pawn & Rook — locked"` etc.; locked/done nodes get `aria-disabled`.
+- Respect `prefers-reduced-motion` — no bobbing, no cloud drift, instant scroll instead of smooth.
+- Voice off toggle persists across sessions (existing key).
+
+## Out of scope
+
+- Real lesson/puzzle screens behind each node (clearing is a placeholder).
+- Supabase persistence.
+- Rank-up / Shard-award flow wiring (just the local victory overlay).

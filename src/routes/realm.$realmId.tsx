@@ -87,7 +87,7 @@ function RealmPage() {
                 params={{ realmId: realm.id }}
                 className="inline-flex items-center gap-2 rounded-full bg-shard-emerald px-4 py-2 font-display text-sm font-black text-parchment ring-2 ring-ink/20 hover:scale-105 transition-transform"
               >
-                ⛰ Realm Path
+                ⛰ Begin your quest
               </Link>
               <button
                 type="button"
