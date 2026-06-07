@@ -63,20 +63,20 @@ const LEVELS: ClimbLevel[] = [
 
 // Serpentine race-track positions (% of width / % of height inside path area).
 const NODE_POS: { x: number; y: number }[] = [
-  { x: 8,  y: 86 }, // 1 START
-  { x: 24, y: 88 },
-  { x: 42, y: 84 },
-  { x: 60, y: 78 },
-  { x: 78, y: 72 },
-  { x: 86, y: 58 }, // curve right→up
-  { x: 70, y: 52 },
-  { x: 52, y: 56 },
-  { x: 32, y: 52 },
-  { x: 14, y: 40 }, // curve left→up
-  { x: 30, y: 26 },
-  { x: 54, y: 22 }, // boss
+  { x: 10, y: 90 }, // 1 START (bottom-left)
+  { x: 28, y: 86 },
+  { x: 46, y: 82 },
+  { x: 64, y: 78 },
+  { x: 82, y: 72 }, // curve at right
+  { x: 86, y: 58 },
+  { x: 70, y: 54 },
+  { x: 52, y: 50 },
+  { x: 32, y: 46 }, // curve at left
+  { x: 14, y: 36 },
+  { x: 32, y: 24 },
+  { x: 56, y: 18 }, // 12 boss
 ];
-const PRIZE_POS = { x: 84, y: 14 };
+const PRIZE_POS = { x: 84, y: 12 };
 
 const RING: Record<LevelType, { color: string; label: string; icon: string }> = {
   lesson:    { color: "oklch(0.65 0.17 150)", label: "Lesson",    icon: "✦" },
@@ -178,7 +178,7 @@ function RealmPathPage() {
   }
 
   return (
-    <div className="relative h-screen w-full overflow-hidden">
+    <div className="fixed inset-0 z-40 h-[100dvh] w-screen overflow-hidden">
       {/* Full-bleed village background */}
       <img
         src={villageBg}
