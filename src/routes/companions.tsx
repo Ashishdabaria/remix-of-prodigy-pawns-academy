@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { PETS } from "@/data/pets";
+import { useEquippedPet, setEquippedPet } from "@/data/pets-state";
 
 export const Route = createFileRoute("/companions")({
   head: () => ({
