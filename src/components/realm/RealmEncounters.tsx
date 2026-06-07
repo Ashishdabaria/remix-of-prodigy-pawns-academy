@@ -193,6 +193,40 @@ export function MiniBossEncounter({ realm, onClose, onWin }: MiniBossProps) {
 
   const sayText = pick(KNIGHT_LINES[say.moment], say.nonce || 0);
 
+  const moveFocus = useCallback(
+    (dx: number, dy: number) => {
+      setFocusXY((cur) => {
+        let nx = cur.x;
+        let ny = cur.y;
+        // Step until we land on a non-knight cell (or wrap around).
+        for (let i = 0; i < SIZE * SIZE; i++) {
+          nx = (nx + dx + SIZE) % SIZE;
+          ny = (ny + dy + SIZE) % SIZE;
+          if (!(nx === KX && ny === KY)) break;
+        }
+        // Focus the underlying button.
+        requestAnimationFrame(() => {
+          cellRefs.current[`${nx}_${ny}`]?.focus();
+        });
+        return { x: nx, y: ny };
+      });
+    },
+    [],
+  );
+
+  function onGridKeyDown(e: React.KeyboardEvent) {
+    if (stage !== "playing") return;
+    switch (e.key) {
+      case "ArrowRight": e.preventDefault(); moveFocus(1, 0); break;
+      case "ArrowLeft":  e.preventDefault(); moveFocus(-1, 0); break;
+      case "ArrowDown":  e.preventDefault(); moveFocus(0, 1); break;
+      case "ArrowUp":    e.preventDefault(); moveFocus(0, -1); break;
+      case "h":
+      case "H":
+        e.preventDefault(); showHint(); break;
+    }
+  }
+
   return (
     <ModalShell
       label="Mini-boss"
