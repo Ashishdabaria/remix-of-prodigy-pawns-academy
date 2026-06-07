@@ -178,7 +178,7 @@ function RealmPathPage() {
   }
 
   return (
-    <div className="relative h-screen w-full overflow-hidden">
+    <div className="fixed inset-0 z-40 h-[100dvh] w-screen overflow-hidden">
       {/* Full-bleed village background */}
       <img
         src={villageBg}
