@@ -14,7 +14,83 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      level_progress: {
+        Row: {
+          completed_at: string
+          id: string
+          level_id: string
+          player_id: string
+          stars: number
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          level_id: string
+          player_id: string
+          stars?: number
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          level_id?: string
+          player_id?: string
+          stars?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "level_progress_level_id_fkey"
+            columns: ["level_id"]
+            isOneToOne: false
+            referencedRelation: "levels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      levels: {
+        Row: {
+          blurb: string
+          content: Json
+          created_at: string
+          icon: string | null
+          id: string
+          is_boss: boolean
+          kind: string
+          name: string
+          number: number
+          realm_id: string
+          slug: string
+          xp_reward: number
+        }
+        Insert: {
+          blurb?: string
+          content?: Json
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_boss?: boolean
+          kind: string
+          name: string
+          number: number
+          realm_id: string
+          slug: string
+          xp_reward?: number
+        }
+        Update: {
+          blurb?: string
+          content?: Json
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_boss?: boolean
+          kind?: string
+          name?: string
+          number?: number
+          realm_id?: string
+          slug?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
