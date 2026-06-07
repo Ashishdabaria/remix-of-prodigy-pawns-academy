@@ -18,6 +18,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as RealmRealmIdRouteImport } from './routes/realm.$realmId'
 import { Route as RealmRealmIdPlayRouteImport } from './routes/realm.$realmId_.play'
 import { Route as RealmRealmIdPathRouteImport } from './routes/realm.$realmId_.path'
+import { Route as RealmRealmIdLevelSlugRouteImport } from './routes/realm.$realmId_.level.$slug'
 
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
@@ -64,6 +65,11 @@ const RealmRealmIdPathRoute = RealmRealmIdPathRouteImport.update({
   path: '/realm/$realmId/path',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RealmRealmIdLevelSlugRoute = RealmRealmIdLevelSlugRouteImport.update({
+  id: '/realm/$realmId_/level/$slug',
+  path: '/realm/$realmId/level/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/realm/$realmId': typeof RealmRealmIdRoute
   '/realm/$realmId/path': typeof RealmRealmIdPathRoute
   '/realm/$realmId/play': typeof RealmRealmIdPlayRoute
+  '/realm/$realmId/level/$slug': typeof RealmRealmIdLevelSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/realm/$realmId': typeof RealmRealmIdRoute
   '/realm/$realmId/path': typeof RealmRealmIdPathRoute
   '/realm/$realmId/play': typeof RealmRealmIdPlayRoute
+  '/realm/$realmId/level/$slug': typeof RealmRealmIdLevelSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/realm/$realmId': typeof RealmRealmIdRoute
   '/realm/$realmId_/path': typeof RealmRealmIdPathRoute
   '/realm/$realmId_/play': typeof RealmRealmIdPlayRoute
+  '/realm/$realmId_/level/$slug': typeof RealmRealmIdLevelSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/realm/$realmId'
     | '/realm/$realmId/path'
     | '/realm/$realmId/play'
+    | '/realm/$realmId/level/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/realm/$realmId'
     | '/realm/$realmId/path'
     | '/realm/$realmId/play'
+    | '/realm/$realmId/level/$slug'
   id:
     | '__root__'
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/realm/$realmId'
     | '/realm/$realmId_/path'
     | '/realm/$realmId_/play'
+    | '/realm/$realmId_/level/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +157,7 @@ export interface RootRouteChildren {
   RealmRealmIdRoute: typeof RealmRealmIdRoute
   RealmRealmIdPathRoute: typeof RealmRealmIdPathRoute
   RealmRealmIdPlayRoute: typeof RealmRealmIdPlayRoute
+  RealmRealmIdLevelSlugRoute: typeof RealmRealmIdLevelSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RealmRealmIdPathRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/realm/$realmId_/level/$slug': {
+      id: '/realm/$realmId_/level/$slug'
+      path: '/realm/$realmId/level/$slug'
+      fullPath: '/realm/$realmId/level/$slug'
+      preLoaderRoute: typeof RealmRealmIdLevelSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -225,6 +245,7 @@ const rootRouteChildren: RootRouteChildren = {
   RealmRealmIdRoute: RealmRealmIdRoute,
   RealmRealmIdPathRoute: RealmRealmIdPathRoute,
   RealmRealmIdPlayRoute: RealmRealmIdPlayRoute,
+  RealmRealmIdLevelSlugRoute: RealmRealmIdLevelSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
