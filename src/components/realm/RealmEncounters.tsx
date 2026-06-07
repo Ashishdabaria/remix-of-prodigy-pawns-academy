@@ -117,6 +117,8 @@ export function MiniBossEncounter({ realm, onClose, onWin }: MiniBossProps) {
   const [shake, setShake] = useState(false);
   const [lastTap, setLastTap] = useState<{ x: number; y: number; good: boolean } | null>(null);
   const [hintsLeft, setHintsLeft] = useState(2);
+  const [focusXY, setFocusXY] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const cellRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   const needed = 3;
 
