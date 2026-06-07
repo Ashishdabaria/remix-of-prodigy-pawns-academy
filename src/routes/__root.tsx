@@ -77,14 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "test1" },
+      { name: "description", content: "Prodigy Pawns Academy is a gamified chess learning platform for children aged 5-12." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "test1" },
+      { property: "og:description", content: "Prodigy Pawns Academy is a gamified chess learning platform for children aged 5-12." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "test1" },
+      { name: "twitter:description", content: "Prodigy Pawns Academy is a gamified chess learning platform for children aged 5-12." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/618a9036-c825-4502-9e59-faf4c946d859/id-preview-807cf888--717770d2-2785-4034-9c13-24271e270640.lovable.app-1780768252533.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/618a9036-c825-4502-9e59-faf4c946d859/id-preview-807cf888--717770d2-2785-4034-9c13-24271e270640.lovable.app-1780768252533.png" },
     ],
     links: [
       {
