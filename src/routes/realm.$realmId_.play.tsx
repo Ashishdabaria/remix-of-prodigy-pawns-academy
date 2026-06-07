@@ -8,6 +8,7 @@ import { ValueLesson } from "@/components/realm/ValueLesson";
 import { PuzzleBoard } from "@/components/realm/PuzzleBoard";
 import { BossQuiz } from "@/components/realm/BossQuiz";
 import { VictoryShard } from "@/components/realm/VictoryShard";
+import { PawnDojo } from "@/components/realm/PawnDojo";
 import { LESSONS } from "@/data/realm1/lessons";
 import { PUZZLES } from "@/data/realm1/puzzles";
 import { addBraveHeart } from "@/data/student";
@@ -100,8 +101,13 @@ function Realm1Flow({ realm }: { realm: Realm }) {
       setLesson1Step(lesson1Step + 1);
     } else {
       setStats((s) => ({ ...s, xp: s.xp + 30 }));
-      nextStage("lesson2");
+      nextStage("pawnDojo");
     }
+  }
+
+  function handlePawnDojoDone() {
+    setStats((s) => ({ ...s, xp: s.xp + 25 }));
+    nextStage("lesson2");
   }
 
   function handleLesson2Done() {
@@ -124,7 +130,10 @@ function Realm1Flow({ realm }: { realm: Realm }) {
     else if (stage === "lesson1") {
       miss();
       if (lesson1Step + 1 < lesson1.steps.length) setLesson1Step(lesson1Step + 1);
-      else nextStage("lesson2");
+      else nextStage("pawnDojo");
+    } else if (stage === "pawnDojo") {
+      miss();
+      nextStage("lesson2");
     } else if (stage === "lesson2") {
       miss();
       if (lesson2Step + 1 < lesson2.steps.length) setLesson2Step(lesson2Step + 1);
@@ -167,6 +176,10 @@ function Realm1Flow({ realm }: { realm: Realm }) {
           />
         )}
 
+        {stage === "pawnDojo" && (
+          <PawnDojo onComplete={handlePawnDojoDone} onMiss={miss} />
+        )}
+
         {stage === "lesson2" && (
           <ChessboardLesson
             key={`l2-${lesson2Step}`}
@@ -175,6 +188,7 @@ function Realm1Flow({ realm }: { realm: Realm }) {
             onMiss={miss}
           />
         )}
+
 
         {stage === "lesson3" && (
           <ValueLesson

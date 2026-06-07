@@ -2,11 +2,20 @@ import { Link } from "@tanstack/react-router";
 import { MuteToggle } from "./MariposaSay";
 import { AmbientLayer } from "./AmbientLayer";
 
-export type StageKey = "portal" | "lesson1" | "lesson2" | "lesson3" | "puzzles" | "boss" | "victory";
+export type StageKey =
+  | "portal"
+  | "lesson1"
+  | "pawnDojo"
+  | "lesson2"
+  | "lesson3"
+  | "puzzles"
+  | "boss"
+  | "victory";
 
 const STAGES: { key: StageKey; label: string }[] = [
   { key: "portal", label: "Enter" },
   { key: "lesson1", label: "Moves" },
+  { key: "pawnDojo", label: "Pawn" },
   { key: "lesson2", label: "Captures" },
   { key: "lesson3", label: "Values" },
   { key: "puzzles", label: "Puzzles" },
