@@ -2,11 +2,12 @@ import { Link } from "@tanstack/react-router";
 import { Mariposa } from "./Mariposa";
 
 const NAV = [
-  { to: "/",        label: "Quest Map" },
-  { to: "/student", label: "My Quest" },
-  { to: "/parent",  label: "For Parents" },
-  { to: "/codex",   label: "Codex" },
-  { to: "/poster",  label: "Poster" },
+  { to: "/",           label: "Quest Map" },
+  { to: "/student",    label: "My Quest" },
+  { to: "/companions", label: "Companions" },
+  { to: "/parent",     label: "For Parents" },
+  { to: "/codex",      label: "Codex" },
+  { to: "/poster",     label: "Poster" },
 ] as const;
 
 export function Header() {

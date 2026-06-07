@@ -5,6 +5,8 @@ import { ShardBadge } from "@/components/ShardBadge";
 import { Mariposa } from "@/components/Mariposa";
 import { SideQuest } from "@/components/realm/SideQuest";
 import { MiniBossEncounter, BossEncounter, TreasureChest } from "@/components/realm/RealmEncounters";
+import { WildEncounter } from "@/components/realm/WildEncounter";
+import { MEMBER_REALM_IDS } from "@/data/pets";
 
 export const Route = createFileRoute("/realm/$realmId")({
   loader: ({ params }) => {
@@ -53,6 +55,9 @@ function RealmPage() {
   const [completed, setCompleted] = useState<Record<number, boolean>>({});
   const [encounter, setEncounter] = useState<null | "miniBoss" | "boss" | "treasure">(null);
   const [encDone, setEncDone] = useState<{ miniBoss?: boolean; boss?: boolean; treasure?: boolean }>({});
+  const [wild, setWild] = useState(false);
+  const [memberGate, setMemberGate] = useState(MEMBER_REALM_IDS.has(realm.id));
+  const isMemberRealm = MEMBER_REALM_IDS.has(realm.id);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
@@ -62,16 +67,28 @@ function RealmPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/20 to-transparent" />
         <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-end justify-between gap-3 text-parchment sm:bottom-6 sm:left-6 sm:right-6">
           <div>
-            <div className="text-xs font-black uppercase tracking-widest opacity-80">Realm {realm.number} of 8</div>
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest opacity-80">
+              <span>Realm {realm.number} of 8</span>
+              {isMemberRealm && <span className="rounded-full bg-shard-amethyst/80 px-2 py-0.5 text-[10px] text-parchment">👑 Royal Pass</span>}
+            </div>
             <h1 className="font-display text-3xl font-black ink-shadow sm:text-5xl">{realm.name}</h1>
             <p className="mt-1 max-w-2xl text-sm sm:text-base">{realm.tagline}</p>
-            <Link
-              to="/realm/$realmId/play"
-              params={{ realmId: realm.id }}
-              className="mt-3 inline-flex items-center gap-2 rounded-full bg-shard-sun px-5 py-2 font-display text-base font-black text-ink shadow-lg ring-2 ring-parchment hover:scale-105 transition-transform"
-            >
-              ▶ Enter Realm
-            </Link>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link
+                to="/realm/$realmId/play"
+                params={{ realmId: realm.id }}
+                className="inline-flex items-center gap-2 rounded-full bg-shard-sun px-5 py-2 font-display text-base font-black text-ink shadow-lg ring-2 ring-parchment hover:scale-105 transition-transform"
+              >
+                ▶ Enter Realm
+              </Link>
+              <button
+                type="button"
+                onClick={() => setWild(true)}
+                className="inline-flex items-center gap-2 rounded-full bg-parchment/95 px-4 py-2 font-display text-sm font-black text-ink ring-2 ring-ink/20 hover:scale-105 transition-transform"
+              >
+                ✦ Wild Encounter
+              </button>
+            </div>
           </div>
           <div className="rounded-2xl bg-parchment/90 p-3 text-ink card-pop">
             <ShardBadge shardId={realm.shard} size="lg" showLabel />
@@ -227,6 +244,32 @@ function RealmPage() {
           onClose={() => setEncounter(null)}
         />
       )}
+
+      {wild && (
+        <WildEncounter
+          realm={realm}
+          onWin={() => { /* hook into XP later */ }}
+          onFlee={() => setWild(false)}
+          onClose={() => setWild(false)}
+        />
+      )}
+
+      {memberGate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/70 p-4 animate-fade-in" role="dialog" aria-modal="true">
+          <div className="w-full max-w-md rounded-3xl border-4 border-shard-amethyst/60 bg-card p-6 card-pop animate-scale-in text-center">
+            <div className="text-5xl">👑</div>
+            <h3 className="mt-2 font-display text-2xl font-black">Royal Pass realm</h3>
+            <p className="mt-2 text-sm text-ink/75">
+              <strong>{realm.name}</strong> is a member-only zone. Members get bonus realms, legendary pets, and the parent progress dashboard.
+            </p>
+            <div className="mt-5 flex flex-col gap-2">
+              <button onClick={() => setMemberGate(false)} className="rounded-full bg-shard-amethyst px-5 py-2 font-black text-parchment">Preview this realm</button>
+              <Link to="/parent" className="rounded-full border-2 border-ink/30 px-5 py-2 text-sm font-black text-ink">Learn about the Royal Pass</Link>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {/* Prev / next */}
       <nav className="mt-8 flex flex-wrap items-center justify-between gap-3">
