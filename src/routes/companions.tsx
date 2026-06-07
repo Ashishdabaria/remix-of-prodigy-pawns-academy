@@ -16,7 +16,7 @@ export const Route = createFileRoute("/companions")({
 });
 
 function CompanionsPage() {
-  const [equipped, setEquipped] = useState<string>("pawnling");
+  const equipped = useEquippedPet().id;
   const [unlocked] = useState<Set<string>>(new Set(["pawnling", "knightcub", "bishopowl"]));
   const [memberLock, setMemberLock] = useState<string | null>(null);
 
