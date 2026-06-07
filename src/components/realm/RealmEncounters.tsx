@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MariposaSay } from "./MariposaSay";
 import { addBraveHeart, addGems, addGold, addXP } from "@/data/student";
 import { BOSS_QUESTIONS } from "@/data/realm1/boss";
@@ -117,6 +117,8 @@ export function MiniBossEncounter({ realm, onClose, onWin }: MiniBossProps) {
   const [shake, setShake] = useState(false);
   const [lastTap, setLastTap] = useState<{ x: number; y: number; good: boolean } | null>(null);
   const [hintsLeft, setHintsLeft] = useState(2);
+  const [focusXY, setFocusXY] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const cellRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   const needed = 3;
 
@@ -191,6 +193,40 @@ export function MiniBossEncounter({ realm, onClose, onWin }: MiniBossProps) {
 
   const sayText = pick(KNIGHT_LINES[say.moment], say.nonce || 0);
 
+  const moveFocus = useCallback(
+    (dx: number, dy: number) => {
+      setFocusXY((cur) => {
+        let nx = cur.x;
+        let ny = cur.y;
+        // Step until we land on a non-knight cell (or wrap around).
+        for (let i = 0; i < SIZE * SIZE; i++) {
+          nx = (nx + dx + SIZE) % SIZE;
+          ny = (ny + dy + SIZE) % SIZE;
+          if (!(nx === KX && ny === KY)) break;
+        }
+        // Focus the underlying button.
+        requestAnimationFrame(() => {
+          cellRefs.current[`${nx}_${ny}`]?.focus();
+        });
+        return { x: nx, y: ny };
+      });
+    },
+    [],
+  );
+
+  function onGridKeyDown(e: React.KeyboardEvent) {
+    if (stage !== "playing") return;
+    switch (e.key) {
+      case "ArrowRight": e.preventDefault(); moveFocus(1, 0); break;
+      case "ArrowLeft":  e.preventDefault(); moveFocus(-1, 0); break;
+      case "ArrowDown":  e.preventDefault(); moveFocus(0, 1); break;
+      case "ArrowUp":    e.preventDefault(); moveFocus(0, -1); break;
+      case "h":
+      case "H":
+        e.preventDefault(); showHint(); break;
+    }
+  }
+
   return (
     <ModalShell
       label="Mini-boss"
@@ -243,7 +279,12 @@ export function MiniBossEncounter({ realm, onClose, onWin }: MiniBossProps) {
           <div
             className={`relative mx-auto w-fit ${shake ? "animate-shake" : ""}`}
           >
-            <div className="grid w-fit grid-cols-5 overflow-hidden rounded-md border-2 border-ink/30">
+            <div
+              role="grid"
+              aria-label="Knight L-move puzzle. Use arrow keys to move, Enter or Space to choose, H for a hint."
+              onKeyDown={onGridKeyDown}
+              className="grid w-fit grid-cols-5 overflow-hidden rounded-md border-2 border-ink/30"
+            >
               {Array.from({ length: SIZE * SIZE }).map((_, i) => {
                 const x = i % SIZE;
                 const y = Math.floor(i / SIZE);
@@ -253,29 +294,43 @@ export function MiniBossEncounter({ realm, onClose, onWin }: MiniBossProps) {
                 const found = hits.has(k);
                 const isHint = hintKey === k;
                 const isMiss = lastTap && !lastTap.good && lastTap.x === x && lastTap.y === y;
+                const isFocusTarget = focusXY.x === x && focusXY.y === y && !isKnight;
+                const label = isKnight
+                  ? "Knight, center square"
+                  : `Square column ${x + 1} row ${y + 1}${found ? ", correct L-move" : ""}${isHint ? ", hint" : ""}`;
                 return (
                   <button
                     key={k}
+                    ref={(el) => {
+                      cellRefs.current[k] = el;
+                    }}
                     type="button"
+                    role="gridcell"
+                    aria-label={label}
+                    aria-pressed={found}
+                    tabIndex={isKnight ? -1 : isFocusTarget ? 0 : -1}
                     disabled={stage !== "playing" || isKnight}
                     onClick={() => tap(x, y)}
-                    className={`relative grid h-10 w-10 place-items-center text-xl font-black transition
+                    onFocus={() => !isKnight && setFocusXY({ x, y })}
+                    className={`relative grid h-12 w-12 min-h-11 min-w-11 place-items-center text-2xl font-black transition
+                      focus:outline-none focus-visible:ring-4 focus-visible:ring-shard-sun focus-visible:z-10
+                      sm:h-14 sm:w-14 sm:text-3xl
                       ${found ? "bg-shard-emerald text-parchment" : dark ? "bg-ink/70 text-parchment" : "bg-parchment text-ink"}
                       ${isKnight ? "bg-shard-amber text-ink" : ""}
                       ${isHint ? "ring-4 ring-shard-sun animate-pulse" : ""}
                       ${stage === "playing" && !isKnight ? "hover:scale-105" : ""}`}
                   >
                     {isKnight ? (
-                      <span className={stage === "won" ? "inline-block animate-bounce" : ""}>♞</span>
+                      <span className={stage === "won" ? "inline-block animate-bounce" : ""} aria-hidden>♞</span>
                     ) : found ? (
-                      <span className="animate-scale-in">✦</span>
+                      <span className="animate-scale-in" aria-hidden>✦</span>
                     ) : isHint ? (
-                      "★"
+                      <span aria-hidden>★</span>
                     ) : (
                       ""
                     )}
                     {isMiss && (
-                      <span className="pointer-events-none absolute inset-0 grid place-items-center text-2xl text-rose animate-zap-pop">
+                      <span className="pointer-events-none absolute inset-0 grid place-items-center text-2xl text-rose animate-zap-pop" aria-hidden>
                         ✕
                       </span>
                     )}
@@ -283,6 +338,7 @@ export function MiniBossEncounter({ realm, onClose, onWin }: MiniBossProps) {
                 );
               })}
             </div>
+
 
             {/* Completion sparkle burst */}
             {stage === "won" && (
@@ -306,21 +362,28 @@ export function MiniBossEncounter({ realm, onClose, onWin }: MiniBossProps) {
             )}
           </div>
 
+          {/* Live announcer for screen readers */}
+          <div className="sr-only" role="status" aria-live="polite">
+            {sayText} Found {hits.size} of {needed}. {lives} {lives === 1 ? "life" : "lives"} left.
+          </div>
+
           {stage === "playing" && (
             <div className="mt-3 flex items-center justify-between gap-2">
               <p className="text-xs font-bold text-ink/60">
-                Tip: a knight jumps two-then-one, like the letter <strong>L</strong>.
+                Tip: jump two-then-one (L). <span className="hidden sm:inline">Arrow keys to move, Enter to choose, H for hint.</span>
               </p>
               <button
                 type="button"
                 onClick={showHint}
                 disabled={hintsLeft <= 0}
-                className="shrink-0 rounded-full border-2 border-shard-sun/70 bg-shard-sun/20 px-3 py-1 text-xs font-black text-ink hover-scale disabled:cursor-not-allowed disabled:opacity-50"
+                aria-label={`Reveal a hint, ${hintsLeft} remaining`}
+                className="shrink-0 rounded-full border-2 border-shard-sun/70 bg-shard-sun/20 px-4 py-2 text-sm font-black text-ink min-h-11 hover-scale focus:outline-none focus-visible:ring-4 focus-visible:ring-shard-sun disabled:cursor-not-allowed disabled:opacity-50"
               >
                 💡 Hint ({hintsLeft})
               </button>
             </div>
           )}
+
 
           {stage === "won" && (
             <div className="mt-4 text-center animate-scale-in">
