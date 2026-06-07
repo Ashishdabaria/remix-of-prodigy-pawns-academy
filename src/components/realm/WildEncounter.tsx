@@ -4,25 +4,57 @@ import type { Realm } from "@/data/realms";
 interface Q { q: string; a: number; choices: number[]; }
 
 function makeQuestion(seed: number): Q {
-  const rand = (n: number) => Math.floor(((seed * 9301 + 49297) % 233280) / 233280 * n) + 1;
-  const kind = seed % 3;
+  // Deterministic-ish PRNG seeded by `seed` so each encounter is stable.
+  let s = seed || 1;
+  const rnd = () => {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  };
+  const between = (lo: number, hi: number) => lo + Math.floor(rnd() * (hi - lo + 1));
+
+  // Difficulty tuned for ~8-year-olds (Grade 3):
+  // 2-digit add/subtract with regrouping, times tables up to 12,
+  // simple division facts, and a light missing-number twist.
+  const kind = seed % 5;
   let a: number, q: string;
   if (kind === 0) {
-    const x = rand(9), y = rand(9);
+    const x = between(13, 49), y = between(14, 49);
     a = x + y;
     q = `A wild pawn appears! Quick: ${x} + ${y} = ?`;
   } else if (kind === 1) {
-    const x = rand(8) + 2, y = rand(x - 1);
+    const x = between(40, 99), y = between(11, 39);
     a = x - y;
     q = `Knight challenge: ${x} − ${y} = ?`;
-  } else {
-    const x = rand(5) + 1, y = rand(5) + 1;
+  } else if (kind === 2) {
+    const x = between(3, 12), y = between(3, 12);
     a = x * y;
     q = `Bishop multiplies: ${x} × ${y} = ?`;
+  } else if (kind === 3) {
+    // Clean division: build from a known product so the answer is whole.
+    const y = between(2, 9);
+    const a0 = between(2, 9);
+    const x = a0 * y;
+    a = a0;
+    q = `Rook divides the squad: ${x} ÷ ${y} = ?`;
+  } else {
+    // Missing addend: x + ? = total
+    const x = between(12, 39), a0 = between(13, 39);
+    const total = x + a0;
+    a = a0;
+    q = `Queen's riddle: ${x} + ? = ${total}`;
   }
+
+  // Plausible distractors close to the real answer (off-by-1/2/10 style).
   const set = new Set<number>([a]);
-  while (set.size < 4) set.add(Math.max(0, a + (Math.floor(Math.random() * 7) - 3)));
-  const choices = Array.from(set).sort(() => Math.random() - 0.5);
+  const offsets = [-10, -2, -1, 1, 2, 10, 11, -11];
+  let i = 0;
+  while (set.size < 4 && i < 50) {
+    const cand = a + offsets[Math.floor(rnd() * offsets.length)] + (i > 8 ? Math.floor(rnd() * 5) - 2 : 0);
+    if (cand >= 0 && cand !== a) set.add(cand);
+    i++;
+  }
+  while (set.size < 4) set.add(a + set.size); // safety
+  const choices = Array.from(set).sort(() => rnd() - 0.5);
   return { q, a, choices };
 }
 
