@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MariposaSay } from "./MariposaSay";
 import { addBraveHeart, addGems, addGold, addXP } from "@/data/student";
 import { BOSS_QUESTIONS } from "@/data/realm1/boss";
