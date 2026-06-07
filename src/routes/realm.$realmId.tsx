@@ -67,16 +67,28 @@ function RealmPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/20 to-transparent" />
         <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-end justify-between gap-3 text-parchment sm:bottom-6 sm:left-6 sm:right-6">
           <div>
-            <div className="text-xs font-black uppercase tracking-widest opacity-80">Realm {realm.number} of 8</div>
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest opacity-80">
+              <span>Realm {realm.number} of 8</span>
+              {isMemberRealm && <span className="rounded-full bg-shard-amethyst/80 px-2 py-0.5 text-[10px] text-parchment">👑 Royal Pass</span>}
+            </div>
             <h1 className="font-display text-3xl font-black ink-shadow sm:text-5xl">{realm.name}</h1>
             <p className="mt-1 max-w-2xl text-sm sm:text-base">{realm.tagline}</p>
-            <Link
-              to="/realm/$realmId/play"
-              params={{ realmId: realm.id }}
-              className="mt-3 inline-flex items-center gap-2 rounded-full bg-shard-sun px-5 py-2 font-display text-base font-black text-ink shadow-lg ring-2 ring-parchment hover:scale-105 transition-transform"
-            >
-              ▶ Enter Realm
-            </Link>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link
+                to="/realm/$realmId/play"
+                params={{ realmId: realm.id }}
+                className="inline-flex items-center gap-2 rounded-full bg-shard-sun px-5 py-2 font-display text-base font-black text-ink shadow-lg ring-2 ring-parchment hover:scale-105 transition-transform"
+              >
+                ▶ Enter Realm
+              </Link>
+              <button
+                type="button"
+                onClick={() => setWild(true)}
+                className="inline-flex items-center gap-2 rounded-full bg-parchment/95 px-4 py-2 font-display text-sm font-black text-ink ring-2 ring-ink/20 hover:scale-105 transition-transform"
+              >
+                ✦ Wild Encounter
+              </button>
+            </div>
           </div>
           <div className="rounded-2xl bg-parchment/90 p-3 text-ink card-pop">
             <ShardBadge shardId={realm.shard} size="lg" showLabel />
