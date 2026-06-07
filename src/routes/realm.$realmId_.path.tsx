@@ -1,9 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getRealm, type Realm } from "@/data/realms";
 import { Mariposa } from "@/components/Mariposa";
 import { MuteToggle } from "@/components/realm/MariposaSay";
+import villageBg from "@/assets/pawn-village-map.jpg";
 
 export const Route = createFileRoute("/realm/$realmId_/path")({
   loader: ({ params }) => {
@@ -15,8 +16,8 @@ export const Route = createFileRoute("/realm/$realmId_/path")({
     const r = loaderData?.realm;
     return {
       meta: [
-        { title: r ? `${r.name} — Climb the Quest Path` : "Quest Path" },
-        { name: "description", content: "Climb the floating platforms to win the Pearl Shard." },
+        { title: r ? `${r.name} — Quest Path` : "Quest Path" },
+        { name: "description", content: "Race across the Pawn Village to win the Pearl Shard." },
       ],
     };
   },
@@ -46,22 +47,36 @@ interface ClimbLevel {
 }
 
 const LEVELS: ClimbLevel[] = [
-  { id: 1,  name: "Meet the board",        type: "lesson" },
+  { id: 1,  name: "Meet the board",         type: "lesson" },
   { id: 2,  name: "Meet the King",          type: "lesson" },
-  { id: 3,  name: "The Pawn & Rook",        type: "lesson" },
-  { id: 4,  name: "The Bishop & Queen",     type: "lesson" },
-  { id: 5,  name: "The Knight's hop",       type: "lesson" },
+  { id: 3,  name: "Pawn & Rook",            type: "lesson" },
+  { id: 4,  name: "Bishop & Queen",         type: "lesson" },
+  { id: 5,  name: "Knight's hop",           type: "lesson" },
   { id: 6,  name: "Move-it challenge",      type: "challenge" },
-  { id: 7,  name: "Catch the Lost Knight",  type: "miniboss" },
-  { id: 8,  name: "Capturing safely",       type: "lesson" },
+  { id: 7,  name: "Lost Knight",            type: "miniboss" },
+  { id: 8,  name: "Capture safely",         type: "lesson" },
   { id: 9,  name: "Capture 3 targets",      type: "challenge" },
-  { id: 10, name: "Treasure: piece values", type: "treasure" },
-  { id: 11, name: "Setting up the board",   type: "lesson" },
-  { id: 12, name: "The Board Guardian",     type: "boss" },
+  { id: 10, name: "Piece values",           type: "treasure" },
+  { id: 11, name: "Set up the board",       type: "lesson" },
+  { id: 12, name: "Board Guardian",         type: "boss" },
 ];
 
-// zig-zag x positions per level (% of width), bottom → top
-const X_POS = [50, 30, 65, 28, 70, 35, 60, 25, 72, 40, 58, 50];
+// Serpentine race-track positions (% of width / % of height inside path area).
+const NODE_POS: { x: number; y: number }[] = [
+  { x: 8,  y: 86 }, // 1 START
+  { x: 24, y: 88 },
+  { x: 42, y: 84 },
+  { x: 60, y: 78 },
+  { x: 78, y: 72 },
+  { x: 86, y: 58 }, // curve right→up
+  { x: 70, y: 52 },
+  { x: 52, y: 56 },
+  { x: 32, y: 52 },
+  { x: 14, y: 40 }, // curve left→up
+  { x: 30, y: 26 },
+  { x: 54, y: 22 }, // boss
+];
+const PRIZE_POS = { x: 84, y: 14 };
 
 const RING: Record<LevelType, { color: string; label: string; icon: string }> = {
   lesson:    { color: "oklch(0.65 0.17 150)", label: "Lesson",    icon: "✦" },
@@ -73,14 +88,14 @@ const RING: Record<LevelType, { color: string; label: string; icon: string }> = 
 
 const CHEERS = [
   "Yes! You cleared it!",
-  "Brilliant climbing, hero!",
-  "One more step up!",
+  "Brilliant racing, hero!",
+  "One more lap!",
   "Star power!",
   "You're flying now!",
-  "Onward and upward!",
+  "Onward to the Shard!",
 ];
 const LOCKED_LINES = [
-  "Not yet — climb the glowing step first.",
+  "Not yet — clear the glowing stop first.",
   "Finish the bright one first, hero.",
 ];
 
@@ -103,20 +118,13 @@ function speak(text: string) {
 
 const STORAGE_KEY = "pp.pawn-village.climb";
 
-// ---------------- Layout constants ----------------
-const ROW = 170;          // vertical px between platforms
-const PAD_TOP = 220;      // space above level 12 for grand prize
-const PAD_BOTTOM = 180;   // space below level 1 for Mariposa
-
 function RealmPathPage() {
   const { realm } = Route.useLoaderData() as { realm: Realm };
-  const scrollRef = useRef<HTMLDivElement>(null);
   const [cleared, setCleared] = useState<Record<number, number>>({});
   const [popping, setPopping] = useState<number | null>(null);
   const [victory, setVictory] = useState(false);
   const [lockedMsg, setLockedMsg] = useState<string | null>(null);
 
-  // Hydrate from localStorage on mount
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -138,42 +146,12 @@ function RealmPathPage() {
   );
   const doneCount = Object.keys(cleared).length;
 
-  // Layout: bottom-up
-  const height = PAD_TOP + PAD_BOTTOM + (LEVELS.length - 1) * ROW;
-  const points = LEVELS.map((l, i) => ({
-    x: X_POS[i] ?? 50,
-    y: height - PAD_BOTTOM - i * ROW,
-  }));
-  const prizePoint = { x: 50, y: 90 };
-
-  // Trail path (bottom to top through all level points, ending at prize)
-  const allPoints = [...points, prizePoint];
-  const pathD = allPoints.reduce((acc, p, i) => {
-    if (i === 0) return `M ${p.x} ${p.y}`;
-    const prev = allPoints[i - 1];
-    const cy = (prev.y + p.y) / 2;
-    return `${acc} C ${prev.x} ${cy}, ${p.x} ${cy}, ${p.x} ${p.y}`;
-  }, "");
-
-  // Start scrolled to the bottom (level 1) on mount
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.scrollTop = el.scrollHeight;
-  }, []);
-
-  // Scroll the next current node into view when progress changes
-  function scrollToLevel(id: number) {
-    const el = scrollRef.current;
-    if (!el) return;
-    const idx = LEVELS.findIndex((l) => l.id === id);
-    if (idx < 0) return;
-    const targetY = points[idx].y;
-    const containerH = el.clientHeight;
-    const top = Math.max(0, targetY - containerH / 2);
-    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    el.scrollTo({ top, behavior: reduce ? "auto" : "smooth" });
-  }
+  // Build full smooth trail through all nodes + prize
+  const allPoints = [...NODE_POS, PRIZE_POS];
+  const pathD = buildSmoothPath(allPoints);
+  // Lit portion: through cleared nodes only (+ prize if all 12 done)
+  const litCount = doneCount + (doneCount === 12 ? 1 : 0);
+  const litD = litCount >= 2 ? buildSmoothPath(allPoints.slice(0, litCount)) : "";
 
   function handleTap(level: ClimbLevel) {
     if (cleared[level.id] !== undefined) return;
@@ -184,9 +162,8 @@ function RealmPathPage() {
       window.setTimeout(() => setLockedMsg(null), 1800);
       return;
     }
-
     setPopping(level.id);
-    const stars = (2 + Math.round(Math.random())) as 2 | 3; // 2 or 3
+    const stars = (2 + Math.round(Math.random())) as 2 | 3;
     window.setTimeout(() => {
       setCleared((c) => ({ ...c, [level.id]: stars }));
       setPopping(null);
@@ -196,36 +173,32 @@ function RealmPathPage() {
       } else {
         const cheer = CHEERS[Math.floor(Math.random() * CHEERS.length)];
         speak(cheer);
-        window.setTimeout(() => scrollToLevel(level.id + 1), 350);
       }
     }, 550);
   }
 
-  // dash reveal: portion of trail to highlight bright gold
-  // Bright up to (doneCount) nodes done; if all done include prize.
-  const litCount = doneCount + (doneCount === 12 ? 1 : 0);
-
   return (
     <div className="relative h-screen w-full overflow-hidden">
-      {/* Sky → meadow gradient background */}
+      {/* Full-bleed village background */}
+      <img
+        src={villageBg}
+        alt=""
+        aria-hidden
+        className="absolute inset-0 -z-20 h-full w-full object-cover"
+      />
+      {/* Warm overlay + vignette for legibility */}
       <div
         aria-hidden
         className="absolute inset-0 -z-10"
         style={{
           background:
-            "linear-gradient(to bottom, oklch(0.86 0.08 235) 0%, oklch(0.92 0.06 215) 30%, oklch(0.94 0.08 110) 70%, oklch(0.88 0.13 90) 100%)",
+            "radial-gradient(ellipse at center, rgba(255,236,189,0.18) 0%, rgba(58,32,12,0.45) 100%), linear-gradient(to bottom, rgba(255,220,160,0.15), rgba(40,20,8,0.35))",
         }}
       />
-      {/* Drifting clouds */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <Cloud className="animate-drift" style={{ top: "8%", animationDuration: "32s" }} />
-        <Cloud className="animate-drift" style={{ top: "22%", animationDuration: "44s", animationDelay: "-12s", transform: "scale(0.7)" }} />
-        <Cloud className="animate-drift" style={{ top: "40%", animationDuration: "52s", animationDelay: "-28s", transform: "scale(1.2)" }} />
-      </div>
 
       {/* Sticky header */}
       <header className="absolute inset-x-0 top-0 z-30 border-b-4 border-shard-sun/70 bg-parchment/90 backdrop-blur">
-        <div className="mx-auto flex max-w-md flex-col gap-2 px-4 py-3">
+        <div className="mx-auto flex max-w-3xl flex-col gap-1.5 px-4 py-2">
           <div className="flex items-center gap-2">
             <Link
               to="/realm/$realmId"
@@ -240,7 +213,7 @@ function RealmPathPage() {
                 The Pawn Village
               </h1>
               <p className="mt-0.5 text-[10px] font-bold text-ink/70">
-                Climb all 12 quests to win the Pearl Shard!
+                Race all 12 quests to win the Pearl Shard!
               </p>
             </div>
             <MuteToggle />
@@ -253,12 +226,12 @@ function RealmPathPage() {
         </div>
       </header>
 
-      {/* Scrollable climb */}
-      <div ref={scrollRef} className="absolute inset-0 overflow-y-auto pt-[120px]">
-        <div className="relative mx-auto w-full max-w-md" style={{ height }}>
+      {/* Single-screen race-track board */}
+      <div className="absolute inset-x-0 bottom-0 top-[96px]">
+        <div className="relative mx-auto h-full w-full max-w-5xl">
           {/* Trail */}
           <svg
-            viewBox={`0 0 100 ${height}`}
+            viewBox="0 0 100 100"
             preserveAspectRatio="none"
             className="absolute inset-0 h-full w-full"
             aria-hidden
@@ -267,30 +240,53 @@ function RealmPathPage() {
             <path
               d={pathD}
               fill="none"
-              stroke="rgba(80,50,20,0.35)"
-              strokeWidth="0.8"
+              stroke="rgba(40,20,8,0.55)"
               strokeLinecap="round"
-              strokeDasharray="2 3"
+              strokeDasharray="1.2 2"
               vectorEffect="non-scaling-stroke"
-              style={{ strokeWidth: "3px" } as React.CSSProperties}
+              style={{ strokeWidth: "4px" } as React.CSSProperties}
             />
-            {/* Bright gold lit portion: build a separate path through cleared nodes only */}
-            {litCount > 0 && (
-              <LitTrail points={allPoints} count={litCount} />
+            {/* Bright gold lit portion */}
+            {litD && (
+              <path
+                d={litD}
+                fill="none"
+                stroke="oklch(0.85 0.18 85)"
+                strokeLinecap="round"
+                strokeDasharray="1.2 2"
+                vectorEffect="non-scaling-stroke"
+                style={{
+                  strokeWidth: "6px",
+                  filter: "drop-shadow(0 0 6px oklch(0.85 0.18 85 / 0.9))",
+                } as React.CSSProperties}
+              />
             )}
           </svg>
 
-          {/* Grand prize platform at top */}
+          {/* START marker */}
           <div
             className="absolute -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${prizePoint.x}%`, top: prizePoint.y }}
+            style={{ left: `${NODE_POS[0].x}%`, top: `${NODE_POS[0].y + 9}%` }}
+          >
+            <div className="flex items-end gap-1">
+              <Mariposa size={48} />
+              <div className="mb-1 rounded-full border-2 border-ink/30 bg-parchment/95 px-2 py-0.5 font-display text-[10px] font-black uppercase tracking-widest text-ink shadow">
+                Start
+              </div>
+            </div>
+          </div>
+
+          {/* FINISH / Grand Prize */}
+          <div
+            className="absolute -translate-x-1/2 -translate-y-1/2"
+            style={{ left: `${PRIZE_POS.x}%`, top: `${PRIZE_POS.y}%` }}
           >
             <GrandPrize won={victory || doneCount === 12} />
           </div>
 
-          {/* Levels */}
+          {/* Level nodes */}
           {LEVELS.map((lvl, i) => {
-            const p = points[i];
+            const p = NODE_POS[i];
             const stars = cleared[lvl.id];
             const state: "locked" | "current" | "done" =
               stars !== undefined ? "done" : lvl.id === currentId ? "current" : "locked";
@@ -298,9 +294,9 @@ function RealmPathPage() {
               <div
                 key={lvl.id}
                 className="absolute -translate-x-1/2 -translate-y-1/2"
-                style={{ left: `${p.x}%`, top: p.y }}
+                style={{ left: `${p.x}%`, top: `${p.y}%` }}
               >
-                <PlatformNode
+                <TrackNode
                   level={lvl}
                   state={state}
                   stars={stars ?? 0}
@@ -310,14 +306,6 @@ function RealmPathPage() {
               </div>
             );
           })}
-
-          {/* Mariposa at base */}
-          <div
-            className="absolute -translate-x-1/2"
-            style={{ left: "78%", top: height - 90 }}
-          >
-            <Mariposa size={56} />
-          </div>
         </div>
       </div>
 
@@ -328,7 +316,7 @@ function RealmPathPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="pointer-events-none absolute inset-x-0 bottom-10 z-40 mx-auto w-fit max-w-[90%] rounded-2xl border-2 border-ink/20 bg-parchment/95 px-4 py-2 text-center text-sm font-bold text-ink shadow-lg"
+            className="pointer-events-none absolute inset-x-0 bottom-6 z-40 mx-auto w-fit max-w-[90%] rounded-2xl border-2 border-ink/20 bg-parchment/95 px-4 py-2 text-center text-sm font-bold text-ink shadow-lg"
           >
             🦋 {lockedMsg}
           </motion.div>
@@ -351,7 +339,6 @@ function RealmPathPage() {
               animate={{ scale: 1, opacity: 1 }}
               className="relative w-full max-w-sm rounded-3xl border-4 border-shard-sun bg-parchment p-6 text-center card-pop"
             >
-              {/* Confetti */}
               {Array.from({ length: 24 }).map((_, i) => (
                 <motion.span
                   key={i}
@@ -364,9 +351,7 @@ function RealmPathPage() {
                   }}
                   transition={{ duration: 2 + Math.random(), repeat: Infinity, delay: Math.random() }}
                   className="pointer-events-none absolute left-1/2 top-1/2 inline-block h-2 w-2 rounded-sm"
-                  style={{
-                    background: ["#f7c948", "#e8a87c", "#7d9b76", "#6ba3c8"][i % 4],
-                  }}
+                  style={{ background: ["#f7c948", "#e8a87c", "#7d9b76", "#6ba3c8"][i % 4] }}
                 />
               ))}
               <motion.div
@@ -391,7 +376,7 @@ function RealmPathPage() {
                   onClick={() => { setCleared({}); setVictory(false); }}
                   className="rounded-full border-2 border-ink/30 px-5 py-1.5 text-xs font-black text-ink"
                 >
-                  Climb again
+                  Race again
                 </button>
               </div>
             </motion.div>
@@ -400,6 +385,27 @@ function RealmPathPage() {
       </AnimatePresence>
     </div>
   );
+}
+
+// ---------------- Helpers ----------------
+
+function buildSmoothPath(points: { x: number; y: number }[]): string {
+  if (points.length === 0) return "";
+  if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
+  // Catmull-Rom-ish smoothing → cubic Beziers
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i - 1] ?? points[i];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[i + 2] ?? p2;
+    const c1x = p1.x + (p2.x - p0.x) / 6;
+    const c1y = p1.y + (p2.y - p0.y) / 6;
+    const c2x = p2.x - (p3.x - p1.x) / 6;
+    const c2y = p2.y - (p3.y - p1.y) / 6;
+    d += ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2.x} ${p2.y}`;
+  }
+  return d;
 }
 
 // ---------------- Sub-components ----------------
@@ -418,92 +424,24 @@ function Pill({ children, highlight }: { children: React.ReactNode; highlight?: 
   );
 }
 
-function Cloud({ className, style }: { className?: string; style?: React.CSSProperties }) {
-  return (
-    <svg
-      className={className}
-      style={style}
-      width="120"
-      height="50"
-      viewBox="0 0 120 50"
-      aria-hidden
-    >
-      <g fill="rgba(255,255,255,0.85)">
-        <ellipse cx="30" cy="30" rx="22" ry="14" />
-        <ellipse cx="58" cy="22" rx="26" ry="16" />
-        <ellipse cx="88" cy="30" rx="22" ry="14" />
-      </g>
-    </svg>
-  );
-}
-
-function LitTrail({ points, count }: { points: { x: number; y: number }[]; count: number }) {
-  const lit = points.slice(0, count);
-  if (lit.length < 2) return null;
-  const d = lit.reduce((acc, p, i) => {
-    if (i === 0) return `M ${p.x} ${p.y}`;
-    const prev = lit[i - 1];
-    const cy = (prev.y + p.y) / 2;
-    return `${acc} C ${prev.x} ${cy}, ${p.x} ${cy}, ${p.x} ${p.y}`;
-  }, "");
-  return (
-    <path
-      d={d}
-      fill="none"
-      stroke="oklch(0.82 0.17 85)"
-      strokeWidth="1.2"
-      strokeLinecap="round"
-      strokeDasharray="2 2.5"
-      vectorEffect="non-scaling-stroke"
-      style={{
-        strokeWidth: "4px",
-        filter: "drop-shadow(0 0 4px oklch(0.85 0.18 85 / 0.8))",
-      } as React.CSSProperties}
-    />
-  );
-}
-
-function Platform() {
-  // grassy floating stepping-stone SVG
-  return (
-    <svg width="130" height="50" viewBox="0 0 130 50" aria-hidden className="drop-shadow-[0_8px_10px_rgba(0,0,0,0.25)]">
-      {/* dirt underside */}
-      <ellipse cx="65" cy="32" rx="56" ry="16" fill="oklch(0.42 0.08 60)" />
-      <ellipse cx="65" cy="28" rx="58" ry="15" fill="oklch(0.5 0.1 60)" />
-      {/* grass top */}
-      <ellipse cx="65" cy="22" rx="58" ry="12" fill="oklch(0.7 0.16 145)" />
-      <ellipse cx="65" cy="20" rx="58" ry="10" fill="oklch(0.78 0.16 140)" />
-      {/* grass blades */}
-      <path d="M 18 16 q 3 -6 6 0" stroke="oklch(0.62 0.16 145)" strokeWidth="1.4" fill="none" strokeLinecap="round" />
-      <path d="M 100 14 q 3 -6 6 0" stroke="oklch(0.62 0.16 145)" strokeWidth="1.4" fill="none" strokeLinecap="round" />
-      <path d="M 60 12 q 3 -7 6 0" stroke="oklch(0.62 0.16 145)" strokeWidth="1.4" fill="none" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function GrandPrize({ won }: { won: boolean }) {
   return (
     <div className="flex flex-col items-center">
-      <div className="rounded-2xl border-2 border-ink/20 bg-parchment/95 px-3 py-1 font-display text-xs font-black uppercase tracking-widest text-ink shadow">
-        Grand Prize
+      <div className="rounded-2xl border-2 border-ink/20 bg-parchment/95 px-2.5 py-0.5 font-display text-[10px] font-black uppercase tracking-widest text-ink shadow">
+        🏁 Finish
       </div>
-      <div className="relative mt-2">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-          className={`grid h-24 w-24 place-items-center rounded-full bg-shard-pearl text-5xl shadow-2xl ring-4 ${won ? "ring-shard-sun" : "ring-parchment/80"} animate-glow`}
-        >
-          ☾
-        </motion.div>
-        <div className="-mt-3 scale-[1.4]">
-          <Platform />
-        </div>
-      </div>
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+        className={`mt-1.5 grid h-16 w-16 place-items-center rounded-full bg-shard-pearl text-3xl shadow-2xl ring-4 ${won ? "ring-shard-sun animate-glow" : "ring-parchment/80"}`}
+      >
+        ☾
+      </motion.div>
     </div>
   );
 }
 
-function PlatformNode({
+function TrackNode({
   level,
   state,
   stars,
@@ -528,97 +466,90 @@ function PlatformNode({
   const medallionText = state === "locked" ? "text-ink/40" : "text-ink";
 
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex flex-col items-center gap-0.5">
       {/* Name tag */}
-      <div className="max-w-[11rem] rounded-xl border-2 border-ink/25 bg-parchment/95 px-2.5 py-1 text-center shadow-md">
-        <div className="font-display text-[11px] font-black leading-tight text-ink">
+      <div className="max-w-[8.5rem] rounded-lg border-2 border-ink/25 bg-parchment/95 px-2 py-0.5 text-center shadow-md">
+        <div className="font-display text-[10px] font-black leading-tight text-ink whitespace-nowrap">
           {level.name}
         </div>
-        <div className="text-[9px] font-bold uppercase tracking-wider" style={{ color: ring.color }}>
-          {ring.icon} {ring.label}
-        </div>
       </div>
 
-      {/* Medallion + platform stack */}
-      <div className="relative">
-        <motion.button
-          type="button"
-          onClick={onTap}
-          aria-label={`Level ${level.id}: ${level.name} — ${state}`}
-          aria-disabled={state !== "current"}
-          disabled={state === "done"}
-          animate={
-            popping
-              ? { scale: [1, 1.3, 1] }
-              : state === "current"
-                ? { y: [0, -6, 0] }
-                : { y: 0 }
-          }
-          transition={
-            popping
-              ? { duration: 0.5 }
-              : state === "current"
-                ? { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
-                : { duration: 0 }
-          }
-          className={`relative z-10 grid h-16 w-16 place-items-center rounded-full border-4 ${medallionBg} ${medallionText} shadow-xl ring-4 ${
-            state === "current" ? "animate-glow cursor-pointer" : ""
-          } ${state === "locked" ? "opacity-70" : ""}`}
-          style={{
-            borderColor: "var(--parchment)",
-            // @ts-expect-error css var
-            "--tw-ring-color": ring.color,
-            boxShadow: `0 0 0 4px ${ring.color}`,
-          }}
-        >
-          {state === "locked" && <span className="text-2xl">🔒</span>}
-          {state === "current" && (
-            <span className="text-2xl">{isBoss ? "♛" : level.id}</span>
-          )}
-          {state === "done" && <span className="text-2xl font-black">✓</span>}
+      {/* Medallion */}
+      <motion.button
+        type="button"
+        onClick={onTap}
+        aria-label={`Level ${level.id}: ${level.name} — ${state}`}
+        aria-disabled={state !== "current"}
+        disabled={state === "done"}
+        animate={
+          popping
+            ? { scale: [1, 1.3, 1] }
+            : state === "current"
+              ? { y: [0, -4, 0] }
+              : { y: 0 }
+        }
+        transition={
+          popping
+            ? { duration: 0.5 }
+            : state === "current"
+              ? { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
+              : { duration: 0 }
+        }
+        className={`relative grid h-12 w-12 place-items-center rounded-full ${medallionBg} ${medallionText} shadow-xl ${
+          state === "current" ? "animate-glow cursor-pointer" : ""
+        } ${state === "locked" ? "opacity-80" : ""}`}
+        style={{
+          border: "3px solid var(--parchment)",
+          boxShadow: `0 0 0 3px ${ring.color}, 0 6px 12px rgba(0,0,0,0.35)`,
+        }}
+      >
+        {state === "locked" && <span className="text-lg">🔒</span>}
+        {state === "current" && (
+          <span className="text-base font-black">{isBoss ? "♛" : level.id}</span>
+        )}
+        {state === "done" && <span className="text-lg font-black">✓</span>}
 
-          {/* Number badge */}
-          {state !== "current" && (
-            <span className="absolute -top-1.5 -left-1.5 grid h-5 w-5 place-items-center rounded-full bg-ink text-[10px] font-black text-parchment ring-2 ring-parchment">
-              {level.id}
-            </span>
-          )}
+        {/* Number badge */}
+        {state !== "current" && (
+          <span className="absolute -top-1 -left-1 grid h-4 w-4 place-items-center rounded-full bg-ink text-[9px] font-black text-parchment ring-2 ring-parchment">
+            {level.id}
+          </span>
+        )}
 
-          {/* PLAY tag for current */}
-          {state === "current" && (
-            <span className="absolute -right-8 top-1/2 -translate-y-1/2 rounded-full bg-ink px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-parchment shadow-md">
-              {isBoss ? "♛ Boss" : "Play"}
-            </span>
-          )}
+        {/* PLAY tag for current */}
+        {state === "current" && (
+          <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-ink px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-parchment shadow-md">
+            {isBoss ? "♛ Boss" : "Play"}
+          </span>
+        )}
 
-          {/* Sparkles when popping */}
-          {popping && (
-            <>
-              {[0, 60, 120, 180, 240, 300].map((deg) => (
-                <motion.span
-                  key={deg}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: [0, 1, 0], scale: [0, 1.4, 0], x: Math.cos((deg * Math.PI) / 180) * 36, y: Math.sin((deg * Math.PI) / 180) * 36 }}
-                  transition={{ duration: 0.6 }}
-                  className="pointer-events-none absolute text-shard-sun"
-                >
-                  ✦
-                </motion.span>
-              ))}
-            </>
-          )}
-        </motion.button>
-
-        {/* Platform under medallion */}
-        <div className="-mt-3">
-          <Platform />
-        </div>
-      </div>
+        {/* Sparkles when popping */}
+        {popping && (
+          <>
+            {[0, 60, 120, 180, 240, 300].map((deg) => (
+              <motion.span
+                key={deg}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{
+                  opacity: [0, 1, 0],
+                  scale: [0, 1.4, 0],
+                  x: Math.cos((deg * Math.PI) / 180) * 30,
+                  y: Math.sin((deg * Math.PI) / 180) * 30,
+                }}
+                transition={{ duration: 0.6 }}
+                className="pointer-events-none absolute text-shard-sun"
+              >
+                ✦
+              </motion.span>
+            ))}
+          </>
+        )}
+      </motion.button>
 
       {/* Stars */}
-      <div className="h-3 text-center" aria-label={state === "done" ? `${stars} of 3 stars` : undefined}>
+      <div className="mt-2 h-3 text-center" aria-label={state === "done" ? `${stars} of 3 stars` : undefined}>
         {state === "done" && (
-          <span className="text-xs leading-none">
+          <span className="text-[11px] leading-none">
             {[1, 2, 3].map((s) => (
               <span key={s} className={s <= stars ? "text-shard-sun" : "text-ink/20"}>★</span>
             ))}
