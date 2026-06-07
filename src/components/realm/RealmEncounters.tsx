@@ -362,21 +362,28 @@ export function MiniBossEncounter({ realm, onClose, onWin }: MiniBossProps) {
             )}
           </div>
 
+          {/* Live announcer for screen readers */}
+          <div className="sr-only" role="status" aria-live="polite">
+            {sayText} Found {hits.size} of {needed}. {lives} {lives === 1 ? "life" : "lives"} left.
+          </div>
+
           {stage === "playing" && (
             <div className="mt-3 flex items-center justify-between gap-2">
               <p className="text-xs font-bold text-ink/60">
-                Tip: a knight jumps two-then-one, like the letter <strong>L</strong>.
+                Tip: jump two-then-one (L). <span className="hidden sm:inline">Arrow keys to move, Enter to choose, H for hint.</span>
               </p>
               <button
                 type="button"
                 onClick={showHint}
                 disabled={hintsLeft <= 0}
-                className="shrink-0 rounded-full border-2 border-shard-sun/70 bg-shard-sun/20 px-3 py-1 text-xs font-black text-ink hover-scale disabled:cursor-not-allowed disabled:opacity-50"
+                aria-label={`Reveal a hint, ${hintsLeft} remaining`}
+                className="shrink-0 rounded-full border-2 border-shard-sun/70 bg-shard-sun/20 px-4 py-2 text-sm font-black text-ink min-h-11 hover-scale focus:outline-none focus-visible:ring-4 focus-visible:ring-shard-sun disabled:cursor-not-allowed disabled:opacity-50"
               >
                 💡 Hint ({hintsLeft})
               </button>
             </div>
           )}
+
 
           {stage === "won" && (
             <div className="mt-4 text-center animate-scale-in">
