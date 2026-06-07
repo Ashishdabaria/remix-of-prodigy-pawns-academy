@@ -61,6 +61,39 @@ interface MiniBossProps {
   onWin: () => void;
 }
 
+const KNIGHT_LINES = {
+  intro: [
+    "Oh dear — Sir Trotsalot got tangled in his own L-shapes again!",
+    "The Lost Knight is dizzy. Show him where he CAN leap!",
+    "Knights jump two-then-one. Help our friend find the way!",
+  ],
+  hit: [
+    "Yes! That's a real L-shape — perfect leap!",
+    "Magnificent! The knight loves that square!",
+    "Another L found! He's nearly free!",
+  ],
+  miss: [
+    "Oops — that's not an L. The knight just wobbled.",
+    "Almost! Knights never go straight. Try two-then-one.",
+    "Not quite — count two, then one to the side.",
+  ],
+  won: [
+    "Hooray! Sir Trotsalot is free! You're a true knight-whisperer!",
+    "You did it! The Lost Knight bows to you!",
+  ],
+  lost: [
+    "Brave try, hero! The knight giggled and we'll try again.",
+  ],
+  hint: [
+    "Psst… try two up, then one across!",
+    "Look for squares shaped like the letter L.",
+  ],
+} as const;
+
+function pick<T>(arr: readonly T[], seed: number) {
+  return arr[Math.abs(seed) % arr.length];
+}
+
 export function MiniBossEncounter({ realm, onClose, onWin }: MiniBossProps) {
   const SIZE = 5; // 5x5 grid, knight at (2,2)
   const KX = 2;
@@ -76,6 +109,14 @@ export function MiniBossEncounter({ realm, onClose, onWin }: MiniBossProps) {
   const [hits, setHits] = useState<Set<string>>(new Set());
   const [lives, setLives] = useState(3);
   const [stage, setStage] = useState<"intro" | "playing" | "won" | "lost">("intro");
+  const [say, setSay] = useState<{ moment: "intro" | "hit" | "miss" | "won" | "lost" | "hint"; nonce: number }>({
+    moment: "intro",
+    nonce: 0,
+  });
+  const [hintKey, setHintKey] = useState<string | null>(null);
+  const [shake, setShake] = useState(false);
+  const [lastTap, setLastTap] = useState<{ x: number; y: number; good: boolean } | null>(null);
+  const [hintsLeft, setHintsLeft] = useState(2);
 
   const needed = 3;
 
@@ -88,29 +129,52 @@ export function MiniBossEncounter({ realm, onClose, onWin }: MiniBossProps) {
     return LMOVES.some(([a, b]) => a === dx && b === dy);
   }
 
+  function showHint() {
+    if (hintsLeft <= 0) return;
+    // Pick a valid L-move square that isn't already found.
+    const candidates = LMOVES
+      .map(([dx, dy]) => [KX + dx, KY + dy] as const)
+      .filter(([x, y]) => x >= 0 && x < SIZE && y >= 0 && y < SIZE && !hits.has(key(x, y)));
+    if (!candidates.length) return;
+    const [hx, hy] = candidates[Math.floor(Math.random() * candidates.length)];
+    setHintKey(key(hx, hy));
+    setHintsLeft((n) => n - 1);
+    setSay({ moment: "hint", nonce: Date.now() });
+    setTimeout(() => setHintKey((k) => (k === key(hx, hy) ? null : k)), 2400);
+  }
+
   function tap(x: number, y: number) {
     if (stage !== "playing") return;
     if (x === KX && y === KY) return;
     const k = key(x, y);
     if (hits.has(k)) return;
+    setHintKey(null);
 
     if (isKnightMove(x, y)) {
       const next = new Set(hits);
       next.add(k);
       setHits(next);
+      setLastTap({ x, y, good: true });
+      setSay({ moment: "hit", nonce: Date.now() });
       if (next.size >= needed) {
         addXP(40);
         addGold(10);
         addBraveHeart(1);
         setStage("won");
+        setSay({ moment: "won", nonce: Date.now() + 1 });
         onWin();
       }
     } else {
       const remaining = lives - 1;
       setLives(remaining);
+      setLastTap({ x, y, good: false });
+      setShake(true);
+      setSay({ moment: "miss", nonce: Date.now() });
+      setTimeout(() => setShake(false), 500);
       if (remaining <= 0) {
         addBraveHeart(2);
         setStage("lost");
+        setSay({ moment: "lost", nonce: Date.now() + 1 });
       }
     }
   }
@@ -118,8 +182,14 @@ export function MiniBossEncounter({ realm, onClose, onWin }: MiniBossProps) {
   function reset() {
     setHits(new Set());
     setLives(3);
+    setHintsLeft(2);
+    setLastTap(null);
+    setHintKey(null);
     setStage("playing");
+    setSay({ moment: "intro", nonce: Date.now() });
   }
+
+  const sayText = pick(KNIGHT_LINES[say.moment], say.nonce || 0);
 
   return (
     <ModalShell
@@ -139,7 +209,10 @@ export function MiniBossEncounter({ realm, onClose, onWin }: MiniBossProps) {
             />
           </div>
           <button
-            onClick={() => setStage("playing")}
+            onClick={() => {
+              setStage("playing");
+              setSay({ moment: "intro", nonce: Date.now() });
+            }}
             className="mt-4 w-full rounded-full bg-shard-amber px-5 py-3 font-display text-base font-black text-ink hover-scale animate-glow"
           >
             ▶ Help the knight
@@ -149,49 +222,113 @@ export function MiniBossEncounter({ realm, onClose, onWin }: MiniBossProps) {
 
       {(stage === "playing" || stage === "won" || stage === "lost") && (
         <>
+          {/* Knight + Mariposa dialogue bubble */}
+          <div className="mb-3 flex items-start gap-2">
+            <div
+              className={`grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 border-shard-amber/70 bg-shard-amber/25 text-3xl ${
+                stage === "won" ? "animate-bounce" : "animate-float"
+              }`}
+              aria-hidden
+            >
+              {stage === "lost" ? "🥺" : stage === "won" ? "🤩" : "🐴"}
+            </div>
+            <MariposaSay moment="PIECE_HINT" text={sayText} nonce={say.nonce} size={44} />
+          </div>
+
           <div className="mb-2 flex items-center justify-between text-xs font-black uppercase tracking-widest text-ink/70">
             <span>Found {hits.size}/{needed}</span>
             <span aria-label={`${lives} lives left`}>{"♥".repeat(lives)}{"♡".repeat(Math.max(0, 3 - lives))}</span>
           </div>
 
-          <div className="mx-auto grid w-fit grid-cols-5 overflow-hidden rounded-md border-2 border-ink/30">
-            {Array.from({ length: SIZE * SIZE }).map((_, i) => {
-              const x = i % SIZE;
-              const y = Math.floor(i / SIZE);
-              const dark = (x + y) % 2 === 1;
-              const isKnight = x === KX && y === KY;
-              const k = key(x, y);
-              const found = hits.has(k);
-              return (
-                <button
-                  key={k}
-                  type="button"
-                  disabled={stage !== "playing" || isKnight}
-                  onClick={() => tap(x, y)}
-                  className={`grid h-10 w-10 place-items-center text-xl font-black transition
-                    ${found ? "bg-shard-emerald text-parchment" : dark ? "bg-ink/70 text-parchment" : "bg-parchment text-ink"}
-                    ${isKnight ? "bg-shard-amber text-ink" : ""}
-                    ${stage === "playing" && !isKnight ? "hover:scale-105" : ""}`}
-                >
-                  {isKnight ? "♞" : found ? "✦" : ""}
-                </button>
-              );
-            })}
+          <div
+            className={`relative mx-auto w-fit ${shake ? "animate-shake" : ""}`}
+          >
+            <div className="grid w-fit grid-cols-5 overflow-hidden rounded-md border-2 border-ink/30">
+              {Array.from({ length: SIZE * SIZE }).map((_, i) => {
+                const x = i % SIZE;
+                const y = Math.floor(i / SIZE);
+                const dark = (x + y) % 2 === 1;
+                const isKnight = x === KX && y === KY;
+                const k = key(x, y);
+                const found = hits.has(k);
+                const isHint = hintKey === k;
+                const isMiss = lastTap && !lastTap.good && lastTap.x === x && lastTap.y === y;
+                return (
+                  <button
+                    key={k}
+                    type="button"
+                    disabled={stage !== "playing" || isKnight}
+                    onClick={() => tap(x, y)}
+                    className={`relative grid h-10 w-10 place-items-center text-xl font-black transition
+                      ${found ? "bg-shard-emerald text-parchment" : dark ? "bg-ink/70 text-parchment" : "bg-parchment text-ink"}
+                      ${isKnight ? "bg-shard-amber text-ink" : ""}
+                      ${isHint ? "ring-4 ring-shard-sun animate-pulse" : ""}
+                      ${stage === "playing" && !isKnight ? "hover:scale-105" : ""}`}
+                  >
+                    {isKnight ? (
+                      <span className={stage === "won" ? "inline-block animate-bounce" : ""}>♞</span>
+                    ) : found ? (
+                      <span className="animate-scale-in">✦</span>
+                    ) : isHint ? (
+                      "★"
+                    ) : (
+                      ""
+                    )}
+                    {isMiss && (
+                      <span className="pointer-events-none absolute inset-0 grid place-items-center text-2xl text-rose animate-zap-pop">
+                        ✕
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Completion sparkle burst */}
+            {stage === "won" && (
+              <div aria-hidden className="pointer-events-none absolute inset-0 overflow-visible">
+                {Array.from({ length: 18 }).map((_, i) => (
+                  <span
+                    key={i}
+                    className="absolute text-2xl text-shard-sun animate-fade-in"
+                    style={{
+                      left: `${(i * 53) % 100}%`,
+                      top: `${(i * 37) % 100}%`,
+                      animationDelay: `${i * 40}ms`,
+                      transform: `rotate(${i * 27}deg)`,
+                      textShadow: "0 0 12px rgba(255,200,80,0.9)",
+                    }}
+                  >
+                    ✦
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {stage === "playing" && (
-            <p className="mt-3 text-center text-xs font-bold text-ink/60">
-              Tip: a knight jumps two-then-one, like the letter <strong>L</strong>.
-            </p>
+            <div className="mt-3 flex items-center justify-between gap-2">
+              <p className="text-xs font-bold text-ink/60">
+                Tip: a knight jumps two-then-one, like the letter <strong>L</strong>.
+              </p>
+              <button
+                type="button"
+                onClick={showHint}
+                disabled={hintsLeft <= 0}
+                className="shrink-0 rounded-full border-2 border-shard-sun/70 bg-shard-sun/20 px-3 py-1 text-xs font-black text-ink hover-scale disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                💡 Hint ({hintsLeft})
+              </button>
+            </div>
           )}
 
           {stage === "won" && (
-            <div className="mt-4 text-center">
-              <div className="font-display text-2xl font-black">🎉 You freed the knight!</div>
+            <div className="mt-4 text-center animate-scale-in">
+              <div className="font-display text-3xl font-black animate-glow">🎉 You freed the knight!</div>
               <div className="mt-1 font-bold text-shard-emerald">+40 XP   +10 🪙   +1 ♥</div>
               <button
                 onClick={onClose}
-                className="mt-3 rounded-full bg-ink px-5 py-2 font-display text-sm font-black text-parchment"
+                className="mt-3 rounded-full bg-ink px-5 py-2 font-display text-sm font-black text-parchment hover-scale"
               >
                 Done
               </button>
@@ -205,7 +342,7 @@ export function MiniBossEncounter({ realm, onClose, onWin }: MiniBossProps) {
               <div className="mt-1 font-bold text-rose">+2 ♥ Brave Hearts</div>
               <button
                 onClick={reset}
-                className="mt-3 rounded-full bg-shard-amber px-5 py-2 font-display text-sm font-black text-ink"
+                className="mt-3 rounded-full bg-shard-amber px-5 py-2 font-display text-sm font-black text-ink hover-scale"
               >
                 Try again
               </button>
