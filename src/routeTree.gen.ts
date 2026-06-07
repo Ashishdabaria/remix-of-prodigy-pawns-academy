@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as PosterRouteImport } from './routes/poster'
 import { Route as ParentRouteImport } from './routes/parent'
+import { Route as CompanionsRouteImport } from './routes/companions'
 import { Route as CodexRouteImport } from './routes/codex'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RealmRealmIdRouteImport } from './routes/realm.$realmId'
@@ -30,6 +31,11 @@ const PosterRoute = PosterRouteImport.update({
 const ParentRoute = ParentRouteImport.update({
   id: '/parent',
   path: '/parent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompanionsRoute = CompanionsRouteImport.update({
+  id: '/companions',
+  path: '/companions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CodexRoute = CodexRouteImport.update({
@@ -56,6 +62,7 @@ const RealmRealmIdPlayRoute = RealmRealmIdPlayRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/codex': typeof CodexRoute
+  '/companions': typeof CompanionsRoute
   '/parent': typeof ParentRoute
   '/poster': typeof PosterRoute
   '/student': typeof StudentRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/codex': typeof CodexRoute
+  '/companions': typeof CompanionsRoute
   '/parent': typeof ParentRoute
   '/poster': typeof PosterRoute
   '/student': typeof StudentRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/codex': typeof CodexRoute
+  '/companions': typeof CompanionsRoute
   '/parent': typeof ParentRoute
   '/poster': typeof PosterRoute
   '/student': typeof StudentRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/codex'
+    | '/companions'
     | '/parent'
     | '/poster'
     | '/student'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/codex'
+    | '/companions'
     | '/parent'
     | '/poster'
     | '/student'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/codex'
+    | '/companions'
     | '/parent'
     | '/poster'
     | '/student'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CodexRoute: typeof CodexRoute
+  CompanionsRoute: typeof CompanionsRoute
   ParentRoute: typeof ParentRoute
   PosterRoute: typeof PosterRoute
   StudentRoute: typeof StudentRoute
@@ -142,6 +155,13 @@ declare module '@tanstack/react-router' {
       path: '/parent'
       fullPath: '/parent'
       preLoaderRoute: typeof ParentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/companions': {
+      id: '/companions'
+      path: '/companions'
+      fullPath: '/companions'
+      preLoaderRoute: typeof CompanionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/codex': {
@@ -178,6 +198,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CodexRoute: CodexRoute,
+  CompanionsRoute: CompanionsRoute,
   ParentRoute: ParentRoute,
   PosterRoute: PosterRoute,
   StudentRoute: StudentRoute,
@@ -187,13 +208,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

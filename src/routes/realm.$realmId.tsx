@@ -5,6 +5,8 @@ import { ShardBadge } from "@/components/ShardBadge";
 import { Mariposa } from "@/components/Mariposa";
 import { SideQuest } from "@/components/realm/SideQuest";
 import { MiniBossEncounter, BossEncounter, TreasureChest } from "@/components/realm/RealmEncounters";
+import { WildEncounter } from "@/components/realm/WildEncounter";
+import { MEMBER_REALM_IDS } from "@/data/pets";
 
 export const Route = createFileRoute("/realm/$realmId")({
   loader: ({ params }) => {
@@ -53,6 +55,9 @@ function RealmPage() {
   const [completed, setCompleted] = useState<Record<number, boolean>>({});
   const [encounter, setEncounter] = useState<null | "miniBoss" | "boss" | "treasure">(null);
   const [encDone, setEncDone] = useState<{ miniBoss?: boolean; boss?: boolean; treasure?: boolean }>({});
+  const [wild, setWild] = useState(false);
+  const [memberGate, setMemberGate] = useState(MEMBER_REALM_IDS.has(realm.id));
+  const isMemberRealm = MEMBER_REALM_IDS.has(realm.id);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
