@@ -245,6 +245,32 @@ function RealmPage() {
         />
       )}
 
+      {wild && (
+        <WildEncounter
+          realm={realm}
+          onWin={() => { /* hook into XP later */ }}
+          onFlee={() => setWild(false)}
+          onClose={() => setWild(false)}
+        />
+      )}
+
+      {memberGate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/70 p-4 animate-fade-in" role="dialog" aria-modal="true">
+          <div className="w-full max-w-md rounded-3xl border-4 border-shard-amethyst/60 bg-card p-6 card-pop animate-scale-in text-center">
+            <div className="text-5xl">👑</div>
+            <h3 className="mt-2 font-display text-2xl font-black">Royal Pass realm</h3>
+            <p className="mt-2 text-sm text-ink/75">
+              <strong>{realm.name}</strong> is a member-only zone. Members get bonus realms, legendary pets, and the parent progress dashboard.
+            </p>
+            <div className="mt-5 flex flex-col gap-2">
+              <button onClick={() => setMemberGate(false)} className="rounded-full bg-shard-amethyst px-5 py-2 font-black text-parchment">Preview this realm</button>
+              <Link to="/parent" className="rounded-full border-2 border-ink/30 px-5 py-2 text-sm font-black text-ink">Learn about the Royal Pass</Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       {/* Prev / next */}
       <nav className="mt-8 flex flex-wrap items-center justify-between gap-3">
         {prev ? (
