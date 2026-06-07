@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { PETS } from "@/data/pets";
+import { useEquippedPet, setEquippedPet } from "@/data/pets-state";
 
 export const Route = createFileRoute("/companions")({
   head: () => ({
@@ -15,7 +16,7 @@ export const Route = createFileRoute("/companions")({
 });
 
 function CompanionsPage() {
-  const [equipped, setEquipped] = useState<string>("pawnling");
+  const equipped = useEquippedPet().id;
   const [unlocked] = useState<Set<string>>(new Set(["pawnling", "knightcub", "bishopowl"]));
   const [memberLock, setMemberLock] = useState<string | null>(null);
 
@@ -54,7 +55,7 @@ function CompanionsPage() {
                 <div className="mt-2 text-[11px] font-black uppercase tracking-widest text-shard-amethyst">👑 Royal Pass</div>
               )}
               <button
-                onClick={() => locked ? setMemberLock(p.name) : setEquipped(p.id)}
+                onClick={() => locked ? setMemberLock(p.name) : setEquippedPet(p.id)}
                 disabled={!isUnlocked && !locked}
                 className={`mt-4 w-full rounded-full px-4 py-2 text-sm font-black ${
                   isEquipped ? "bg-shard-sun text-ink"

@@ -7,6 +7,7 @@ import { SideQuest } from "@/components/realm/SideQuest";
 import { MiniBossEncounter, BossEncounter, TreasureChest } from "@/components/realm/RealmEncounters";
 import { WildEncounter } from "@/components/realm/WildEncounter";
 import { MEMBER_REALM_IDS } from "@/data/pets";
+import { Buddy } from "@/components/Buddy";
 
 export const Route = createFileRoute("/realm/$realmId")({
   loader: ({ params }) => {
@@ -116,6 +117,7 @@ function RealmPage() {
           <div className="flex items-center gap-3">
             <Mariposa size={72} />
             <h2 className="font-display text-xl font-black">Mariposa here</h2>
+            <div className="ml-auto"><Buddy size={48} label="Buddy" /></div>
           </div>
           <p className="mt-3 text-sm text-ink/80">{realm.mariposaForm}</p>
         </aside>
