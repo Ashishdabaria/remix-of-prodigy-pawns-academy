@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate, notFound } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getRealm, type Realm } from "@/data/realms";
 import { fetchLevels, completeLevel, getPlayerId, type LevelRow } from "@/lib/progress";
