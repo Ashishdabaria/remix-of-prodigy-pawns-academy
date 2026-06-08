@@ -733,21 +733,29 @@ function StageModal({
   const ring = RING[level.type];
   const allDone = done.every(Boolean);
 
+  // A stage unlocks only after every earlier stage is complete.
+  const unlockedUpTo = done.findIndex((d) => !d);
+  function isUnlocked(i: number) {
+    if (i === 0) return true;
+    return done.slice(0, i).every(Boolean);
+  }
+
   function finishStage(i: number) {
+    if (!isUnlocked(i) || done[i]) return;
+    playClick("success");
     setDone((d) => {
-      if (d[i]) return d;
       const next = [...d];
       next[i] = true;
       return next;
     });
     const stage = stages[i];
     if (stage.kind === "video")     speak("Great watching! Now try the puzzle.");
-    if (stage.kind === "puzzle")    speak("Nice solve! On to the challenge.");
+    if (stage.kind === "puzzle")    speak("Nice solve! Challenge unlocked!");
     if (stage.kind === "challenge") speak("Challenge cleared, hero!");
     if (stage.kind === "critter" && level.critter) speak(level.critter.cheer);
-    // auto-advance
     setActive(Math.min(stages.length - 1, i + 1));
   }
+
 
   const activeStage = stages[active];
 
