@@ -19,6 +19,10 @@ import {
 
 
 export const Route = createFileRoute("/realm/$realmId_/path")({
+  validateSearch: (search: Record<string, unknown>) => {
+    const m = typeof search.module === "string" ? search.module : undefined;
+    return { module: m };
+  },
   loader: ({ params }) => {
     const realm = getRealm(params.realmId);
     if (!realm) throw notFound();
@@ -29,7 +33,7 @@ export const Route = createFileRoute("/realm/$realmId_/path")({
     return {
       meta: [
         { title: r ? `${r.name} — Quest Path` : "Quest Path" },
-        { name: "description", content: "Race across the Pawn Village to win the Pearl Shard." },
+        { name: "description", content: "Race the magical path to win the Shard." },
       ],
     };
   },
@@ -48,50 +52,7 @@ export const Route = createFileRoute("/realm/$realmId_/path")({
   component: RealmPathPage,
 });
 
-// ---------------- Level data ----------------
-
-type LevelType = "lesson" | "challenge" | "miniboss" | "treasure" | "boss";
-
-interface Critter {
-  emoji: string;
-  name: string;
-  taunt: string;
-  cheer: string;
-}
-
-interface ClimbLevel {
-  id: number;
-  name: string;
-  type: LevelType;
-  blurb: string;
-  critter?: Critter;
-  /** Module 1 — render a Catch the Star mini-game for this piece in the challenge stage. */
-  starPiece?: StarPiece;
-  /** Module 1 boss — render the Pawn Promotion Run in the challenge stage. */
-  promotionRun?: boolean;
-}
-
-const CRITTERS: Record<string, Critter> = {
-  hoppy:    { emoji: "🐇",  name: "Hoppy the Hare",       taunt: "Catch me if you can!",                       cheer: "Hop-tastic! You got me!" },
-  acorn:    { emoji: "🐿️", name: "Acorn the Squirrel",   taunt: "These nuts are MINE!",                       cheer: "Okay okay, share the acorns!" },
-  guardian: { emoji: "🗿",  name: "The Board Guardian",   taunt: "None pass without 64 squares of wisdom.",    cheer: "The path is yours, Apprentice." },
-};
-
-// ───── Module 1: Meet the Army — Kingdom Parade + Catch the Star + Promotion Run ─────
-const LEVELS: ClimbLevel[] = [
-  { id: 1,  name: "Meet the King",    type: "lesson",    blurb: "The slow, precious ruler." },
-  { id: 2,  name: "Meet the Knight",  type: "lesson",    blurb: "The acrobatic L-shaped jumper." },
-  { id: 3,  name: "Meet the Pawn",    type: "lesson",    blurb: "The brave little foot soldier." },
-  { id: 4,  name: "Meet the Rook",    type: "lesson",    blurb: "The Tower of Power." },
-  { id: 5,  name: "Meet the Bishop",  type: "lesson",    blurb: "The diagonal whisperer." },
-  { id: 6,  name: "Meet the Queen",   type: "lesson",    blurb: "The all-powerful warrior queen." },
-  { id: 7,  name: "Catch the Star: King",   type: "challenge", blurb: "Tap every square the King can reach.",   starPiece: "king" },
-  { id: 8,  name: "Catch the Star: Knight", type: "challenge", blurb: "L-shaped leaps across the board.",       starPiece: "knight", critter: CRITTERS.hoppy },
-  { id: 9,  name: "Catch the Star: Rook",   type: "challenge", blurb: "Straight-line stars only.",              starPiece: "rook" },
-  { id: 10, name: "Catch the Star: Bishop", type: "treasure",  blurb: "Diagonals — light and dark.",            starPiece: "bishop" },
-  { id: 11, name: "Catch the Star: Queen",  type: "challenge", blurb: "Every direction, every star.",           starPiece: "queen", critter: CRITTERS.acorn },
-  { id: 12, name: "Pawn Promotion Run",     type: "boss",      blurb: "Race a pawn to rank 8 — promote!",       promotionRun: true, critter: CRITTERS.guardian },
-];
+// ---------------- Stage stepper data ----------------
 
 type StageKind = "video" | "puzzle" | "challenge" | "critter";
 interface Stage { kind: StageKind; title: string; desc: string; icon: string; }
@@ -112,6 +73,7 @@ function stagesFor(level: ClimbLevel): Stage[] {
   }
   return s;
 }
+
 
 // Serpentine race-track positions (% of width / % of height inside path area).
 // Spaced so 12 nodes + START/FINISH fit on phone widths without overlapping.
