@@ -15,6 +15,7 @@ import { MODULE4_TASKS } from "@/data/realm4/tasks";
 import { MODULE5_TASKS } from "@/data/realm5/tasks";
 import { MODULE6_TASKS } from "@/data/realm6/tasks";
 import { MODULE7_TASKS } from "@/data/realm7/tasks";
+import { MODULE9_TASKS } from "@/data/realm9/tasks";
 import {
   MODULES_BY_ID,
   defaultModuleForRealm,
@@ -99,6 +100,11 @@ function stagesFor(level: ClimbLevel, moduleId?: string): Stage[] {
       lesson:    { kind: "video",     title: "Factory tutorial",  desc: "Hammer in the pin — try the move!",            icon: "⚙️" },
       puzzle:    { kind: "puzzle",    title: "Pin drill",         desc: "Lock the piece down.",                         icon: "📌" },
       challenge: { kind: "challenge", title: "Skewer challenge",  desc: "Chain the trap — win material!",               icon: "🍢" },
+    },
+    "game-phases": {
+      lesson:    { kind: "video",     title: "Summit tutorial",   desc: "Mariposa points the way — try the move!",       icon: "🏔️" },
+      puzzle:    { kind: "puzzle",    title: "Phase puzzle",      desc: "Pick the right move for this phase.",           icon: "🧭" },
+      challenge: { kind: "challenge", title: "Navigator challenge", desc: "Checks, Captures, Threats — go!",             icon: "⚡" },
     },
   };
   const t = (moduleId && themes[moduleId]) || {
@@ -191,6 +197,7 @@ const TRACK_STYLE: Record<TrackVariant, { dim: string; lit: string; glow: string
   sky:       { dim: "rgba(255,255,255,0.98)", halo: "rgba(80,50,120,0.85)", lit: "oklch(0.88 0.14 320)", glow: "oklch(0.88 0.14 320 / 0.95)", dash: "1.6 1.8", litWidth: "7.5px", dimWidth: "6.5px" },
   grove:     { dim: "rgba(220,255,210,0.98)", halo: "rgba(10,40,15,0.9)",   lit: "oklch(0.82 0.18 150)", glow: "oklch(0.82 0.18 150 / 0.95)", dash: "2.2 1.6", litWidth: "8px",   dimWidth: "7px" },
   factory:   { dim: "rgba(255,230,170,0.98)", halo: "rgba(40,20,50,0.9)",   lit: "oklch(0.82 0.18 80)",  glow: "oklch(0.82 0.18 80 / 0.95)",  dash: "2.6 1.6", litWidth: "8.5px", dimWidth: "7px" },
+  peaks:     { dim: "rgba(200,225,255,0.98)", halo: "rgba(10,25,60,0.9)",   lit: "oklch(0.85 0.15 240)", glow: "oklch(0.85 0.15 240 / 0.95)", dash: "1.8 1.6", litWidth: "8px",   dimWidth: "7px" },
 };
 
 function RealmPathPage() {
@@ -1011,6 +1018,7 @@ function StageBody({
     : moduleId === "opening-principles"      ? MODULE5_TASKS[level.id]
     : moduleId === "tactics-grove"           ? MODULE6_TASKS[level.id]
     : moduleId === "pins-and-skewers"        ? MODULE7_TASKS[level.id]
+    : moduleId === "game-phases"             ? MODULE9_TASKS[level.id]
     : undefined;
 
 

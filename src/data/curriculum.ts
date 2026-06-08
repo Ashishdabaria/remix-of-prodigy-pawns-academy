@@ -164,7 +164,7 @@ export const CURRICULUM: CurriculumModule[] = [
     ],
     challenge: "Phase Navigator",
     badgeId: "phase-commander",
-    status: "placeholder",
+    status: "playable",
   },
   {
     number: 10,

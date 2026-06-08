@@ -10,6 +10,7 @@ import forgeBg from "@/assets/modules/module4-forge.jpg";
 import skyBg from "@/assets/modules/module5-sky.jpg";
 import groveBg from "@/assets/modules/module6-grove.jpg";
 import pinFactoryBg from "@/assets/modules/module7-pinfactory.jpg";
+import peaksBg from "@/assets/modules/module9-peaks.jpg";
 
 
 
@@ -40,7 +41,7 @@ export interface ClimbLevel {
   promotionRun?: boolean;
 }
 
-export type TrackVariant = "meadow" | "farmlands" | "caverns" | "forge" | "sky" | "grove" | "factory";
+export type TrackVariant = "meadow" | "farmlands" | "caverns" | "forge" | "sky" | "grove" | "factory" | "peaks";
 
 export interface ModuleConfig {
   id: string;
@@ -275,7 +276,35 @@ const MODULE_7: ModuleConfig = {
   ],
 };
 
-export const MODULES: ModuleConfig[] = [MODULE_1, MODULE_2, MODULE_3, MODULE_4, MODULE_5, MODULE_6, MODULE_7];
+// ────────── Module 9: Tactical Peaks ──────────
+const MODULE_9: ModuleConfig = {
+  id: "game-phases",
+  realmId: "tactical-mountains",
+  title: "The Tactical Peaks",
+  subtitle: "Race 12 summit quests — master the Opening, Middlegame, and Endgame!",
+  background: peaksBg,
+  track: "peaks",
+  finishIcon: "❄",
+  finishLabel: "Phase Commander badge",
+  overlay: "radial-gradient(ellipse at center, rgba(186,230,253,0.18) 0%, rgba(10,20,50,0.55) 100%)",
+  accentClass: "border-sky-400/70",
+  levels: [
+    { id: 1,  name: "Claim the Center",     type: "lesson",    blurb: "Opening Phase — push e4!",                  sceneIcon: "🎯", sceneTint: "linear-gradient(135deg, #dbeafe 0%, #1d4ed8 100%)" },
+    { id: 2,  name: "Develop Pieces",       type: "lesson",    blurb: "Knights and Bishops to the front.",         sceneIcon: "♞", sceneTint: "linear-gradient(135deg, #e0f2fe 0%, #0369a1 100%)" },
+    { id: 3,  name: "Castle Safe",          type: "lesson",    blurb: "Tuck the King away — short or long.",        sceneIcon: "🏰", sceneTint: "linear-gradient(135deg, #cffafe 0%, #155e75 100%)" },
+    { id: 4,  name: "Checks First",         type: "lesson",    blurb: "CCT step 1 — look for every check.",         sceneIcon: "⚠️", sceneTint: "linear-gradient(135deg, #dbeafe 0%, #1e40af 100%)" },
+    { id: 5,  name: "Captures Next",        type: "lesson",    blurb: "CCT step 2 — find the best capture.",         sceneIcon: "⚔️", sceneTint: "linear-gradient(135deg, #c7d2fe 0%, #312e81 100%)" },
+    { id: 6,  name: "Threats Last",         type: "lesson",    blurb: "CCT step 3 — what's the opponent planning?",  sceneIcon: "👁️", sceneTint: "linear-gradient(135deg, #ddd6fe 0%, #4338ca 100%)" },
+    { id: 7,  name: "Middlegame Plan",      type: "challenge", blurb: "Castle and centralize — find the plan!",     sceneIcon: "🗺️", sceneTint: "linear-gradient(135deg, #bfdbfe 0%, #1e3a8a 100%)" },
+    { id: 8,  name: "Activate the King",    type: "challenge", blurb: "Endgame Phase — march your King up!",        critter: CRITTERS.pegasus, sceneIcon: "♔", sceneTint: "linear-gradient(135deg, #e0e7ff 0%, #3730a3 100%)" },
+    { id: 9,  name: "Passed Pawn Race",     type: "challenge", blurb: "Promote your pawn to a Queen!",              sceneIcon: "👑", sceneTint: "linear-gradient(135deg, #cffafe 0%, #0c4a6e 100%)" },
+    { id: 10, name: "Closing the Game",     type: "treasure",  blurb: "Find the mate in 1.",                         sceneIcon: "✨", sceneTint: "linear-gradient(135deg, #dbeafe 0%, #1e3a8a 100%)" },
+    { id: 11, name: "CCT Speed Drill",      type: "challenge", blurb: "Checks, Captures, Threats — fast!",          critter: CRITTERS.owl, sceneIcon: "⚡", sceneTint: "linear-gradient(135deg, #c7d2fe 0%, #1e1b4b 100%)" },
+    { id: 12, name: "Phase Navigator",      type: "boss",      blurb: "Opening → Middlegame → Endgame finish!",     critter: CRITTERS.marshal, sceneIcon: "🧭", sceneTint: "linear-gradient(135deg, #bfdbfe 0%, #1e1b4b 100%)" },
+  ],
+};
+
+export const MODULES: ModuleConfig[] = [MODULE_1, MODULE_2, MODULE_3, MODULE_4, MODULE_5, MODULE_6, MODULE_7, MODULE_9];
 
 export const MODULES_BY_ID: Record<string, ModuleConfig> = Object.fromEntries(
   MODULES.map((m) => [m.id, m]),
