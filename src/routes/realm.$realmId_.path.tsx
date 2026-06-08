@@ -356,6 +356,19 @@ function RealmPathPage() {
         </div>
       </div>
 
+      {/* Stage modal */}
+      <AnimatePresence>
+        {openLevel && (
+          <StageModal
+            key={openLevel.id}
+            level={openLevel}
+            onClose={() => setOpenLevelId(null)}
+            onComplete={() => completeLevel(openLevel)}
+            speak={speak}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Locked-tap toast */}
       <AnimatePresence>
         {lockedMsg && (
