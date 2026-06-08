@@ -8,6 +8,7 @@ import { MiniBossEncounter, BossEncounter, TreasureChest } from "@/components/re
 import { WildEncounter } from "@/components/realm/WildEncounter";
 import { MEMBER_REALM_IDS } from "@/data/pets";
 import { Buddy } from "@/components/Buddy";
+import { modulesForRealm } from "@/data/curriculum";
 
 export const Route = createFileRoute("/realm/$realmId")({
   loader: ({ params }) => {
@@ -118,6 +119,10 @@ function RealmPage() {
             ))}
           </ul>
         </section>
+
+        {/* Curriculum modules covered in this realm */}
+        <ModulesInRealm realmId={realm.id} />
+
 
         {/* Mariposa */}
         <aside className="rounded-2xl border-2 border-ink/15 bg-shard-amethyst/10 p-5 card-pop">
