@@ -148,12 +148,12 @@ function storageKey(moduleId: string) {
 }
 
 // Track stroke styling per environment.
-const TRACK_STYLE: Record<TrackVariant, { dim: string; lit: string; glow: string; dash: string; litWidth: string }> = {
-  meadow:    { dim: "rgba(40,20,8,0.55)",   lit: "oklch(0.85 0.18 85)",  glow: "oklch(0.85 0.18 85 / 0.9)",  dash: "1.2 2",   litWidth: "6px" },
-  farmlands: { dim: "rgba(60,30,8,0.6)",    lit: "oklch(0.72 0.16 65)",  glow: "oklch(0.72 0.16 65 / 0.9)",  dash: "2 1.5",   litWidth: "7px" },
-  caverns:   { dim: "rgba(140,180,255,0.45)", lit: "oklch(0.85 0.16 230)", glow: "oklch(0.85 0.16 230 / 0.95)", dash: "0.6 1.6", litWidth: "5px" },
-  forge:     { dim: "rgba(80,20,10,0.55)",  lit: "oklch(0.78 0.20 45)",  glow: "oklch(0.78 0.20 45 / 0.95)",  dash: "1.5 1.5", litWidth: "6.5px" },
-  sky:       { dim: "rgba(255,255,255,0.55)", lit: "oklch(0.88 0.14 320)", glow: "oklch(0.88 0.14 320 / 0.95)", dash: "0.8 1.4", litWidth: "5.5px" },
+const TRACK_STYLE: Record<TrackVariant, { dim: string; lit: string; glow: string; dash: string; litWidth: string; dimWidth: string; halo: string }> = {
+  meadow:    { dim: "rgba(255,236,170,0.95)", halo: "rgba(40,20,8,0.85)",   lit: "oklch(0.85 0.18 85)",  glow: "oklch(0.85 0.18 85 / 0.9)",  dash: "2.4 2",   litWidth: "8px",   dimWidth: "7px" },
+  farmlands: { dim: "rgba(255,220,160,0.95)", halo: "rgba(60,30,8,0.85)",   lit: "oklch(0.72 0.16 65)",  glow: "oklch(0.72 0.16 65 / 0.9)",  dash: "3 1.8",   litWidth: "9px",   dimWidth: "8px" },
+  caverns:   { dim: "rgba(200,230,255,0.95)", halo: "rgba(10,20,50,0.85)",  lit: "oklch(0.85 0.16 230)", glow: "oklch(0.85 0.16 230 / 0.95)", dash: "1.4 2",   litWidth: "7px",   dimWidth: "6px" },
+  forge:     { dim: "rgba(255,200,160,0.95)", halo: "rgba(40,10,5,0.9)",    lit: "oklch(0.78 0.20 45)",  glow: "oklch(0.78 0.20 45 / 0.95)",  dash: "2.4 1.8", litWidth: "9px",   dimWidth: "8px" },
+  sky:       { dim: "rgba(255,255,255,0.98)", halo: "rgba(80,50,120,0.85)", lit: "oklch(0.88 0.14 320)", glow: "oklch(0.88 0.14 320 / 0.95)", dash: "1.6 1.8", litWidth: "7.5px", dimWidth: "6.5px" },
 };
 
 function RealmPathPage() {
@@ -332,7 +332,16 @@ function RealmPathPage() {
             className="absolute inset-0 h-full w-full"
             aria-hidden
           >
-            {/* Faint dashed full trail */}
+            {/* Dark halo for contrast on any background */}
+            <path
+              d={pathD}
+              fill="none"
+              stroke={trackStyle.halo}
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+              style={{ strokeWidth: "10px", opacity: 0.55 } as React.CSSProperties}
+            />
+            {/* Bright dashed full trail */}
             <path
               d={pathD}
               fill="none"
@@ -340,8 +349,9 @@ function RealmPathPage() {
               strokeLinecap="round"
               strokeDasharray={trackStyle.dash}
               vectorEffect="non-scaling-stroke"
-              style={{ strokeWidth: "4px" } as React.CSSProperties}
+              style={{ strokeWidth: trackStyle.dimWidth } as React.CSSProperties}
             />
+
             {/* Bright themed lit portion */}
             {litD && (
               <path
