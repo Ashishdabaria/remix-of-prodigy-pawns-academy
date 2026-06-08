@@ -197,7 +197,7 @@ export const CURRICULUM: CurriculumModule[] = [
     ],
     challenge: "Unmask the Weapon",
     badgeId: "shadow-striker",
-    status: "placeholder",
+    status: "playable",
   },
   {
     number: 12,
@@ -213,7 +213,7 @@ export const CURRICULUM: CurriculumModule[] = [
     ],
     challenge: "Race to the Crown",
     badgeId: "endgame-royalty",
-    status: "placeholder",
+    status: "playable",
   },
   {
     number: 13,
@@ -229,7 +229,7 @@ export const CURRICULUM: CurriculumModule[] = [
     ],
     challenge: "Architect's Blueprint",
     badgeId: "position-architect",
-    status: "placeholder",
+    status: "playable",
   },
   {
     number: 14,
@@ -245,7 +245,7 @@ export const CURRICULUM: CurriculumModule[] = [
     ],
     challenge: "The Combination Engine",
     badgeId: "combination-grandmaster",
-    status: "placeholder",
+    status: "playable",
   },
   {
     number: 15,
@@ -261,7 +261,7 @@ export const CURRICULUM: CurriculumModule[] = [
     ],
     challenge: "The Tournament Simulator",
     badgeId: "tournament-champion",
-    status: "placeholder",
+    status: "playable",
   },
 ];
 
