@@ -247,7 +247,35 @@ const MODULE_6: ModuleConfig = {
   ],
 };
 
-export const MODULES: ModuleConfig[] = [MODULE_1, MODULE_2, MODULE_3, MODULE_4, MODULE_5, MODULE_6];
+// ────────── Module 7: Pin Factory ──────────
+const MODULE_7: ModuleConfig = {
+  id: "pins-and-skewers",
+  realmId: "detective-forest",
+  title: "The Pin Factory",
+  subtitle: "Race 12 factory quests — chain pins and skewers like a master!",
+  background: pinFactoryBg,
+  track: "factory",
+  finishIcon: "📌",
+  finishLabel: "Chain Master badge",
+  overlay: "radial-gradient(ellipse at center, rgba(253,224,71,0.18) 0%, rgba(30,15,40,0.55) 100%)",
+  accentClass: "border-amber-500/70",
+  levels: [
+    { id: 1,  name: "Absolute Pin",      type: "lesson",    blurb: "Pin a piece against the King.",            sceneIcon: "📌", sceneTint: "linear-gradient(135deg, #fde68a 0%, #b45309 100%)" },
+    { id: 2,  name: "Relative Pin",      type: "lesson",    blurb: "Pin to the Queen — still painful!",        sceneIcon: "🔗", sceneTint: "linear-gradient(135deg, #fef3c7 0%, #92400e 100%)" },
+    { id: 3,  name: "Bishop Diagonal Pin", type: "lesson",  blurb: "Long-diagonal traps.",                      sceneIcon: "♝", sceneTint: "linear-gradient(135deg, #fcd34d 0%, #78350f 100%)" },
+    { id: 4,  name: "Gang Up!",          type: "lesson",    blurb: "Add an attacker to a pinned piece.",        sceneIcon: "⚔️", sceneTint: "linear-gradient(135deg, #fde047 0%, #713f12 100%)" },
+    { id: 5,  name: "Queen Pin",         type: "lesson",    blurb: "Queens make the heaviest pins.",            sceneIcon: "♛", sceneTint: "linear-gradient(135deg, #fbbf24 0%, #7c2d12 100%)" },
+    { id: 6,  name: "Skewer Basics",     type: "lesson",    blurb: "Big piece runs — win the one behind.",      sceneIcon: "🍢", sceneTint: "linear-gradient(135deg, #facc15 0%, #6b21a8 100%)" },
+    { id: 7,  name: "Royal Skewer",      type: "challenge", blurb: "Skewer the King — claim the prize.",        sceneIcon: "👑", sceneTint: "linear-gradient(135deg, #fde68a 0%, #4c1d95 100%)" },
+    { id: 8,  name: "Diagonal Skewer",   type: "challenge", blurb: "Bishop runs the long line.",                critter: CRITTERS.sleuth, sceneIcon: "♝", sceneTint: "linear-gradient(135deg, #fcd34d 0%, #3b0764 100%)" },
+    { id: 9,  name: "Pin & Win",         type: "challenge", blurb: "Pin it, then take it!",                     sceneIcon: "📌", sceneTint: "linear-gradient(135deg, #fef3c7 0%, #581c87 100%)" },
+    { id: 10, name: "Skewer & Win",      type: "treasure",  blurb: "Check, then collect.",                      sceneIcon: "🎁", sceneTint: "linear-gradient(135deg, #fde68a 0%, #4a044e 100%)" },
+    { id: 11, name: "Pin Factory Drill", type: "challenge", blurb: "Find the pinning move — fast!",             critter: CRITTERS.owl, sceneIcon: "⚙️", sceneTint: "linear-gradient(135deg, #fbbf24 0%, #1e1b4b 100%)" },
+    { id: 12, name: "Chain Master",      type: "boss",      blurb: "Three masterful pins & skewers.",           critter: CRITTERS.owl, sceneIcon: "🔗", sceneTint: "linear-gradient(135deg, #facc15 0%, #1e1b4b 100%)" },
+  ],
+};
+
+export const MODULES: ModuleConfig[] = [MODULE_1, MODULE_2, MODULE_3, MODULE_4, MODULE_5, MODULE_6, MODULE_7];
 
 export const MODULES_BY_ID: Record<string, ModuleConfig> = Object.fromEntries(
   MODULES.map((m) => [m.id, m]),

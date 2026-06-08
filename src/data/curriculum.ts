@@ -132,7 +132,7 @@ export const CURRICULUM: CurriculumModule[] = [
     ],
     challenge: "Pin Factory & Skewer Factory",
     badgeId: "chain-master",
-    status: "placeholder",
+    status: "playable",
   },
   {
     number: 8,
