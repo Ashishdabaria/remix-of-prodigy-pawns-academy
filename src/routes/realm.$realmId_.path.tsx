@@ -7,6 +7,8 @@ import { MuteToggle } from "@/components/realm/MariposaSay";
 import { playClick } from "@/lib/sound";
 import { CatchTheStar } from "@/components/realm/CatchTheStar";
 import { PawnPromotionRun } from "@/components/realm/PawnPromotionRun";
+import { FarmBoard } from "@/components/realm/FarmBoard";
+import { MODULE2_TASKS } from "@/data/realm2/tasks";
 import {
   MODULES_BY_ID,
   defaultModuleForRealm,
