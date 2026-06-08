@@ -13,6 +13,7 @@ import { MODULE2_TASKS } from "@/data/realm2/tasks";
 import { MODULE3_TASKS } from "@/data/realm3/tasks";
 import { MODULE4_TASKS } from "@/data/realm4/tasks";
 import { MODULE5_TASKS } from "@/data/realm5/tasks";
+import { MODULE6_TASKS } from "@/data/realm6/tasks";
 import {
   MODULES_BY_ID,
   defaultModuleForRealm,
@@ -87,6 +88,11 @@ function stagesFor(level: ClimbLevel, moduleId?: string): Stage[] {
       lesson:    { kind: "video",     title: "Sky tutorial",      desc: "Pick the cloud-soaring move!",                 icon: "☁️" },
       puzzle:    { kind: "puzzle",    title: "Wind puzzle",       desc: "Find the breezy best move.",                   icon: "🌬️" },
       challenge: { kind: "challenge", title: "Sky challenge",     desc: "A trickier flight — show your wings!",         icon: "🦅" },
+    },
+    "tactics-grove": {
+      lesson:    { kind: "video",     title: "Grove tutorial",    desc: "Mariposa spots the tactic — try it!",          icon: "🦋" },
+      puzzle:    { kind: "puzzle",    title: "Detective puzzle",  desc: "Find the winning move.",                       icon: "🔎" },
+      challenge: { kind: "challenge", title: "Tactic challenge",  desc: "Trickier case — crack it, detective!",         icon: "🦉" },
     },
   };
   const t = (moduleId && themes[moduleId]) || {
@@ -177,6 +183,7 @@ const TRACK_STYLE: Record<TrackVariant, { dim: string; lit: string; glow: string
   caverns:   { dim: "rgba(200,230,255,0.95)", halo: "rgba(10,20,50,0.85)",  lit: "oklch(0.85 0.16 230)", glow: "oklch(0.85 0.16 230 / 0.95)", dash: "1.4 2",   litWidth: "7px",   dimWidth: "6px" },
   forge:     { dim: "rgba(255,200,160,0.95)", halo: "rgba(40,10,5,0.9)",    lit: "oklch(0.78 0.20 45)",  glow: "oklch(0.78 0.20 45 / 0.95)",  dash: "2.4 1.8", litWidth: "9px",   dimWidth: "8px" },
   sky:       { dim: "rgba(255,255,255,0.98)", halo: "rgba(80,50,120,0.85)", lit: "oklch(0.88 0.14 320)", glow: "oklch(0.88 0.14 320 / 0.95)", dash: "1.6 1.8", litWidth: "7.5px", dimWidth: "6.5px" },
+  grove:     { dim: "rgba(220,255,210,0.98)", halo: "rgba(10,40,15,0.9)",   lit: "oklch(0.82 0.18 150)", glow: "oklch(0.82 0.18 150 / 0.95)", dash: "2.2 1.6", litWidth: "8px",   dimWidth: "7px" },
 };
 
 function RealmPathPage() {
@@ -995,7 +1002,9 @@ function StageBody({
     moduleId === "check-checkmate-stalemate" ? MODULE3_TASKS[level.id]
     : moduleId === "basic-checkmates"        ? MODULE4_TASKS[level.id]
     : moduleId === "opening-principles"      ? MODULE5_TASKS[level.id]
+    : moduleId === "tactics-grove"           ? MODULE6_TASKS[level.id]
     : undefined;
+
 
   if (stage.kind === "video") {
     // Farm tutorial — play the lesson board inline so the kid does the move.

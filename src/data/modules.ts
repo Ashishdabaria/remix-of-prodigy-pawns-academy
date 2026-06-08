@@ -8,6 +8,7 @@ import farmlandsBg from "@/assets/modules/module2-farmlands.jpg";
 import cavernsBg from "@/assets/modules/module3-caverns.jpg";
 import forgeBg from "@/assets/modules/module4-forge.jpg";
 import skyBg from "@/assets/modules/module5-sky.jpg";
+import groveBg from "@/assets/modules/module6-grove.jpg";
 
 import type { StarPiece } from "@/components/realm/CatchTheStar";
 
@@ -36,7 +37,7 @@ export interface ClimbLevel {
   promotionRun?: boolean;
 }
 
-export type TrackVariant = "meadow" | "farmlands" | "caverns" | "forge" | "sky";
+export type TrackVariant = "meadow" | "farmlands" | "caverns" | "forge" | "sky" | "grove";
 
 export interface ModuleConfig {
   id: string;
@@ -71,6 +72,8 @@ const CRITTERS: Record<string, Critter> = {
   golem:    { emoji: "🗿",  name: "Forge Golem",          taunt: "Cool steel needs a calm mind. Box me in!",   cheer: "Boxed and beaten — well played!" },
   pegasus:  { emoji: "🦄",  name: "Sky-Pegasus",          taunt: "Catch me in the clouds!",                    cheer: "What a flight, brave hero!" },
   marshal:  { emoji: "🛡️",  name: "Sky Marshal Rookwing", taunt: "Connect your rooks before me!",              cheer: "Rooks united — victory!" },
+  sleuth:   { emoji: "🦊",  name: "Sleuth the Fox",        taunt: "Spot the tactic — if you can!",              cheer: "Case closed, Detective!" },
+  owl:      { emoji: "🦉",  name: "Owlbert the Wise",      taunt: "Pin, fork, skewer — pick the right one!",    cheer: "Wise eyes, hero!" },
 };
 
 // ────────── Module 1: Meet the Army ──────────
@@ -213,7 +216,35 @@ const MODULE_5: ModuleConfig = {
   ],
 };
 
-export const MODULES: ModuleConfig[] = [MODULE_1, MODULE_2, MODULE_3, MODULE_4, MODULE_5];
+// ────────── Module 6: Tactics Grove ──────────
+const MODULE_6: ModuleConfig = {
+  id: "tactics-grove",
+  realmId: "detective-forest",
+  title: "The Tactics Grove",
+  subtitle: "Race 12 grove quests — master pins, forks, and skewers!",
+  background: groveBg,
+  track: "grove",
+  finishIcon: "♣",
+  finishLabel: "Emerald Shard + Detective badge",
+  overlay: "radial-gradient(ellipse at center, rgba(134,239,172,0.18) 0%, rgba(10,40,20,0.55) 100%)",
+  accentClass: "border-emerald-500/70",
+  levels: [
+    { id: 1,  name: "Knight Fork",         type: "lesson", blurb: "One knight, two targets.",                  sceneIcon: "♞", sceneTint: "linear-gradient(135deg, #d1fae5 0%, #059669 100%)" },
+    { id: 2,  name: "Pawn Fork",           type: "lesson", blurb: "Tiny pawn, big trouble.",                    sceneIcon: "♙", sceneTint: "linear-gradient(135deg, #ecfccb 0%, #65a30d 100%)" },
+    { id: 3,  name: "The Pin",             type: "lesson", blurb: "Trap a piece against its King.",             sceneIcon: "📌", sceneTint: "linear-gradient(135deg, #bbf7d0 0%, #16a34a 100%)" },
+    { id: 4,  name: "The Skewer",          type: "lesson", blurb: "Big piece runs — win the one behind.",       sceneIcon: "🍢", sceneTint: "linear-gradient(135deg, #a7f3d0 0%, #047857 100%)" },
+    { id: 5,  name: "Discovered Attack",   type: "lesson", blurb: "Move one piece, attack with another!",       sceneIcon: "✨", sceneTint: "linear-gradient(135deg, #d9f99d 0%, #4d7c0f 100%)" },
+    { id: 6,  name: "Double Attack",       type: "lesson", blurb: "Two threats at once — one must fall.",       sceneIcon: "⚔️", sceneTint: "linear-gradient(135deg, #bbf7d0 0%, #15803d 100%)" },
+    { id: 7,  name: "Find the Fork",       type: "challenge", blurb: "Spot the winning leap.",                   sceneIcon: "🔍", sceneTint: "linear-gradient(135deg, #d1fae5 0%, #047857 100%)" },
+    { id: 8,  name: "Find the Pin",        type: "challenge", blurb: "Lock that piece down!",                    critter: CRITTERS.sleuth, sceneIcon: "📌", sceneTint: "linear-gradient(135deg, #bbf7d0 0%, #166534 100%)" },
+    { id: 9,  name: "Skewer Hunt",         type: "challenge", blurb: "Punch through to the back piece.",         sceneIcon: "🍢", sceneTint: "linear-gradient(135deg, #a7f3d0 0%, #065f46 100%)" },
+    { id: 10, name: "Discovered Check",    type: "treasure",  blurb: "Move and reveal — surprise check!",         sceneIcon: "✨", sceneTint: "linear-gradient(135deg, #d9f99d 0%, #3f6212 100%)" },
+    { id: 11, name: "Back-Rank Detective", type: "challenge", blurb: "Spot the mate hiding in plain sight.",      critter: CRITTERS.owl, sceneIcon: "🔎", sceneTint: "linear-gradient(135deg, #bbf7d0 0%, #14532d 100%)" },
+    { id: 12, name: "Grand Detective",     type: "boss",      blurb: "Three tactics — finish the case!",          critter: CRITTERS.owl, sceneIcon: "♣", sceneTint: "linear-gradient(135deg, #86efac 0%, #14532d 100%)" },
+  ],
+};
+
+export const MODULES: ModuleConfig[] = [MODULE_1, MODULE_2, MODULE_3, MODULE_4, MODULE_5, MODULE_6];
 
 export const MODULES_BY_ID: Record<string, ModuleConfig> = Object.fromEntries(
   MODULES.map((m) => [m.id, m]),
