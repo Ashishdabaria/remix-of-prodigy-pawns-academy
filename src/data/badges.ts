@@ -18,4 +18,21 @@ export const BADGES: Badge[] = [
   { id: "detective",    name: "Square Detective",      icon: "♣", blurb: "Spot 50 threats.",                 earned: true },
   { id: "brave",        name: "Brave Heart",           icon: "♥", blurb: "Earn 10 Brave Hearts.",            earned: true },
   { id: "mariposa",     name: "Mariposa's Friend",     icon: "✿", blurb: "Find all secret garden gates.",    earned: false },
+
+  // ───────── Curriculum milestone badges (Modules 1–15) ─────────
+  { id: "army-commander",          name: "Army Commander",          icon: "🎖️", blurb: "Module 1 — demonstrated every piece in the Kingdom Parade.", earned: false },
+  { id: "pawn-champion",           name: "Pawn Champion",           icon: "🎖️", blurb: "Module 2 — completed all four farm levels.",                 earned: false },
+  { id: "escape-artist",           name: "Escape Artist",           icon: "🎖️", blurb: "Module 3 — mastered the three king-escape methods.",         earned: false },
+  { id: "endgame-executioner",     name: "Endgame Executioner",     icon: "🎖️", blurb: "Module 4 — delivered K+Q and two-rook mates cleanly.",       earned: false },
+  { id: "opening-scholar",         name: "Opening Scholar",         icon: "🎖️", blurb: "Module 5 — connected the rooks in ≤ 3 moves.",               earned: false },
+  { id: "tactical-chef",           name: "Tactical Chef",           icon: "🎖️", blurb: "Module 6 — sorted Knives, Forks, and Spoons.",               earned: false },
+  { id: "chain-master",            name: "Chain Master",            icon: "🎖️", blurb: "Module 7 — won at the Pin & Skewer factories.",              earned: false },
+  { id: "pattern-hunter",          name: "Pattern Hunter",          icon: "🎖️", blurb: "Module 8 — spotted every famous mating pattern.",            earned: false },
+  { id: "phase-commander",         name: "Phase Commander",         icon: "🎖️", blurb: "Module 9 — navigated Opening → Middle → Endgame.",          earned: false },
+  { id: "material-master",         name: "Material Master",         icon: "🎖️", blurb: "Module 10 — 90% on Trade Calculator & Who's Hanging.",      earned: false },
+  { id: "shadow-striker",          name: "Shadow Striker",          icon: "🎖️", blurb: "Module 11 — landed discovered checks & deflections.",       earned: false },
+  { id: "endgame-royalty",         name: "Endgame Royalty",         icon: "🎖️", blurb: "Module 12 — won pawn races & seized opposition.",           earned: false },
+  { id: "position-architect",      name: "Position Architect",      icon: "🎖️", blurb: "Module 13 — built winning positions from scratch.",         earned: false },
+  { id: "combination-grandmaster", name: "Combination Grandmaster", icon: "🎖️", blurb: "Module 14 — solved 3-move combos & Greek Gift sacs.",       earned: false },
+  { id: "tournament-champion",     name: "Tournament Champion",     icon: "🎖️", blurb: "Module 15 — cleared the Tournament Simulator.",             earned: false },
 ];
