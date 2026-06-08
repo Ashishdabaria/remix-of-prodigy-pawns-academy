@@ -991,6 +991,11 @@ function StageBody({
 }) {
   const isFarm = moduleId === "farmer-and-piggies";
   const farmTasks = isFarm ? MODULE2_TASKS[level.id] : undefined;
+  const questTasks =
+    moduleId === "check-checkmate-stalemate" ? MODULE3_TASKS[level.id]
+    : moduleId === "basic-checkmates"        ? MODULE4_TASKS[level.id]
+    : moduleId === "opening-principles"      ? MODULE5_TASKS[level.id]
+    : undefined;
 
   if (stage.kind === "video") {
     // Farm tutorial — play the lesson board inline so the kid does the move.
@@ -1000,6 +1005,15 @@ function StageBody({
           task={farmTasks.lesson}
           onSolve={onAutoComplete}
           onMiss={() => { /* gentle — handled inside FarmBoard */ }}
+        />
+      );
+    }
+    if (questTasks?.lesson) {
+      return (
+        <QuestBoard
+          task={questTasks.lesson}
+          onSolve={onAutoComplete}
+          onMiss={() => { /* gentle */ }}
         />
       );
     }
@@ -1045,6 +1059,17 @@ function StageBody({
       const task = stage.kind === "puzzle" ? farmTasks.puzzle : farmTasks.challenge;
       return (
         <FarmBoard
+          task={task}
+          onSolve={onAutoComplete}
+          onMiss={() => { /* gentle */ }}
+        />
+      );
+    }
+    // Modules 3, 4, 5: QuestBoard for puzzle + challenge.
+    if (questTasks) {
+      const task = stage.kind === "puzzle" ? questTasks.puzzle : questTasks.challenge;
+      return (
+        <QuestBoard
           task={task}
           onSolve={onAutoComplete}
           onMiss={() => { /* gentle */ }}
