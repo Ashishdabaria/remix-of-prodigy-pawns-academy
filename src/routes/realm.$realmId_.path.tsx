@@ -15,6 +15,7 @@ import { MODULE4_TASKS } from "@/data/realm4/tasks";
 import { MODULE5_TASKS } from "@/data/realm5/tasks";
 import { MODULE6_TASKS } from "@/data/realm6/tasks";
 import { MODULE7_TASKS } from "@/data/realm7/tasks";
+import { MODULE9_TASKS } from "@/data/realm9/tasks";
 import {
   MODULES_BY_ID,
   defaultModuleForRealm,
