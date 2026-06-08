@@ -428,13 +428,21 @@ function Pill({ children, highlight }: { children: React.ReactNode; highlight?: 
 function GrandPrize({ won }: { won: boolean }) {
   return (
     <div className="flex flex-col items-center">
-      <div className="rounded-2xl border-2 border-ink/20 bg-parchment/95 px-2.5 py-0.5 font-display text-[10px] font-black uppercase tracking-widest text-ink shadow">
+      <div
+        className="rounded-2xl border-2 border-ink/20 bg-parchment/95 font-display font-black uppercase tracking-widest text-ink shadow"
+        style={{ padding: "0.1rem 0.5rem", fontSize: "clamp(8px, 1.6vw, 11px)" }}
+      >
         🏁 Finish
       </div>
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-        className={`mt-1.5 grid h-16 w-16 place-items-center rounded-full bg-shard-pearl text-3xl shadow-2xl ring-4 ${won ? "ring-shard-sun animate-glow" : "ring-parchment/80"}`}
+        className={`mt-1.5 grid place-items-center rounded-full bg-shard-pearl shadow-2xl ring-4 ${won ? "ring-shard-sun animate-glow" : "ring-parchment/80"}`}
+        style={{
+          width: "clamp(2.75rem, 9vw, 4rem)",
+          height: "clamp(2.75rem, 9vw, 4rem)",
+          fontSize: "clamp(1.25rem, 4vw, 1.875rem)",
+        }}
       >
         ☾
       </motion.div>
