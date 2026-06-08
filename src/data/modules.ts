@@ -12,6 +12,7 @@ import groveBg from "@/assets/modules/module6-grove.jpg";
 import pinFactoryBg from "@/assets/modules/module7-pinfactory.jpg";
 import peaksBg from "@/assets/modules/module9-peaks.jpg";
 import castleBg from "@/assets/modules/module8-castle.jpg";
+import labyrinthBg from "@/assets/modules/module10-labyrinth.jpg";
 
 
 
@@ -42,7 +43,7 @@ export interface ClimbLevel {
   promotionRun?: boolean;
 }
 
-export type TrackVariant = "meadow" | "farmlands" | "caverns" | "forge" | "sky" | "grove" | "factory" | "peaks" | "castle";
+export type TrackVariant = "meadow" | "farmlands" | "caverns" | "forge" | "sky" | "grove" | "factory" | "peaks" | "castle" | "labyrinth";
 
 export interface ModuleConfig {
   id: string;
@@ -333,7 +334,35 @@ const MODULE_8: ModuleConfig = {
   ],
 };
 
-export const MODULES: ModuleConfig[] = [MODULE_1, MODULE_2, MODULE_3, MODULE_4, MODULE_5, MODULE_6, MODULE_7, MODULE_8, MODULE_9];
+// ────────── Module 10: Crystal Vault (Counting Material & Trades) ──────────
+const MODULE_10: ModuleConfig = {
+  id: "counting-material",
+  realmId: "crystal-labyrinth",
+  title: "The Crystal Vault",
+  subtitle: "Race 12 gem quests — count material and win the trades!",
+  background: labyrinthBg,
+  track: "labyrinth",
+  finishIcon: "★",
+  finishLabel: "Material Master badge",
+  overlay: "radial-gradient(ellipse at center, rgba(216,180,254,0.18) 0%, rgba(30,10,50,0.55) 100%)",
+  accentClass: "border-purple-400/70",
+  levels: [
+    { id: 1,  name: "Pawn = 1",          type: "lesson",    blurb: "The tiniest crystal — but they add up.",   sceneIcon: "♙", sceneTint: "linear-gradient(135deg, #ede9fe 0%, #7c3aed 100%)" },
+    { id: 2,  name: "Knight = 3",        type: "lesson",    blurb: "Three-shard leaper.",                       sceneIcon: "♞", sceneTint: "linear-gradient(135deg, #ddd6fe 0%, #6d28d9 100%)" },
+    { id: 3,  name: "Bishop = 3",        type: "lesson",    blurb: "Diagonal three-shard slider.",              sceneIcon: "♝", sceneTint: "linear-gradient(135deg, #e9d5ff 0%, #7e22ce 100%)" },
+    { id: 4,  name: "Rook = 5",          type: "lesson",    blurb: "A five-shard tower of power.",              sceneIcon: "♜", sceneTint: "linear-gradient(135deg, #f3e8ff 0%, #6b21a8 100%)" },
+    { id: 5,  name: "Queen = 9",         type: "lesson",    blurb: "Nine shards — the crown jewel!",            sceneIcon: "♛", sceneTint: "linear-gradient(135deg, #fce7f3 0%, #9d174d 100%)" },
+    { id: 6,  name: "Free Pieces!",      type: "lesson",    blurb: "Hanging = nobody is defending it.",         sceneIcon: "🎁", sceneTint: "linear-gradient(135deg, #fef3c7 0%, #92400e 100%)" },
+    { id: 7,  name: "Bigger Is Better",  type: "challenge", blurb: "Capture the most valuable target.",         sceneIcon: "⚖️", sceneTint: "linear-gradient(135deg, #ddd6fe 0%, #5b21b6 100%)" },
+    { id: 8,  name: "Attackers vs Defenders", type: "challenge", blurb: "Count attackers, count defenders.",    critter: CRITTERS.owl, sceneIcon: "🔍", sceneTint: "linear-gradient(135deg, #e9d5ff 0%, #4c1d95 100%)" },
+    { id: 9,  name: "Trade Queens",      type: "challenge", blurb: "When you're up — simplify!",                sceneIcon: "♛", sceneTint: "linear-gradient(135deg, #fbcfe8 0%, #831843 100%)" },
+    { id: 10, name: "Treasure Hunt",     type: "treasure",  blurb: "Spot the hanging piece — claim it!",        sceneIcon: "💎", sceneTint: "linear-gradient(135deg, #c7d2fe 0%, #3730a3 100%)" },
+    { id: 11, name: "Best Capture Drill", type: "challenge", blurb: "Pick the winning capture — fast!",          critter: CRITTERS.sleuth, sceneIcon: "⚡", sceneTint: "linear-gradient(135deg, #ddd6fe 0%, #4338ca 100%)" },
+    { id: 12, name: "Trade or Fade?",    type: "boss",      blurb: "Three trades — claim the Material Master badge!", critter: CRITTERS.owl, sceneIcon: "★", sceneTint: "linear-gradient(135deg, #e9d5ff 0%, #1e1b4b 100%)" },
+  ],
+};
+
+export const MODULES: ModuleConfig[] = [MODULE_1, MODULE_2, MODULE_3, MODULE_4, MODULE_5, MODULE_6, MODULE_7, MODULE_8, MODULE_9, MODULE_10];
 
 export const MODULES_BY_ID: Record<string, ModuleConfig> = Object.fromEntries(
   MODULES.map((m) => [m.id, m]),

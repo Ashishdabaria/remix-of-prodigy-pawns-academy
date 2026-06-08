@@ -180,7 +180,7 @@ export const CURRICULUM: CurriculumModule[] = [
     ],
     challenge: "Trade or Fade?",
     badgeId: "material-master",
-    status: "placeholder",
+    status: "playable",
   },
   // ───────── ADVANCED ─────────
   {
