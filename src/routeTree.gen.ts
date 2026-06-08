@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StudentRouteImport } from './routes/student'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as PosterRouteImport } from './routes/poster'
 import { Route as ParentRouteImport } from './routes/parent'
 import { Route as CompanionsRouteImport } from './routes/companions'
@@ -23,6 +24,11 @@ import { Route as RealmRealmIdLevelSlugRouteImport } from './routes/realm.$realm
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
   path: '/student',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PosterRoute = PosterRouteImport.update({
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/companions': typeof CompanionsRoute
   '/parent': typeof ParentRoute
   '/poster': typeof PosterRoute
+  '/settings': typeof SettingsRoute
   '/student': typeof StudentRoute
   '/realm/$realmId': typeof RealmRealmIdRoute
   '/realm/$realmId/path': typeof RealmRealmIdPathRoute
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   '/companions': typeof CompanionsRoute
   '/parent': typeof ParentRoute
   '/poster': typeof PosterRoute
+  '/settings': typeof SettingsRoute
   '/student': typeof StudentRoute
   '/realm/$realmId': typeof RealmRealmIdRoute
   '/realm/$realmId/path': typeof RealmRealmIdPathRoute
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/companions': typeof CompanionsRoute
   '/parent': typeof ParentRoute
   '/poster': typeof PosterRoute
+  '/settings': typeof SettingsRoute
   '/student': typeof StudentRoute
   '/realm/$realmId': typeof RealmRealmIdRoute
   '/realm/$realmId_/path': typeof RealmRealmIdPathRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/companions'
     | '/parent'
     | '/poster'
+    | '/settings'
     | '/student'
     | '/realm/$realmId'
     | '/realm/$realmId/path'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/companions'
     | '/parent'
     | '/poster'
+    | '/settings'
     | '/student'
     | '/realm/$realmId'
     | '/realm/$realmId/path'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/companions'
     | '/parent'
     | '/poster'
+    | '/settings'
     | '/student'
     | '/realm/$realmId'
     | '/realm/$realmId_/path'
@@ -153,6 +165,7 @@ export interface RootRouteChildren {
   CompanionsRoute: typeof CompanionsRoute
   ParentRoute: typeof ParentRoute
   PosterRoute: typeof PosterRoute
+  SettingsRoute: typeof SettingsRoute
   StudentRoute: typeof StudentRoute
   RealmRealmIdRoute: typeof RealmRealmIdRoute
   RealmRealmIdPathRoute: typeof RealmRealmIdPathRoute
@@ -167,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/student'
       fullPath: '/student'
       preLoaderRoute: typeof StudentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/poster': {
@@ -241,6 +261,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompanionsRoute: CompanionsRoute,
   ParentRoute: ParentRoute,
   PosterRoute: PosterRoute,
+  SettingsRoute: SettingsRoute,
   StudentRoute: StudentRoute,
   RealmRealmIdRoute: RealmRealmIdRoute,
   RealmRealmIdPathRoute: RealmRealmIdPathRoute,

@@ -3,17 +3,14 @@ import { Mariposa } from "@/components/Mariposa";
 import { MARIPOSA_LINES, pickLine, type MomentKey } from "@/data/realm1/mariposa-lines";
 import { cn } from "@/lib/utils";
 
-const MUTE_KEY = "pp.voice.muted";
+import { isMuted as soundIsMuted, setMuted as soundSetMuted } from "@/lib/sound";
 
 function isMuted() {
-  if (typeof window === "undefined") return false;
-  return window.localStorage.getItem(MUTE_KEY) === "1";
+  return soundIsMuted();
 }
 
 export function setMariposaMuted(muted: boolean) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(MUTE_KEY, muted ? "1" : "0");
-  if (muted) window.speechSynthesis?.cancel?.();
+  soundSetMuted(muted);
 }
 
 function speak(text: string) {
