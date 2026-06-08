@@ -7,6 +7,8 @@ import { MuteToggle } from "@/components/realm/MariposaSay";
 import { playClick } from "@/lib/sound";
 import { CatchTheStar } from "@/components/realm/CatchTheStar";
 import { PawnPromotionRun } from "@/components/realm/PawnPromotionRun";
+import { FarmBoard } from "@/components/realm/FarmBoard";
+import { MODULE2_TASKS } from "@/data/realm2/tasks";
 import {
   MODULES_BY_ID,
   defaultModuleForRealm,
@@ -57,12 +59,19 @@ export const Route = createFileRoute("/realm/$realmId_/path")({
 type StageKind = "video" | "puzzle" | "challenge" | "critter";
 interface Stage { kind: StageKind; title: string; desc: string; icon: string; }
 
-function stagesFor(level: ClimbLevel): Stage[] {
-  const s: Stage[] = [
-    { kind: "video",     title: "Watch the tutorial",  desc: "A short story-video from Mariposa.", icon: "▶︎" },
-    { kind: "puzzle",    title: "Practice puzzle",     desc: "A gentle warm-up puzzle.",            icon: "🧩" },
-    { kind: "challenge", title: "Quest challenge",     desc: "A trickier mini-quest.",              icon: "⚔️" },
-  ];
+function stagesFor(level: ClimbLevel, moduleId?: string): Stage[] {
+  const isFarm = moduleId === "farmer-and-piggies";
+  const s: Stage[] = isFarm
+    ? [
+        { kind: "video",     title: "Farm tutorial",       desc: "A quick board demo — try the move yourself!", icon: "🌾" },
+        { kind: "puzzle",    title: "Practice patch",      desc: "Solve a friendly farm puzzle.",                icon: "🧩" },
+        { kind: "challenge", title: "Quest challenge",     desc: "A trickier patch — show off your skill!",      icon: "⚔️" },
+      ]
+    : [
+        { kind: "video",     title: "Watch the tutorial",  desc: "A short story-video from Mariposa.", icon: "▶︎" },
+        { kind: "puzzle",    title: "Practice puzzle",     desc: "A gentle warm-up puzzle.",            icon: "🧩" },
+        { kind: "challenge", title: "Quest challenge",     desc: "A trickier mini-quest.",              icon: "⚔️" },
+      ];
   if (level.critter) {
     s.push({
       kind: "critter",
@@ -438,6 +447,7 @@ function RealmPathPage() {
           <StageModal
             key={openLevel.id}
             level={openLevel}
+            moduleId={mod.id}
             onClose={() => setOpenLevelId(null)}
             onComplete={() => completeLevel(openLevel)}
             speak={speak}
@@ -722,16 +732,18 @@ function TrackNode({
 
 function StageModal({
   level,
+  moduleId,
   onClose,
   onComplete,
   speak,
 }: {
   level: ClimbLevel;
+  moduleId: string;
   onClose: () => void;
   onComplete: () => void;
   speak: (t: string) => void;
 }) {
-  const stages = useMemo(() => stagesFor(level), [level]);
+  const stages = useMemo(() => stagesFor(level, moduleId), [level, moduleId]);
   const [done, setDone] = useState<boolean[]>(() => stages.map(() => false));
   const [active, setActive] = useState(0);
   const ring = RING[level.type];
@@ -865,7 +877,12 @@ function StageModal({
           <p className="mt-1 text-sm text-ink/80">{activeStage.desc}</p>
 
           <div className="mt-3">
-            <StageBody stage={activeStage} level={level} />
+            <StageBody
+              stage={activeStage}
+              level={level}
+              moduleId={moduleId}
+              onAutoComplete={() => finishStage(active)}
+            />
           </div>
 
           <div className="mt-4 flex flex-col gap-2">
@@ -915,8 +932,31 @@ function StageModal({
   );
 }
 
-function StageBody({ stage, level }: { stage: Stage; level: ClimbLevel }) {
+function StageBody({
+  stage,
+  level,
+  moduleId,
+  onAutoComplete,
+}: {
+  stage: Stage;
+  level: ClimbLevel;
+  moduleId: string;
+  onAutoComplete: () => void;
+}) {
+  const isFarm = moduleId === "farmer-and-piggies";
+  const farmTasks = isFarm ? MODULE2_TASKS[level.id] : undefined;
+
   if (stage.kind === "video") {
+    // Farm tutorial — play the lesson board inline so the kid does the move.
+    if (farmTasks?.lesson) {
+      return (
+        <FarmBoard
+          task={farmTasks.lesson}
+          onSolve={onAutoComplete}
+          onMiss={() => { /* gentle — handled inside FarmBoard */ }}
+        />
+      );
+    }
     return (
       <div
         className="relative aspect-video w-full overflow-hidden rounded-xl border-2 border-ink/20"
@@ -949,10 +989,21 @@ function StageBody({ stage, level }: { stage: Stage; level: ClimbLevel }) {
   if (stage.kind === "puzzle" || stage.kind === "challenge") {
     // Module 1: render the real mini-game on the challenge stage.
     if (stage.kind === "challenge" && level.promotionRun) {
-      return <PawnPromotionRun />;
+      return <PawnPromotionRun onSolved={onAutoComplete} />;
     }
     if (stage.kind === "challenge" && level.starPiece) {
       return <CatchTheStar piece={level.starPiece} />;
+    }
+    // Module 2: real interactive farm board for puzzle + challenge.
+    if (farmTasks) {
+      const task = stage.kind === "puzzle" ? farmTasks.puzzle : farmTasks.challenge;
+      return (
+        <FarmBoard
+          task={task}
+          onSolve={onAutoComplete}
+          onMiss={() => { /* gentle */ }}
+        />
+      );
     }
     return (
       <div className="rounded-xl border-2 border-ink/15 bg-parchment p-3">
