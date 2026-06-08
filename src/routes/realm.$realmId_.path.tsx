@@ -5,9 +5,18 @@ import { getRealm, type Realm } from "@/data/realms";
 import { Mariposa } from "@/components/Mariposa";
 import { MuteToggle } from "@/components/realm/MariposaSay";
 import { playClick } from "@/lib/sound";
-import { CatchTheStar, type StarPiece } from "@/components/realm/CatchTheStar";
+import { CatchTheStar } from "@/components/realm/CatchTheStar";
 import { PawnPromotionRun } from "@/components/realm/PawnPromotionRun";
-import villageBg from "@/assets/pawn-village-map.jpg";
+import {
+  MODULES_BY_ID,
+  defaultModuleForRealm,
+  modulesInRealm,
+  type ClimbLevel,
+  type LevelType,
+  type ModuleConfig,
+  type TrackVariant,
+} from "@/data/modules";
+
 
 export const Route = createFileRoute("/realm/$realmId_/path")({
   loader: ({ params }) => {
