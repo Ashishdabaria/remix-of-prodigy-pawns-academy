@@ -46,6 +46,7 @@ function Index() {
               >
                 Continue quest →
               </Link>
+              <QuickTour />
             </div>
           </div>
         </div>
