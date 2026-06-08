@@ -62,21 +62,22 @@ const LEVELS: ClimbLevel[] = [
 ];
 
 // Serpentine race-track positions (% of width / % of height inside path area).
+// Spaced so 12 nodes + START/FINISH fit on phone widths without overlapping.
 const NODE_POS: { x: number; y: number }[] = [
-  { x: 10, y: 90 }, // 1 START (bottom-left)
-  { x: 28, y: 86 },
-  { x: 46, y: 82 },
-  { x: 64, y: 78 },
-  { x: 82, y: 72 }, // curve at right
-  { x: 86, y: 58 },
-  { x: 70, y: 54 },
-  { x: 52, y: 50 },
-  { x: 32, y: 46 }, // curve at left
-  { x: 14, y: 36 },
-  { x: 32, y: 24 },
-  { x: 56, y: 18 }, // 12 boss
+  { x: 12, y: 92 }, // 1 START (bottom-left)
+  { x: 36, y: 88 },
+  { x: 62, y: 84 },
+  { x: 86, y: 76 }, // curve at right
+  { x: 88, y: 64 },
+  { x: 66, y: 60 },
+  { x: 40, y: 56 },
+  { x: 14, y: 50 }, // curve at left
+  { x: 16, y: 38 },
+  { x: 40, y: 34 },
+  { x: 66, y: 28 },
+  { x: 50, y: 14 }, // 12 boss (center-top)
 ];
-const PRIZE_POS = { x: 84, y: 12 };
+const PRIZE_POS = { x: 86, y: 10 };
 
 const RING: Record<LevelType, { color: string; label: string; icon: string }> = {
   lesson:    { color: "oklch(0.65 0.17 150)", label: "Lesson",    icon: "✦" },
@@ -427,13 +428,21 @@ function Pill({ children, highlight }: { children: React.ReactNode; highlight?: 
 function GrandPrize({ won }: { won: boolean }) {
   return (
     <div className="flex flex-col items-center">
-      <div className="rounded-2xl border-2 border-ink/20 bg-parchment/95 px-2.5 py-0.5 font-display text-[10px] font-black uppercase tracking-widest text-ink shadow">
+      <div
+        className="rounded-2xl border-2 border-ink/20 bg-parchment/95 font-display font-black uppercase tracking-widest text-ink shadow"
+        style={{ padding: "0.1rem 0.5rem", fontSize: "clamp(8px, 1.6vw, 11px)" }}
+      >
         🏁 Finish
       </div>
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-        className={`mt-1.5 grid h-16 w-16 place-items-center rounded-full bg-shard-pearl text-3xl shadow-2xl ring-4 ${won ? "ring-shard-sun animate-glow" : "ring-parchment/80"}`}
+        className={`mt-1.5 grid place-items-center rounded-full bg-shard-pearl shadow-2xl ring-4 ${won ? "ring-shard-sun animate-glow" : "ring-parchment/80"}`}
+        style={{
+          width: "clamp(2.75rem, 9vw, 4rem)",
+          height: "clamp(2.75rem, 9vw, 4rem)",
+          fontSize: "clamp(1.25rem, 4vw, 1.875rem)",
+        }}
       >
         ☾
       </motion.div>
@@ -468,8 +477,17 @@ function TrackNode({
   return (
     <div className="flex flex-col items-center gap-0.5">
       {/* Name tag */}
-      <div className="max-w-[8.5rem] rounded-lg border-2 border-ink/25 bg-parchment/95 px-2 py-0.5 text-center shadow-md">
-        <div className="font-display text-[10px] font-black leading-tight text-ink whitespace-nowrap">
+      <div
+        className="rounded-lg border-2 border-ink/25 bg-parchment/95 text-center shadow-md"
+        style={{
+          maxWidth: "clamp(4.5rem, 18vw, 9rem)",
+          padding: "0.1rem 0.4rem",
+        }}
+      >
+        <div
+          className="font-display font-black leading-tight text-ink"
+          style={{ fontSize: "clamp(8px, 1.6vw, 11px)" }}
+        >
           {level.name}
         </div>
       </div>
@@ -495,19 +513,22 @@ function TrackNode({
               ? { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
               : { duration: 0 }
         }
-        className={`relative grid h-12 w-12 place-items-center rounded-full ${medallionBg} ${medallionText} shadow-xl ${
+        className={`relative grid place-items-center rounded-full ${medallionBg} ${medallionText} shadow-xl ${
           state === "current" ? "animate-glow cursor-pointer" : ""
         } ${state === "locked" ? "opacity-80" : ""}`}
         style={{
+          width: "clamp(2.25rem, 8vw, 3rem)",
+          height: "clamp(2.25rem, 8vw, 3rem)",
+          fontSize: "clamp(0.75rem, 2.2vw, 1rem)",
           border: "3px solid var(--parchment)",
           boxShadow: `0 0 0 3px ${ring.color}, 0 6px 12px rgba(0,0,0,0.35)`,
         }}
       >
-        {state === "locked" && <span className="text-lg">🔒</span>}
+        {state === "locked" && <span>🔒</span>}
         {state === "current" && (
-          <span className="text-base font-black">{isBoss ? "♛" : level.id}</span>
+          <span className="font-black">{isBoss ? "♛" : level.id}</span>
         )}
-        {state === "done" && <span className="text-lg font-black">✓</span>}
+        {state === "done" && <span className="font-black">✓</span>}
 
         {/* Number badge */}
         {state !== "current" && (
@@ -518,7 +539,7 @@ function TrackNode({
 
         {/* PLAY tag for current */}
         {state === "current" && (
-          <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-ink px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-parchment shadow-md">
+          <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-ink px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-parchment shadow-md whitespace-nowrap">
             {isBoss ? "♛ Boss" : "Play"}
           </span>
         )}
