@@ -1,97 +1,66 @@
-# Magical Learning Quest Map — Modules 1-5
 
-Expand the existing Pawn Village climb into a full **5-module Beginner journey**, each with its own themed environment, magical pathway style, and animated collectible nodes. Reuse the proven Module 1 stage flow (tutorial → practice → challenge → optional critter duel) so every sub-quest is genuinely playable, not a placeholder.
+# Module 2 — Farmer & Piggies: real gameplay
 
-## What the player will see
+Module 2 already has a themed map (Sunlit Farmlands), 12 nodes, finish prize, and frosted UI from the previous pass. What's missing: the stage modal still shows click-through placeholders for **video → puzzle → challenge** instead of real chess interactions. This plan makes every Module 2 node genuinely playable, in the same proven style as Module 1.
 
-**5 themed module paths**, each at its own route, with smooth gradient transitions when entering a module:
+## Player experience
 
-| # | Module | Realm | Environment | Track style |
+For each of the 12 nodes, the stage modal will render:
+
+1. **Tutorial step** — Mariposa explains the rule in 1–2 sentences over a tiny demo board with the highlighted square the rule is about (e.g. pawn capture diagonal lit emerald). Tap "Got it ✓" to clear.
+2. **Practice puzzle** — a small `PuzzleBoard` with one correct move. Wrong moves cost a Brave Heart 💖 (no fail). Correct move auto-advances.
+3. **Quest challenge** — a second harder position from the same theme.
+4. *(optional)* **Friendly duel** — only on nodes 7, 11, 12 (which already have `critter` data). Same one-move challenge framed as a duel with Pinky Piggy / Farmer Fenn.
+
+Boss node 12 ("March to the Barn") replaces stages with the existing `PawnPromotionRun` mini-game (set to 4 pawns vs lone king variant), reusing what Module 1 already ships.
+
+## Per-node content
+
+| # | Name | Lesson board | Puzzle FEN goal | Challenge FEN goal |
 |---|---|---|---|---|
-| 1 | Meet the Army | Pawn Village | Opening Meadows — green hills, sunlight | Stepping stones with golden dashes (existing) |
-| 2 | Farmer & Piggies | Pawn Village | Sunlit Farmlands — wheat fields, barns | Wooden plank bridge with hay-bale nodes |
-| 3 | Check, Checkmate & Stalemate | Castle of Kings | Crystal Caverns — glowing blue/purple geodes | Glowing crystal-shard energy trail |
-| 4 | Basic Checkmates | Castle of Kings | Lava Forge — orange/red hues, ember sparks | Molten lava-stone path with floating embers |
-| 5 | Opening Principles | Centerland Plains | Floating Islands — sky blue, drifting clouds | Sky-rune arc connecting floating island nodes |
+| 1 | Pawn Push | Single white pawn e2, arrow to e3/e4 | Push pawn to e4 | Push two different pawns to rank 4 |
+| 2 | Two-Square Start | e2 pawn with both options lit | Play e2-e4 | Play d2-d4 then c2-c4 in 2 moves |
+| 3 | Diagonal Snack | Pawn e4, enemy pawn d5 lit | exd5 capture | Choose between two captures, pick higher value |
+| 4 | Pawn Chain | Show chain b2-c3-d4 | Defend hanging pawn by adding a pawn | Find the move that links the chain |
+| 5 | En Passant Magic | Show e5 pawn, black d7-d5 just played | Play exd6 en passant | Spot the only legal en passant in 3 options |
+| 6 | Promotion Day | Pawn on a7, empty a8 | a8=Q promotion | Promote and immediately give check |
+| 7 | Eat the Snack (vs Piggy) | — | Capture the floating apple piece (knight on d5) | Pick the only winning capture |
+| 8 | Race to Barn 1 | — | Reach rank 5 in fewest pushes | Same, with one blocker pawn |
+| 9 | En Passant Catch | — | Find en passant in mid-position | Decline the en passant — find the better move |
+| 10 | Promote Now | — | Choose Q vs N promotion (N gives mate) | Pick correct underpromotion to avoid stalemate |
+| 11 | Pawn Wars Mini (vs Farmer) | — | First to promote — auto-play vs scripted opponent | Find the fastest promotion line |
+| 12 | March to the Barn (BOSS) | — | `PawnPromotionRun` 4-pawns-vs-king mode | — |
 
-(The Castle realm hosts two module environments — Caverns and Forge — to honor both the "5 distinct backgrounds" request and the existing realm mapping.)
+All puzzle FENs and goals live in a new `src/data/realm2/puzzles.ts`, mirroring `src/data/realm1/puzzles.ts` shape so `PuzzleBoard` works without changes.
 
-## Per sub-quest backdrops
-
-Inside each module path, **every lesson node** gets its own scene illustration shown behind the lesson/puzzle/challenge screen (not just behind the map). For Module 1 that's 6 piece scenes already loosely themed via icons; we'll generate proper backgrounds for nodes in Modules 2–5 (3–4 lessons + challenge + boss per module ≈ **22 new scene images** plus **5 module map backgrounds = 27 generated images** total, premium-tier where text is in the scene, fast tier otherwise).
-
-## The Fantastic Pathway
-
-A new `<MagicalTrack/>` component replaces the plain SVG line:
-- **Meadow** — golden dashed footprints (current look, polished)
-- **Farmlands** — repeating wooden-plank texture along the curve
-- **Caverns** — animated glowing gradient that pulses violet → cyan along the path
-- **Forge** — pulsing ember dashes with subtle particle sparks (CSS keyframes)
-- **Sky** — dashed sky-rune ribbon with twinkling stars
-
-All variants reuse the same SVG path data, only the stroke/decoration changes — keeps perf cheap and gives instant visual variety.
-
-## Interactive nodes
-
-Each node renders as a **collectible icon** per its state:
-- **Locked**: dimmed silver shape, no glow
-- **Current**: bouncing + pulsing aura (Framer Motion `animate` loop)
-- **Done**: bright shine with rotating sparkle ring + earned-stars badge
-
-Node icon per module: gem (Module 1), wheat-bundle (2), crystal shard (3), shield (4), star (5). Boss nodes get a larger crowned variant.
-
-## Frosted controls
-
-Header bar inside each path (title, quest counter, stars, shard label) gets `bg-card/40 backdrop-blur-md border-white/20` so it floats over the new vibrant backgrounds while staying readable.
-
-## Smooth scrolling transitions
-
-The home Quest Map page becomes a **single scrollable spine**: each module section is full-viewport-height with its own background, separated by 96px gradient blending bands (`bg-gradient-to-b from-prev-tint/80 via-mix to-next-tint/80`). The page feels like one continuous magical journey from meadow → farmland → cavern → forge → sky.
-
-## Gameplay built per module
-
-Modules 2-5 reuse existing playable components — no new game engines needed:
-
-- **Module 2 — Farmer & Piggies**: `ChessboardLesson` + `PuzzleBoard` (pawn captures, en passant, promotion). Boss = `PawnPromotionRun` variant "March to the Barn" with 4 pawns vs lone king.
-- **Module 3 — Check / Mate / Stalemate**: `ChessboardLesson` for check patterns, `PuzzleBoard` with mate-in-1 positions, `BossQuiz` "King's Escape Room" identifying check vs mate vs stalemate.
-- **Module 4 — Basic Checkmates**: `PuzzleBoard` with K+Q vs K and two-rook ladder positions, boss = `BossQuiz` "Box the King".
-- **Module 5 — Opening Principles**: `ChessboardLesson` walkthrough of Ruy Lopez first 4 moves, `BossQuiz` "Connect the Rooks" on opening rule choices.
-
-All puzzle FEN positions added to a new `src/data/realm{2,3,5}/puzzles.ts` set.
-
-## Files (technical detail)
+## Technical changes
 
 **New data**
-- `src/data/modules/module2-farm.ts`, `module3-check.ts`, `module4-mates.ts`, `module5-openings.ts` — each exports `LEVELS: ClimbLevel[]` matching the existing Module 1 shape, plus per-node scene image refs.
-- `src/data/modules/theme.ts` — central map: moduleId → { mapBg, trackVariant, nodeIcon, tintFrom, tintTo }.
+- `src/data/realm2/puzzles.ts` — exports `MODULE2_NODES: Record<number, { lesson?: LessonStep; puzzle: PuzzleSpec; challenge: PuzzleSpec }>`. Reuses existing `LessonStep` and `PuzzleSpec` types from `src/data/realm1/lessons.ts` / `puzzles.ts`.
+- `src/data/realm2/mariposa-lines.ts` — 2–3 cheer/hint variants per stage kind, farm-flavored ("Wheat-tastic!", "Oink yes!", etc.).
 
-**New components**
-- `src/components/realm/MagicalTrack.tsx` — variant-driven SVG track (meadow/farm/cavern/forge/sky).
-- `src/components/realm/MagicalNode.tsx` — animated collectible node (locked/current/done states, icon per module).
-- `src/components/realm/ModuleHeader.tsx` — frosted-glass quest header.
+**Modified**
+- `src/routes/realm.$realmId_.path.tsx` — `StageBody` becomes module-aware:
+  - If `mod.id === "meet-the-army"` → keep current Module 1 wiring (Catch the Star, Promotion Run).
+  - If `mod.id === "farmer-and-piggies"` → render `ChessboardLesson` for tutorial, `PuzzleBoard` for puzzle + challenge, looking up the FEN by `level.id` from `MODULE2_NODES`. Boss node 12 renders `PawnPromotionRun` directly.
+  - Otherwise → unchanged placeholder for Modules 3–5 (out of scope this pass).
+- `stagesFor(level)` adjusts copy for Module 2 (tutorial instead of "video").
 
-**New route**
-- `src/routes/realm.$realmId_.module.$moduleId.tsx` — generic module-path page driven by moduleId; replaces the hardcoded Module 1 logic in `realm.$realmId_.path.tsx`, which becomes a thin redirect to module 1.
+**Reused as-is**
+- `ChessboardLesson`, `PuzzleBoard`, `PawnPromotionRun`, `MariposaSay`, click sounds, stage stepper, progress persistence.
 
-**Home page update**
-- `src/routes/index.tsx` — wrap content in scrollable themed sections with gradient blends between modules; add "Jump to module" anchor chips.
-
-**Generated images** (≈27 total)
-- 5 module map backgrounds (premium quality, 1536×1024)
-- ~22 per-sub-quest scene backgrounds (fast quality, 1024×768)
-- Stored under `src/assets/modules/{moduleSlug}/`
+**New boss variant flag**
+- `ClimbLevel` already has `promotionRun?: boolean`. Module 2 node 12 sets it `true`; component check in the modal renders `PawnPromotionRun` with a new `variant="march-to-barn"` prop that spawns 4 pawns vs a lone king (small addition inside `PawnPromotionRun.tsx`).
 
 ## Out of scope
 
-- Modules 6–15 stay scaffolded placeholders (next pass).
-- No new chess-engine features; reuse existing `chess.js`/`react-chessboard` wrappers.
-- No backend persistence changes — node completion still uses existing local progress.
+- Modules 3, 4, 5 keep their placeholder stages — wired in a follow-up.
+- No new chess engine work; all positions use existing `chess.js`/`PuzzleBoard` flow.
+- No backend changes; progress still per-module in localStorage.
 
 ## Acceptance
 
-- All 5 modules clickable from the home map and individually playable end-to-end.
-- Each module's path page has a distinct background AND distinct track style.
-- Each sub-quest within a module shows its own scene image in the lesson screen.
-- Nodes animate per state (locked/current/done) with Framer Motion.
-- Frosted-glass header floats cleanly over every background.
-- Scrolling the home map feels continuous — no hard seams between environments.
+- Opening any Module 2 node shows a real interactive board for tutorial, puzzle, and challenge — not generic placeholders.
+- Correct moves auto-clear the step; wrong moves give a gentle Mariposa miss line and add a Brave Heart.
+- Node 12 plays the `PawnPromotionRun` mini-game; winning clears the module and awards the Pawn Champion finish prize.
+- Modules 1, 3, 4, 5 continue to work exactly as before.
