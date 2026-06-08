@@ -40,26 +40,63 @@ export const Route = createFileRoute("/realm/$realmId_/path")({
 
 type LevelType = "lesson" | "challenge" | "miniboss" | "treasure" | "boss";
 
+interface Critter {
+  emoji: string;
+  name: string;
+  taunt: string;
+  cheer: string;
+}
+
 interface ClimbLevel {
   id: number;
   name: string;
   type: LevelType;
+  blurb: string;
+  critter?: Critter;
 }
 
+const CRITTERS: Record<string, Critter> = {
+  hoppy:    { emoji: "🐇",  name: "Hoppy the Hare",       taunt: "Catch me if you can!",                       cheer: "Hop-tastic! You got me!" },
+  acorn:    { emoji: "🐿️", name: "Acorn the Squirrel",   taunt: "These nuts are MINE!",                       cheer: "Okay okay, share the acorns!" },
+  bramble:  { emoji: "🦔",  name: "Bramble the Hedgehog", taunt: "Prickly puzzle for you!",                    cheer: "Ouch-less! Well played, hero." },
+  knight:   { emoji: "🐴",  name: "The Lost Knight",      taunt: "I forgot my L-moves!",                       cheer: "Phew! Home to the stable I go." },
+  guardian: { emoji: "🗿",  name: "The Board Guardian",   taunt: "None pass without 64 squares of wisdom.",    cheer: "The path is yours, Apprentice." },
+};
+
 const LEVELS: ClimbLevel[] = [
-  { id: 1,  name: "Meet the board",         type: "lesson" },
-  { id: 2,  name: "Meet the King",          type: "lesson" },
-  { id: 3,  name: "Pawn & Rook",            type: "lesson" },
-  { id: 4,  name: "Bishop & Queen",         type: "lesson" },
-  { id: 5,  name: "Knight's hop",           type: "lesson" },
-  { id: 6,  name: "Move-it challenge",      type: "challenge" },
-  { id: 7,  name: "Lost Knight",            type: "miniboss" },
-  { id: 8,  name: "Capture safely",         type: "lesson" },
-  { id: 9,  name: "Capture 3 targets",      type: "challenge" },
-  { id: 10, name: "Piece values",           type: "treasure" },
-  { id: 11, name: "Set up the board",       type: "lesson" },
-  { id: 12, name: "Board Guardian",         type: "boss" },
+  { id: 1,  name: "Meet the board",    type: "lesson",    blurb: "Light & dark squares, ranks & files." },
+  { id: 2,  name: "Meet the King",     type: "lesson",    blurb: "One royal step in any direction." },
+  { id: 3,  name: "Pawn & Rook",       type: "lesson",    blurb: "Tiny pawn, mighty rook lines.", critter: CRITTERS.hoppy },
+  { id: 4,  name: "Bishop & Queen",    type: "lesson",    blurb: "Diagonals and the all-powerful queen." },
+  { id: 5,  name: "Knight's hop",      type: "lesson",    blurb: "The L-shaped leap over pieces." },
+  { id: 6,  name: "Move-it challenge", type: "challenge", blurb: "Mix all the pieces in tiny puzzles.", critter: CRITTERS.acorn },
+  { id: 7,  name: "Lost Knight",       type: "miniboss",  blurb: "Help the knight find its way home.",  critter: CRITTERS.knight },
+  { id: 8,  name: "Capture safely",    type: "lesson",    blurb: "Take pieces without losing yours." },
+  { id: 9,  name: "Capture 3 targets", type: "challenge", blurb: "A captures-only puzzle sprint.",      critter: CRITTERS.bramble },
+  { id: 10, name: "Piece values",      type: "treasure",  blurb: "Pawn 1 · Knight & Bishop 3 · Rook 5 · Queen 9." },
+  { id: 11, name: "Set up the board",  type: "lesson",    blurb: "Every piece on its proper starting square." },
+  { id: 12, name: "Board Guardian",    type: "boss",      blurb: "The final test of the Pawn Village.", critter: CRITTERS.guardian },
 ];
+
+type StageKind = "video" | "puzzle" | "challenge" | "critter";
+interface Stage { kind: StageKind; title: string; desc: string; icon: string; }
+
+function stagesFor(level: ClimbLevel): Stage[] {
+  const s: Stage[] = [
+    { kind: "video",     title: "Watch the tutorial",  desc: "A short story-video from Mariposa.", icon: "▶︎" },
+    { kind: "puzzle",    title: "Practice puzzle",     desc: "A gentle warm-up puzzle.",            icon: "🧩" },
+    { kind: "challenge", title: "Quest challenge",     desc: "A trickier mini-quest.",              icon: "⚔️" },
+  ];
+  if (level.critter) {
+    s.push({
+      kind: "critter",
+      title: `Friendly duel: ${level.critter.name}`,
+      desc: level.critter.taunt,
+      icon: level.critter.emoji,
+    });
+  }
+  return s;
+}
 
 // Serpentine race-track positions (% of width / % of height inside path area).
 // Spaced so 12 nodes + START/FINISH fit on phone widths without overlapping.
