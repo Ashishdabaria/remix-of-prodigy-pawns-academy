@@ -859,15 +859,22 @@ function StageModal({
               <button
                 type="button"
                 onClick={() => finishStage(active)}
-                className="rounded-full bg-ink px-5 py-2.5 font-display text-sm font-black text-parchment shadow-md hover:scale-[1.02] transition-transform"
+                disabled={!isUnlocked(active)}
+                className={`rounded-full px-5 py-2.5 font-display text-sm font-black shadow-md transition-transform ${
+                  isUnlocked(active)
+                    ? "bg-ink text-parchment hover:scale-[1.02]"
+                    : "bg-muted text-ink/40 cursor-not-allowed"
+                }`}
               >
-                {activeStage.kind === "video"
-                  ? "I watched it ▶︎"
-                  : activeStage.kind === "puzzle"
-                    ? "I solved it 🧩"
-                    : activeStage.kind === "challenge"
-                      ? "Challenge done ⚔️"
-                      : `Defeat ${level.critter?.name ?? "the critter"} ${activeStage.icon}`}
+                {!isUnlocked(active)
+                  ? `🔒 Finish step ${unlockedUpTo + 1} first`
+                  : activeStage.kind === "video"
+                    ? "I watched it ▶︎"
+                    : activeStage.kind === "puzzle"
+                      ? "I solved it 🧩"
+                      : activeStage.kind === "challenge"
+                        ? "Challenge done ⚔️"
+                        : `Defeat ${level.critter?.name ?? "the critter"} ${activeStage.icon}`}
               </button>
             ) : (
               <div className="rounded-full bg-shard-emerald/30 px-4 py-1.5 text-center text-xs font-black uppercase tracking-widest text-ink">
@@ -877,7 +884,7 @@ function StageModal({
             <button
               type="button"
               disabled={!allDone}
-              onClick={onComplete}
+              onClick={() => { playClick("unlock"); onComplete(); }}
               className={`rounded-full px-5 py-2.5 font-display text-sm font-black shadow-md transition ${
                 allDone
                   ? "bg-shard-sun text-ink ring-2 ring-ink/20 hover:scale-[1.02]"
@@ -889,6 +896,7 @@ function StageModal({
           </div>
         </div>
       </motion.div>
+
     </motion.div>
   );
 }
