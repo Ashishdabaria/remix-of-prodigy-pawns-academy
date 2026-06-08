@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getRealm, type Realm } from "@/data/realms";
 import { Mariposa } from "@/components/Mariposa";
 import { MuteToggle } from "@/components/realm/MariposaSay";
+import { playClick } from "@/lib/sound";
 import villageBg from "@/assets/pawn-village-map.jpg";
 
 export const Route = createFileRoute("/realm/$realmId_/path")({
