@@ -327,26 +327,36 @@ function RealmPathPage() {
             <path
               d={pathD}
               fill="none"
-              stroke="rgba(40,20,8,0.55)"
+              stroke={trackStyle.dim}
               strokeLinecap="round"
-              strokeDasharray="1.2 2"
+              strokeDasharray={trackStyle.dash}
               vectorEffect="non-scaling-stroke"
               style={{ strokeWidth: "4px" } as React.CSSProperties}
             />
-            {/* Bright gold lit portion */}
+            {/* Bright themed lit portion */}
             {litD && (
               <path
                 d={litD}
                 fill="none"
-                stroke="oklch(0.85 0.18 85)"
+                stroke={trackStyle.lit}
                 strokeLinecap="round"
-                strokeDasharray="1.2 2"
+                strokeDasharray={trackStyle.dash}
                 vectorEffect="non-scaling-stroke"
                 style={{
-                  strokeWidth: "6px",
-                  filter: "drop-shadow(0 0 6px oklch(0.85 0.18 85 / 0.9))",
+                  strokeWidth: trackStyle.litWidth,
+                  filter: `drop-shadow(0 0 6px ${trackStyle.glow})`,
                 } as React.CSSProperties}
-              />
+              >
+                {mod.track === "caverns" || mod.track === "sky" ? (
+                  <animate
+                    attributeName="stroke-dashoffset"
+                    from="0"
+                    to="-8"
+                    dur="1.6s"
+                    repeatCount="indefinite"
+                  />
+                ) : null}
+              </path>
             )}
           </svg>
 
@@ -368,8 +378,9 @@ function RealmPathPage() {
             className="absolute -translate-x-1/2 -translate-y-1/2"
             style={{ left: `${PRIZE_POS.x}%`, top: `${PRIZE_POS.y}%` }}
           >
-            <GrandPrize won={victory || doneCount === 12} />
+            <GrandPrize won={victory || doneCount === TOTAL} icon={mod.finishIcon} />
           </div>
+
 
           {/* Level nodes */}
           {LEVELS.map((lvl, i) => {
