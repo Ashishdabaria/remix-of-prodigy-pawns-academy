@@ -877,7 +877,12 @@ function StageModal({
           <p className="mt-1 text-sm text-ink/80">{activeStage.desc}</p>
 
           <div className="mt-3">
-            <StageBody stage={activeStage} level={level} />
+            <StageBody
+              stage={activeStage}
+              level={level}
+              moduleId={moduleId}
+              onAutoComplete={() => finishStage(active)}
+            />
           </div>
 
           <div className="mt-4 flex flex-col gap-2">
