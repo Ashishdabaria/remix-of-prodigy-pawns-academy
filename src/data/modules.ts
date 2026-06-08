@@ -13,6 +13,11 @@ import pinFactoryBg from "@/assets/modules/module7-pinfactory.jpg";
 import peaksBg from "@/assets/modules/module9-peaks.jpg";
 import castleBg from "@/assets/modules/module8-castle.jpg";
 import labyrinthBg from "@/assets/modules/module10-labyrinth.jpg";
+import shadowsBg from "@/assets/modules/module11-shadows.jpg";
+import dunesBg from "@/assets/modules/module12-dunes.jpg";
+import atriumBg from "@/assets/modules/module13-atrium.jpg";
+import citadelBg from "@/assets/modules/module14-citadel.jpg";
+import arenaBg from "@/assets/modules/module15-arena.jpg";
 
 
 
@@ -43,7 +48,7 @@ export interface ClimbLevel {
   promotionRun?: boolean;
 }
 
-export type TrackVariant = "meadow" | "farmlands" | "caverns" | "forge" | "sky" | "grove" | "factory" | "peaks" | "castle" | "labyrinth";
+export type TrackVariant = "meadow" | "farmlands" | "caverns" | "forge" | "sky" | "grove" | "factory" | "peaks" | "castle" | "labyrinth" | "shadows" | "dunes" | "atrium" | "citadel" | "arena";
 
 export interface ModuleConfig {
   id: string;
@@ -362,7 +367,147 @@ const MODULE_10: ModuleConfig = {
   ],
 };
 
-export const MODULES: ModuleConfig[] = [MODULE_1, MODULE_2, MODULE_3, MODULE_4, MODULE_5, MODULE_6, MODULE_7, MODULE_8, MODULE_9, MODULE_10];
+// ────────── Module 11: Shadow Crossroads (Discovered Attacks & Deflection) ──────────
+const MODULE_11: ModuleConfig = {
+  id: "discovered-attacks",
+  realmId: "crystal-labyrinth",
+  title: "The Shadow Crossroads",
+  subtitle: "Race 12 shadow quests — unmask the hidden weapon!",
+  background: shadowsBg,
+  track: "shadows",
+  finishIcon: "🌑",
+  finishLabel: "Shadow Striker badge",
+  overlay: "radial-gradient(ellipse at center, rgba(196,181,253,0.18) 0%, rgba(20,10,40,0.55) 100%)",
+  accentClass: "border-violet-500/70",
+  levels: [
+    { id: 1,  name: "Unmask Knight",      type: "lesson",    blurb: "Move knight — rook checks!",                sceneIcon: "🌒", sceneTint: "linear-gradient(135deg, #ddd6fe 0%, #5b21b6 100%)" },
+    { id: 2,  name: "Win the Queen",      type: "lesson",    blurb: "Discovered attack — capture queen!",        sceneIcon: "♛", sceneTint: "linear-gradient(135deg, #c4b5fd 0%, #4c1d95 100%)" },
+    { id: 3,  name: "Double Check",       type: "lesson",    blurb: "Two checks at once — king must move!",      sceneIcon: "⚡", sceneTint: "linear-gradient(135deg, #ede9fe 0%, #6d28d9 100%)" },
+    { id: 4,  name: "Deflection",         type: "lesson",    blurb: "Capture the defender!",                     sceneIcon: "🪞", sceneTint: "linear-gradient(135deg, #ddd6fe 0%, #5b21b6 100%)" },
+    { id: 5,  name: "Overload",           type: "lesson",    blurb: "One defender, too many jobs!",              sceneIcon: "🎭", sceneTint: "linear-gradient(135deg, #e9d5ff 0%, #7e22ce 100%)" },
+    { id: 6,  name: "Spot the Check",     type: "challenge", blurb: "Find the discovered check!",                sceneIcon: "🔍", sceneTint: "linear-gradient(135deg, #ddd6fe 0%, #4c1d95 100%)" },
+    { id: 7,  name: "Queen Hunter",       type: "challenge", blurb: "Win the queen with discovery!",             critter: CRITTERS.sleuth, sceneIcon: "👁️", sceneTint: "linear-gradient(135deg, #c4b5fd 0%, #3b0764 100%)" },
+    { id: 8,  name: "King Must Move",     type: "challenge", blurb: "Force the king with double check!",         sceneIcon: "♔", sceneTint: "linear-gradient(135deg, #ede9fe 0%, #581c87 100%)" },
+    { id: 9,  name: "Remove Defender",    type: "challenge", blurb: "Take the defender — win!",                  sceneIcon: "🗡️", sceneTint: "linear-gradient(135deg, #ddd6fe 0%, #4a044e 100%)" },
+    { id: 10, name: "Hidden Treasure",    type: "treasure",  blurb: "Spot the discovered double attack!",        sceneIcon: "💎", sceneTint: "linear-gradient(135deg, #fde68a 0%, #4c1d95 100%)" },
+    { id: 11, name: "Combo Drill",        type: "challenge", blurb: "Pattern lock — find the weapon!",           critter: CRITTERS.owl, sceneIcon: "⚙️", sceneTint: "linear-gradient(135deg, #c4b5fd 0%, #1e1b4b 100%)" },
+    { id: 12, name: "Unmask the Weapon",  type: "boss",      blurb: "Three combos — claim the Shadow Striker badge!", critter: CRITTERS.owl, sceneIcon: "🌑", sceneTint: "linear-gradient(135deg, #a78bfa 0%, #1e1b4b 100%)" },
+  ],
+};
+
+// ────────── Module 12: Endless Dunes (Passed Pawns & Endgame) ──────────
+const MODULE_12: ModuleConfig = {
+  id: "endgame-mastery",
+  realmId: "endgame-desert",
+  title: "The Endless Dunes",
+  subtitle: "Race 12 dune quests — march your pawn to the crown!",
+  background: dunesBg,
+  track: "dunes",
+  finishIcon: "👑",
+  finishLabel: "Endgame Royalty badge",
+  overlay: "radial-gradient(ellipse at center, rgba(254,215,170,0.20) 0%, rgba(80,40,5,0.55) 100%)",
+  accentClass: "border-amber-500/80",
+  levels: [
+    { id: 1,  name: "Promote!",            type: "lesson",    blurb: "Push the pawn to the crown!",               sceneIcon: "👑", sceneTint: "linear-gradient(135deg, #fef3c7 0%, #d97706 100%)" },
+    { id: 2,  name: "King March",          type: "lesson",    blurb: "Endgame — the king is a warrior!",          sceneIcon: "♔", sceneTint: "linear-gradient(135deg, #fed7aa 0%, #c2410c 100%)" },
+    { id: 3,  name: "Opposition",          type: "lesson",    blurb: "Face off — king vs king!",                  sceneIcon: "⚔️", sceneTint: "linear-gradient(135deg, #ffedd5 0%, #9a3412 100%)" },
+    { id: 4,  name: "Passed Pawn",         type: "lesson",    blurb: "Nothing stops this pawn!",                  sceneIcon: "♙", sceneTint: "linear-gradient(135deg, #fef9c3 0%, #ca8a04 100%)" },
+    { id: 5,  name: "King Escort",         type: "lesson",    blurb: "King protects the pawn home!",              sceneIcon: "🛡️", sceneTint: "linear-gradient(135deg, #fed7aa 0%, #b45309 100%)" },
+    { id: 6,  name: "Lucena Win",          type: "lesson",    blurb: "Promote with a rook helper!",               sceneIcon: "♜", sceneTint: "linear-gradient(135deg, #fde68a 0%, #92400e 100%)" },
+    { id: 7,  name: "Pawn Race",           type: "challenge", blurb: "First to the 8th rank wins!",               sceneIcon: "🏁", sceneTint: "linear-gradient(135deg, #fef3c7 0%, #7c2d12 100%)" },
+    { id: 8,  name: "Key Square",          type: "challenge", blurb: "Control the magic square!",                  critter: CRITTERS.pegasus, sceneIcon: "🎯", sceneTint: "linear-gradient(135deg, #fed7aa 0%, #78350f 100%)" },
+    { id: 9,  name: "Philidor",            type: "challenge", blurb: "Defense busted — take the rook!",           sceneIcon: "♜", sceneTint: "linear-gradient(135deg, #ffedd5 0%, #581c87 100%)" },
+    { id: 10, name: "Crown Treasure",      type: "treasure",  blurb: "Promote with check — gold!",                 sceneIcon: "💎", sceneTint: "linear-gradient(135deg, #fde68a 0%, #4a044e 100%)" },
+    { id: 11, name: "K+P Finish",          type: "challenge", blurb: "King + pawn vs king — clean win!",          critter: CRITTERS.owl, sceneIcon: "♔", sceneTint: "linear-gradient(135deg, #fef3c7 0%, #1e1b4b 100%)" },
+    { id: 12, name: "Race to the Crown",   type: "boss",      blurb: "Three pawns to crown — endgame mastery!",    critter: CRITTERS.guardian, sceneIcon: "👑", sceneTint: "linear-gradient(135deg, #fcd34d 0%, #1e1b4b 100%)" },
+  ],
+};
+
+// ────────── Module 13: Architect's Atrium (Positional Chess) ──────────
+const MODULE_13: ModuleConfig = {
+  id: "positional-chess",
+  realmId: "endgame-desert",
+  title: "The Architect's Atrium",
+  subtitle: "Race 12 blueprint quests — master pawn structure & coordination!",
+  background: atriumBg,
+  track: "atrium",
+  finishIcon: "📐",
+  finishLabel: "Position Architect badge",
+  overlay: "radial-gradient(ellipse at center, rgba(167,243,208,0.18) 0%, rgba(40,30,5,0.55) 100%)",
+  accentClass: "border-teal-400/80",
+  levels: [
+    { id: 1,  name: "Open File",         type: "lesson",    blurb: "Rook loves open files!",                    sceneIcon: "♜", sceneTint: "linear-gradient(135deg, #ccfbf1 0%, #0f766e 100%)" },
+    { id: 2,  name: "7th Rank",          type: "lesson",    blurb: "Rooks on the 7th — pigs!",                   sceneIcon: "🥓", sceneTint: "linear-gradient(135deg, #a7f3d0 0%, #115e59 100%)" },
+    { id: 3,  name: "Knight Outpost",    type: "lesson",    blurb: "Plant the knight in enemy land!",            sceneIcon: "♞", sceneTint: "linear-gradient(135deg, #d1fae5 0%, #047857 100%)" },
+    { id: 4,  name: "Good Bishop",       type: "lesson",    blurb: "Long diagonal — bishop power!",              sceneIcon: "♝", sceneTint: "linear-gradient(135deg, #bbf7d0 0%, #166534 100%)" },
+    { id: 5,  name: "Central Queen",     type: "lesson",    blurb: "Queen rules the center!",                    sceneIcon: "♛", sceneTint: "linear-gradient(135deg, #99f6e4 0%, #134e4a 100%)" },
+    { id: 6,  name: "Doubled Rooks",     type: "lesson",    blurb: "Stack them for power!",                       sceneIcon: "♜", sceneTint: "linear-gradient(135deg, #5eead4 0%, #0d9488 100%)" },
+    { id: 7,  name: "Bishop Pair",       type: "challenge", blurb: "Both bishops sweep the board!",              sceneIcon: "♝", sceneTint: "linear-gradient(135deg, #a7f3d0 0%, #064e3b 100%)" },
+    { id: 8,  name: "Weak Pawn",         type: "challenge", blurb: "Attack the lonely pawn!",                    critter: CRITTERS.sleuth, sceneIcon: "🎯", sceneTint: "linear-gradient(135deg, #d1fae5 0%, #022c22 100%)" },
+    { id: 9,  name: "King Active",       type: "challenge", blurb: "Bring the king up — endgame!",               sceneIcon: "♔", sceneTint: "linear-gradient(135deg, #99f6e4 0%, #064e3b 100%)" },
+    { id: 10, name: "Outpost Gold",      type: "treasure",  blurb: "Perfect knight outpost!",                    sceneIcon: "💎", sceneTint: "linear-gradient(135deg, #fde68a 0%, #134e4a 100%)" },
+    { id: 11, name: "Rook Lift",         type: "challenge", blurb: "Activate the rook on the 3rd rank!",          critter: CRITTERS.owl, sceneIcon: "⬆️", sceneTint: "linear-gradient(135deg, #5eead4 0%, #134e4a 100%)" },
+    { id: 12, name: "Architect's Blueprint", type: "boss",  blurb: "Three positional gems — claim the badge!",   critter: CRITTERS.guardian, sceneIcon: "📐", sceneTint: "linear-gradient(135deg, #14b8a6 0%, #134e4a 100%)" },
+  ],
+};
+
+// ────────── Module 14: Citadel Spires (Combinations & Sacrifices) ──────────
+const MODULE_14: ModuleConfig = {
+  id: "combinations-sacrifices",
+  realmId: "citadel-of-checkmate",
+  title: "The Citadel Spires",
+  subtitle: "Race 12 spire quests — master combinations & sacrifices!",
+  background: citadelBg,
+  track: "citadel",
+  finishIcon: "⚔️",
+  finishLabel: "Combination Grandmaster badge",
+  overlay: "radial-gradient(ellipse at center, rgba(216,180,254,0.20) 0%, rgba(40,10,60,0.60) 100%)",
+  accentClass: "border-violet-500/80",
+  levels: [
+    { id: 1,  name: "Remove Defender",    type: "lesson",    blurb: "Capture the guard, win the game!",          sceneIcon: "🗡️", sceneTint: "linear-gradient(135deg, #ddd6fe 0%, #5b21b6 100%)" },
+    { id: 2,  name: "Sacrifice Sparkle",  type: "lesson",    blurb: "Give a piece — win much more!",              sceneIcon: "✨", sceneTint: "linear-gradient(135deg, #e9d5ff 0%, #6d28d9 100%)" },
+    { id: 3,  name: "X-Ray",              type: "lesson",    blurb: "Rook attacks THROUGH a piece!",              sceneIcon: "🔭", sceneTint: "linear-gradient(135deg, #c4b5fd 0%, #4c1d95 100%)" },
+    { id: 4,  name: "Greek Gift",         type: "lesson",    blurb: "Bishop sacrifice on the king!",              sceneIcon: "🎁", sceneTint: "linear-gradient(135deg, #ede9fe 0%, #581c87 100%)" },
+    { id: 5,  name: "Squeeze",            type: "lesson",    blurb: "Force the trade — winning swap!",            sceneIcon: "🤝", sceneTint: "linear-gradient(135deg, #ddd6fe 0%, #4c1d95 100%)" },
+    { id: 6,  name: "Combo!",             type: "challenge", blurb: "Chain two tactics together!",                sceneIcon: "⚡", sceneTint: "linear-gradient(135deg, #c4b5fd 0%, #3b0764 100%)" },
+    { id: 7,  name: "Decoy",              type: "challenge", blurb: "Lure the king to disaster!",                 critter: CRITTERS.sleuth, sceneIcon: "🎣", sceneTint: "linear-gradient(135deg, #ede9fe 0%, #581c87 100%)" },
+    { id: 8,  name: "Battery Fire",       type: "challenge", blurb: "Stack rook + queen for the win!",            sceneIcon: "🔥", sceneTint: "linear-gradient(135deg, #c4b5fd 0%, #4a044e 100%)" },
+    { id: 9,  name: "Skewer Win",         type: "challenge", blurb: "Skewer king to queen!",                       sceneIcon: "🍢", sceneTint: "linear-gradient(135deg, #ddd6fe 0%, #1e1b4b 100%)" },
+    { id: 10, name: "Combo Treasure",     type: "treasure",  blurb: "Spot the winning combination!",              sceneIcon: "💎", sceneTint: "linear-gradient(135deg, #fde68a 0%, #4c1d95 100%)" },
+    { id: 11, name: "Master Drill",       type: "challenge", blurb: "Find the killing combo — fast!",             critter: CRITTERS.owl, sceneIcon: "⚙️", sceneTint: "linear-gradient(135deg, #c4b5fd 0%, #1e1b4b 100%)" },
+    { id: 12, name: "Combination Engine", type: "boss",      blurb: "Three sacrifices — Grandmaster!",            critter: CRITTERS.drake, sceneIcon: "⚔️", sceneTint: "linear-gradient(135deg, #a78bfa 0%, #1e1b4b 100%)" },
+  ],
+};
+
+// ────────── Module 15: Grand Tournament Arena (Game Analysis) ──────────
+const MODULE_15: ModuleConfig = {
+  id: "tournament-prep",
+  realmId: "citadel-of-checkmate",
+  title: "The Grand Tournament Arena",
+  subtitle: "Race 12 arena quests — earn the Crown and Tournament Champion title!",
+  background: arenaBg,
+  track: "arena",
+  finishIcon: "🏆",
+  finishLabel: "Tournament Champion + The Crown",
+  overlay: "radial-gradient(ellipse at center, rgba(254,215,170,0.20) 0%, rgba(60,15,60,0.55) 100%)",
+  accentClass: "border-yellow-400/80",
+  levels: [
+    { id: 1,  name: "Notation: e4",       type: "lesson",    blurb: "Write your moves — 1.e4!",                  sceneIcon: "✍️", sceneTint: "linear-gradient(135deg, #fef3c7 0%, #b45309 100%)" },
+    { id: 2,  name: "Develop Knight",     type: "lesson",    blurb: "Nf3 — knight to the front!",                 sceneIcon: "♞", sceneTint: "linear-gradient(135deg, #fde68a 0%, #92400e 100%)" },
+    { id: 3,  name: "Castle (O-O)",       type: "lesson",    blurb: "King to safety!",                            sceneIcon: "🏰", sceneTint: "linear-gradient(135deg, #fcd34d 0%, #78350f 100%)" },
+    { id: 4,  name: "Check First",        type: "lesson",    blurb: "Tournament thinking — look at checks!",      sceneIcon: "⚠️", sceneTint: "linear-gradient(135deg, #fef9c3 0%, #713f12 100%)" },
+    { id: 5,  name: "Best Capture",       type: "lesson",    blurb: "Count first, capture second!",               sceneIcon: "⚖️", sceneTint: "linear-gradient(135deg, #fbbf24 0%, #6b21a8 100%)" },
+    { id: 6,  name: "Make Threat",        type: "lesson",    blurb: "Your turn — strongest move first!",          sceneIcon: "💥", sceneTint: "linear-gradient(135deg, #facc15 0%, #581c87 100%)" },
+    { id: 7,  name: "Punish Blunder",     type: "challenge", blurb: "Free queen — grab it!",                       sceneIcon: "🔍", sceneTint: "linear-gradient(135deg, #fde68a 0%, #4c1d95 100%)" },
+    { id: 8,  name: "Clock Drill",        type: "challenge", blurb: "Fast forcing move — go!",                    critter: CRITTERS.pegasus, sceneIcon: "⏱️", sceneTint: "linear-gradient(135deg, #fcd34d 0%, #3b0764 100%)" },
+    { id: 9,  name: "Endgame Win",        type: "challenge", blurb: "Crown the pawn cleanly!",                    sceneIcon: "👑", sceneTint: "linear-gradient(135deg, #fef3c7 0%, #581c87 100%)" },
+    { id: 10, name: "Winning Move",       type: "treasure",  blurb: "Spot the killing tactic!",                   sceneIcon: "💎", sceneTint: "linear-gradient(135deg, #fde68a 0%, #4a044e 100%)" },
+    { id: 11, name: "Tournament Drill",   type: "challenge", blurb: "Best move under pressure!",                  critter: CRITTERS.owl, sceneIcon: "⚡", sceneTint: "linear-gradient(135deg, #fbbf24 0%, #1e1b4b 100%)" },
+    { id: 12, name: "Tournament Simulator", type: "boss",    blurb: "Three rounds — claim THE CROWN!",            critter: CRITTERS.drake, sceneIcon: "🏆", sceneTint: "linear-gradient(135deg, #fcd34d 0%, #1e1b4b 100%)" },
+  ],
+};
+
+export const MODULES: ModuleConfig[] = [MODULE_1, MODULE_2, MODULE_3, MODULE_4, MODULE_5, MODULE_6, MODULE_7, MODULE_8, MODULE_9, MODULE_10, MODULE_11, MODULE_12, MODULE_13, MODULE_14, MODULE_15];
 
 export const MODULES_BY_ID: Record<string, ModuleConfig> = Object.fromEntries(
   MODULES.map((m) => [m.id, m]),
