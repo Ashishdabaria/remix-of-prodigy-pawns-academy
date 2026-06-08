@@ -148,7 +148,7 @@ export const CURRICULUM: CurriculumModule[] = [
     ],
     challenge: "Guard the Castle",
     badgeId: "pattern-hunter",
-    status: "placeholder",
+    status: "playable",
   },
   {
     number: 9,

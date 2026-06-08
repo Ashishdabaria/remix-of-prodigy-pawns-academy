@@ -11,6 +11,7 @@ import skyBg from "@/assets/modules/module5-sky.jpg";
 import groveBg from "@/assets/modules/module6-grove.jpg";
 import pinFactoryBg from "@/assets/modules/module7-pinfactory.jpg";
 import peaksBg from "@/assets/modules/module9-peaks.jpg";
+import castleBg from "@/assets/modules/module8-castle.jpg";
 
 
 
@@ -41,7 +42,7 @@ export interface ClimbLevel {
   promotionRun?: boolean;
 }
 
-export type TrackVariant = "meadow" | "farmlands" | "caverns" | "forge" | "sky" | "grove" | "factory" | "peaks";
+export type TrackVariant = "meadow" | "farmlands" | "caverns" | "forge" | "sky" | "grove" | "factory" | "peaks" | "castle";
 
 export interface ModuleConfig {
   id: string;
@@ -304,7 +305,35 @@ const MODULE_9: ModuleConfig = {
   ],
 };
 
-export const MODULES: ModuleConfig[] = [MODULE_1, MODULE_2, MODULE_3, MODULE_4, MODULE_5, MODULE_6, MODULE_7, MODULE_9];
+// ────────── Module 8: Guard the Castle (Quick Mates) ──────────
+const MODULE_8: ModuleConfig = {
+  id: "quick-mates",
+  realmId: "tactical-mountains",
+  title: "Guard the Castle",
+  subtitle: "Race 12 keep quests — master Scholar's Mate, smothered mate, and back-rank tricks!",
+  background: castleBg,
+  track: "castle",
+  finishIcon: "🏰",
+  finishLabel: "Pattern Hunter badge",
+  overlay: "radial-gradient(ellipse at center, rgba(254,215,170,0.18) 0%, rgba(30,20,50,0.55) 100%)",
+  accentClass: "border-rose-400/70",
+  levels: [
+    { id: 1,  name: "Target f7",          type: "lesson",    blurb: "The weakest square — aim your bishop!",      sceneIcon: "🎯", sceneTint: "linear-gradient(135deg, #fee2e2 0%, #b91c1c 100%)" },
+    { id: 2,  name: "Back-Rank Rook",     type: "lesson",    blurb: "Trapped king + open 8th rank = mate.",        sceneIcon: "♜", sceneTint: "linear-gradient(135deg, #fecaca 0%, #991b1b 100%)" },
+    { id: 3,  name: "Back-Rank Queen",    type: "lesson",    blurb: "Queen slides — back-rank checkmate.",         sceneIcon: "♛", sceneTint: "linear-gradient(135deg, #fde68a 0%, #b45309 100%)" },
+    { id: 4,  name: "Smothered Mate",     type: "lesson",    blurb: "Knight in the corner — king can't escape!",   sceneIcon: "♞", sceneTint: "linear-gradient(135deg, #fef3c7 0%, #92400e 100%)" },
+    { id: 5,  name: "K+Q Team Mate",      type: "lesson",    blurb: "Your King helps the Queen finish.",           sceneIcon: "👑", sceneTint: "linear-gradient(135deg, #fed7aa 0%, #c2410c 100%)" },
+    { id: 6,  name: "f7 Fork",            type: "challenge", blurb: "Knight leaps to f7 — fork the rooks!",        sceneIcon: "🍴", sceneTint: "linear-gradient(135deg, #fef3c7 0%, #7c2d12 100%)" },
+    { id: 7,  name: "Quick Mate Drill",   type: "challenge", blurb: "Spot the one-move mate fast!",                sceneIcon: "⚡", sceneTint: "linear-gradient(135deg, #fecaca 0%, #7f1d1d 100%)" },
+    { id: 8,  name: "Two-Rook Ladder",    type: "challenge", blurb: "Climb the ladder — checkmate!",               critter: CRITTERS.pegasus, sceneIcon: "🪜", sceneTint: "linear-gradient(135deg, #fed7aa 0%, #9a3412 100%)" },
+    { id: 9,  name: "Fried Liver",        type: "challenge", blurb: "Open f7 — the Fried Liver attack!",           sceneIcon: "🔥", sceneTint: "linear-gradient(135deg, #fef3c7 0%, #b45309 100%)" },
+    { id: 10, name: "Mate in 1",          type: "treasure",  blurb: "Find the lightning mate!",                     sceneIcon: "✨", sceneTint: "linear-gradient(135deg, #fde68a 0%, #78350f 100%)" },
+    { id: 11, name: "Pattern Spotter",    type: "challenge", blurb: "Back rank or smothered — finish it!",         critter: CRITTERS.owl, sceneIcon: "🔍", sceneTint: "linear-gradient(135deg, #fecaca 0%, #581c87 100%)" },
+    { id: 12, name: "Guard the Castle",   type: "boss",      blurb: "Three quick mates — protect the keep!",        critter: CRITTERS.marshal, sceneIcon: "🏰", sceneTint: "linear-gradient(135deg, #fde68a 0%, #1e1b4b 100%)" },
+  ],
+};
+
+export const MODULES: ModuleConfig[] = [MODULE_1, MODULE_2, MODULE_3, MODULE_4, MODULE_5, MODULE_6, MODULE_7, MODULE_8, MODULE_9];
 
 export const MODULES_BY_ID: Record<string, ModuleConfig> = Object.fromEntries(
   MODULES.map((m) => [m.id, m]),
