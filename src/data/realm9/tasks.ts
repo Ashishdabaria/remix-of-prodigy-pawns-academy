@@ -145,11 +145,11 @@ export const MODULE9_TASKS: Record<number, NodeTasks> = {
     },
     challenge: {
       id: "m9-5-c", badge: "CAPTURE",
-      fen: "4k3/8/8/8/4b3/8/8/B6K w - - 0 1",
-      prompt: "Bxe4! Sweep the long diagonal!",
-      hint: "Bishop a1 to e4 captures.",
-      goal: { kind: "move", from: "a1", to: "e4" },
-      highlightFrom: "a1", highlightTo: "e4",
+      fen: "4k3/8/8/4b3/8/8/8/B6K w - - 0 1",
+      prompt: "Bxe5! Sweep the long diagonal!",
+      hint: "Bishop a1 to e5 captures.",
+      goal: { kind: "move", from: "a1", to: "e5" },
+      highlightFrom: "a1", highlightTo: "e5",
     },
   },
 
