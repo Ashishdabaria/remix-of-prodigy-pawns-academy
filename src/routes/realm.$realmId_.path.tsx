@@ -812,17 +812,20 @@ function StageModal({
               <li key={i} className="flex flex-1 items-center gap-1">
                 <button
                   type="button"
-                  onClick={() => setActive(i)}
+                  onClick={() => { if (isUnlocked(i)) { playClick("soft"); setActive(i); } else { playClick("soft"); } }}
+                  disabled={!isUnlocked(i)}
                   className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-black ring-2 transition-colors ${
                     isDone
                       ? "bg-shard-emerald text-ink ring-ink/20"
                       : isActive
                         ? "bg-shard-sun text-ink ring-ink/30"
-                        : "bg-muted text-ink/50 ring-ink/10"
+                        : isUnlocked(i)
+                          ? "bg-muted text-ink/60 ring-ink/10"
+                          : "bg-muted/60 text-ink/30 ring-ink/10 cursor-not-allowed"
                   }`}
-                  aria-label={`Stage ${i + 1}: ${s.title}${isDone ? " (done)" : ""}`}
+                  aria-label={`Stage ${i + 1}: ${s.title}${isDone ? " (done)" : isUnlocked(i) ? "" : " (locked)"}`}
                 >
-                  {isDone ? "✓" : s.icon}
+                  {isDone ? "✓" : isUnlocked(i) ? s.icon : "🔒"}
                 </button>
                 {i < stages.length - 1 && (
                   <span
