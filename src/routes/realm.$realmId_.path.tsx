@@ -639,3 +639,236 @@ function TrackNode({
     </div>
   );
 }
+
+// ---------------- Stage modal: video → puzzle → challenge → (critter) ----------------
+
+function StageModal({
+  level,
+  onClose,
+  onComplete,
+  speak,
+}: {
+  level: ClimbLevel;
+  onClose: () => void;
+  onComplete: () => void;
+  speak: (t: string) => void;
+}) {
+  const stages = useMemo(() => stagesFor(level), [level]);
+  const [done, setDone] = useState<boolean[]>(() => stages.map(() => false));
+  const [active, setActive] = useState(0);
+  const ring = RING[level.type];
+  const allDone = done.every(Boolean);
+
+  function finishStage(i: number) {
+    setDone((d) => {
+      if (d[i]) return d;
+      const next = [...d];
+      next[i] = true;
+      return next;
+    });
+    const stage = stages[i];
+    if (stage.kind === "video")     speak("Great watching! Now try the puzzle.");
+    if (stage.kind === "puzzle")    speak("Nice solve! On to the challenge.");
+    if (stage.kind === "challenge") speak("Challenge cleared, hero!");
+    if (stage.kind === "critter" && level.critter) speak(level.critter.cheer);
+    // auto-advance
+    setActive(Math.min(stages.length - 1, i + 1));
+  }
+
+  const activeStage = stages[active];
+
+  return (
+    <motion.div
+      className="absolute inset-0 z-50 grid place-items-center bg-ink/70 p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      role="dialog"
+      aria-modal="true"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.85, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-md overflow-hidden rounded-3xl border-4 bg-parchment text-ink shadow-2xl"
+        style={{ borderColor: ring.color }}
+      >
+        {/* Header */}
+        <div
+          className="flex items-center gap-2 px-4 py-2.5"
+          style={{ background: ring.color }}
+        >
+          <span className="grid h-8 w-8 place-items-center rounded-full bg-parchment text-base font-black ring-2 ring-ink/20">
+            {level.id}
+          </span>
+          <div className="flex-1 leading-tight">
+            <div className="font-display text-base font-black text-parchment ink-shadow">
+              {level.name}
+            </div>
+            <div className="text-[10px] font-bold uppercase tracking-widest text-parchment/85">
+              {ring.label} · {level.blurb}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="grid h-8 w-8 place-items-center rounded-full bg-parchment/90 font-black text-ink"
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Stage stepper */}
+        <ol className="flex items-center gap-1 border-b-2 border-ink/10 bg-parchment/80 px-3 py-2">
+          {stages.map((s, i) => {
+            const isDone = done[i];
+            const isActive = i === active;
+            return (
+              <li key={i} className="flex flex-1 items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setActive(i)}
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-black ring-2 transition-colors ${
+                    isDone
+                      ? "bg-shard-emerald text-ink ring-ink/20"
+                      : isActive
+                        ? "bg-shard-sun text-ink ring-ink/30"
+                        : "bg-muted text-ink/50 ring-ink/10"
+                  }`}
+                  aria-label={`Stage ${i + 1}: ${s.title}${isDone ? " (done)" : ""}`}
+                >
+                  {isDone ? "✓" : s.icon}
+                </button>
+                {i < stages.length - 1 && (
+                  <span
+                    className={`h-0.5 flex-1 rounded-full ${
+                      done[i] ? "bg-shard-emerald" : "bg-ink/15"
+                    }`}
+                  />
+                )}
+              </li>
+            );
+          })}
+        </ol>
+
+        {/* Active stage body */}
+        <div className="px-4 pb-3 pt-3">
+          <div className="text-[10px] font-black uppercase tracking-widest text-ink/60">
+            Step {active + 1} of {stages.length}
+          </div>
+          <h3 className="font-display text-lg font-black leading-tight">
+            <span className="mr-1.5">{activeStage.icon}</span>
+            {activeStage.title}
+          </h3>
+          <p className="mt-1 text-sm text-ink/80">{activeStage.desc}</p>
+
+          <div className="mt-3">
+            <StageBody stage={activeStage} level={level} />
+          </div>
+
+          <div className="mt-4 flex flex-col gap-2">
+            {!done[active] ? (
+              <button
+                type="button"
+                onClick={() => finishStage(active)}
+                className="rounded-full bg-ink px-5 py-2.5 font-display text-sm font-black text-parchment shadow-md hover:scale-[1.02] transition-transform"
+              >
+                {activeStage.kind === "video"
+                  ? "I watched it ▶︎"
+                  : activeStage.kind === "puzzle"
+                    ? "I solved it 🧩"
+                    : activeStage.kind === "challenge"
+                      ? "Challenge done ⚔️"
+                      : `Defeat ${level.critter?.name ?? "the critter"} ${activeStage.icon}`}
+              </button>
+            ) : (
+              <div className="rounded-full bg-shard-emerald/30 px-4 py-1.5 text-center text-xs font-black uppercase tracking-widest text-ink">
+                ✓ Step complete
+              </div>
+            )}
+            <button
+              type="button"
+              disabled={!allDone}
+              onClick={onComplete}
+              className={`rounded-full px-5 py-2.5 font-display text-sm font-black shadow-md transition ${
+                allDone
+                  ? "bg-shard-sun text-ink ring-2 ring-ink/20 hover:scale-[1.02]"
+                  : "bg-muted text-ink/40"
+              }`}
+            >
+              {allDone ? "Clear this quest ★" : `Finish all ${stages.length} steps to clear`}
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function StageBody({ stage, level }: { stage: Stage; level: ClimbLevel }) {
+  if (stage.kind === "video") {
+    return (
+      <div className="relative aspect-video w-full overflow-hidden rounded-xl border-2 border-ink/20 bg-ink">
+        {/* Storybook video placeholder — swap src with a real tutorial when ready. */}
+        <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-indigo-900 via-ink to-amber-900 text-parchment">
+          <div className="text-center">
+            <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-shard-sun text-2xl text-ink shadow-xl">
+              ▶︎
+            </div>
+            <div className="mt-2 font-display text-sm font-black">Tutorial video</div>
+            <div className="text-[10px] uppercase tracking-widest opacity-80">
+              Coming soon — Mariposa explains {level.name}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (stage.kind === "puzzle" || stage.kind === "challenge") {
+    return (
+      <div className="rounded-xl border-2 border-ink/15 bg-parchment p-3">
+        <div className="grid grid-cols-8 overflow-hidden rounded-md ring-2 ring-ink/30">
+          {Array.from({ length: 64 }).map((_, i) => {
+            const r = Math.floor(i / 8);
+            const c = i % 8;
+            const dark = (r + c) % 2 === 1;
+            return (
+              <div
+                key={i}
+                className={`aspect-square ${dark ? "bg-amber-900/70" : "bg-amber-100"}`}
+              />
+            );
+          })}
+        </div>
+        <p className="mt-2 text-[11px] font-bold text-ink/60">
+          {stage.kind === "puzzle"
+            ? "Practice board — tap “I solved it” when you're ready."
+            : "Challenge board — give it your best shot!"}
+        </p>
+      </div>
+    );
+  }
+  // critter
+  const c = level.critter!;
+  return (
+    <div className="rounded-xl border-2 border-ink/15 bg-gradient-to-br from-amber-50 to-amber-100 p-4 text-center">
+      <motion.div
+        animate={{ y: [0, -6, 0], rotate: [-3, 3, -3] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        className="text-5xl"
+      >
+        {c.emoji}
+      </motion.div>
+      <div className="mt-2 font-display text-base font-black">{c.name}</div>
+      <div className="mt-1 rounded-2xl border-2 border-ink/15 bg-parchment px-3 py-1.5 text-xs italic text-ink/80">
+        “{c.taunt}”
+      </div>
+      <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-ink/60">
+        Friendly duel — nobody gets hurt!
+      </p>
+    </div>
+  );
+}
