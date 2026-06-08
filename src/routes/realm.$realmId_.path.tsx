@@ -469,8 +469,17 @@ function TrackNode({
   return (
     <div className="flex flex-col items-center gap-0.5">
       {/* Name tag */}
-      <div className="max-w-[8.5rem] rounded-lg border-2 border-ink/25 bg-parchment/95 px-2 py-0.5 text-center shadow-md">
-        <div className="font-display text-[10px] font-black leading-tight text-ink whitespace-nowrap">
+      <div
+        className="rounded-lg border-2 border-ink/25 bg-parchment/95 text-center shadow-md"
+        style={{
+          maxWidth: "clamp(4.5rem, 18vw, 9rem)",
+          padding: "0.1rem 0.4rem",
+        }}
+      >
+        <div
+          className="font-display font-black leading-tight text-ink"
+          style={{ fontSize: "clamp(8px, 1.6vw, 11px)" }}
+        >
           {level.name}
         </div>
       </div>
@@ -496,19 +505,22 @@ function TrackNode({
               ? { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
               : { duration: 0 }
         }
-        className={`relative grid h-12 w-12 place-items-center rounded-full ${medallionBg} ${medallionText} shadow-xl ${
+        className={`relative grid place-items-center rounded-full ${medallionBg} ${medallionText} shadow-xl ${
           state === "current" ? "animate-glow cursor-pointer" : ""
         } ${state === "locked" ? "opacity-80" : ""}`}
         style={{
+          width: "clamp(2.25rem, 8vw, 3rem)",
+          height: "clamp(2.25rem, 8vw, 3rem)",
+          fontSize: "clamp(0.75rem, 2.2vw, 1rem)",
           border: "3px solid var(--parchment)",
           boxShadow: `0 0 0 3px ${ring.color}, 0 6px 12px rgba(0,0,0,0.35)`,
         }}
       >
-        {state === "locked" && <span className="text-lg">🔒</span>}
+        {state === "locked" && <span>🔒</span>}
         {state === "current" && (
-          <span className="text-base font-black">{isBoss ? "♛" : level.id}</span>
+          <span className="font-black">{isBoss ? "♛" : level.id}</span>
         )}
-        {state === "done" && <span className="text-lg font-black">✓</span>}
+        {state === "done" && <span className="font-black">✓</span>}
 
         {/* Number badge */}
         {state !== "current" && (
@@ -519,7 +531,7 @@ function TrackNode({
 
         {/* PLAY tag for current */}
         {state === "current" && (
-          <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-ink px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-parchment shadow-md">
+          <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-ink px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-parchment shadow-md whitespace-nowrap">
             {isBoss ? "♛ Boss" : "Play"}
           </span>
         )}
