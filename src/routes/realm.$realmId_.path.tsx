@@ -154,6 +154,45 @@ function speak(text: string) {
   synth.speak(u);
 }
 
+// ---------------- Click sound (WebAudio, no asset needed) ----------------
+
+let _audioCtx: AudioContext | null = null;
+function getAudio(): AudioContext | null {
+  if (typeof window === "undefined") return null;
+  if (window.localStorage.getItem("pp.voice.muted") === "1") return null;
+  try {
+    if (!_audioCtx) {
+      const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!Ctor) return null;
+      _audioCtx = new Ctor();
+    }
+    if (_audioCtx.state === "suspended") void _audioCtx.resume();
+    return _audioCtx;
+  } catch { return null; }
+}
+type ClickKind = "tap" | "success" | "unlock" | "soft";
+function playClick(kind: ClickKind = "tap") {
+  const ctx = getAudio();
+  if (!ctx) return;
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain).connect(ctx.destination);
+  let freq = 660, peak = 0.12, dur = 0.08, type: OscillatorType = "triangle";
+  if (kind === "success") { freq = 880; peak = 0.16; dur = 0.22; type = "sine"; }
+  if (kind === "unlock")  { freq = 520; peak = 0.18; dur = 0.35; type = "sine"; }
+  if (kind === "soft")    { freq = 420; peak = 0.07; dur = 0.06; type = "sine"; }
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, now);
+  if (kind === "success") osc.frequency.exponentialRampToValueAtTime(freq * 1.5, now + dur);
+  if (kind === "unlock")  osc.frequency.exponentialRampToValueAtTime(freq * 2, now + dur);
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(peak, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+  osc.start(now);
+  osc.stop(now + dur + 0.02);
+}
+
 const STORAGE_KEY = "pp.pawn-village.climb";
 
 function RealmPathPage() {
@@ -163,6 +202,7 @@ function RealmPathPage() {
   const [victory, setVictory] = useState(false);
   const [lockedMsg, setLockedMsg] = useState<string | null>(null);
   const [openLevelId, setOpenLevelId] = useState<number | null>(null);
+  const [flight, setFlight] = useState<{ from: { x: number; y: number }; to: { x: number; y: number }; key: number } | null>(null);
 
   useEffect(() => {
     try {
@@ -193,25 +233,34 @@ function RealmPathPage() {
   const litD = litCount >= 2 ? buildSmoothPath(allPoints.slice(0, litCount)) : "";
 
   function handleTap(level: ClimbLevel) {
-    if (cleared[level.id] !== undefined) return;
+    if (cleared[level.id] !== undefined) { playClick("soft"); return; }
     if (level.id !== currentId) {
+      playClick("soft");
       const line = LOCKED_LINES[Math.floor(Math.random() * LOCKED_LINES.length)];
       setLockedMsg(line);
       speak(line);
       window.setTimeout(() => setLockedMsg(null), 1800);
       return;
     }
+    playClick("tap");
     setOpenLevelId(level.id);
     speak("Tap each step — start with the tutorial video!");
   }
 
   function completeLevel(level: ClimbLevel) {
+    playClick("unlock");
     setOpenLevelId(null);
     setPopping(level.id);
     const stars = (2 + Math.round(Math.random())) as 2 | 3;
     window.setTimeout(() => {
       setCleared((c) => ({ ...c, [level.id]: stars }));
       setPopping(null);
+      // Launch a flying Mariposa from this node to the next node (or to the prize).
+      const idx = LEVELS.findIndex((l) => l.id === level.id);
+      const from = NODE_POS[idx];
+      const to = idx + 1 < NODE_POS.length ? NODE_POS[idx + 1] : PRIZE_POS;
+      setFlight({ from, to, key: Date.now() });
+      window.setTimeout(() => setFlight(null), 1400);
       if (level.id === 12) {
         setVictory(true);
         speak("WE DID IT! The Pearl Shard is yours!");
@@ -353,8 +402,33 @@ function RealmPathPage() {
               </div>
             );
           })}
+
+          {/* Flying Mariposa: from cleared node → next current node */}
+          <AnimatePresence>
+            {flight && (
+              <motion.div
+                key={flight.key}
+                className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2"
+                initial={{ left: `${flight.from.x}%`, top: `${flight.from.y}%`, scale: 0.8, opacity: 0 }}
+                animate={{
+                  left: [`${flight.from.x}%`, `${(flight.from.x + flight.to.x) / 2}%`, `${flight.to.x}%`],
+                  top:  [`${flight.from.y}%`, `${Math.min(flight.from.y, flight.to.y) - 6}%`, `${flight.to.y}%`],
+                  scale: [0.8, 1.15, 1],
+                  opacity: [0, 1, 0.9],
+                  rotate: [-8, 6, 0],
+                }}
+                exit={{ opacity: 0, scale: 0.6 }}
+                transition={{ duration: 1.2, ease: "easeInOut", times: [0, 0.5, 1] }}
+              >
+                <div className="relative">
+                  <Mariposa size={44} />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
+
 
       {/* Stage modal */}
       <AnimatePresence>
@@ -659,21 +733,29 @@ function StageModal({
   const ring = RING[level.type];
   const allDone = done.every(Boolean);
 
+  // A stage unlocks only after every earlier stage is complete.
+  const unlockedUpTo = done.findIndex((d) => !d);
+  function isUnlocked(i: number) {
+    if (i === 0) return true;
+    return done.slice(0, i).every(Boolean);
+  }
+
   function finishStage(i: number) {
+    if (!isUnlocked(i) || done[i]) return;
+    playClick("success");
     setDone((d) => {
-      if (d[i]) return d;
       const next = [...d];
       next[i] = true;
       return next;
     });
     const stage = stages[i];
     if (stage.kind === "video")     speak("Great watching! Now try the puzzle.");
-    if (stage.kind === "puzzle")    speak("Nice solve! On to the challenge.");
+    if (stage.kind === "puzzle")    speak("Nice solve! Challenge unlocked!");
     if (stage.kind === "challenge") speak("Challenge cleared, hero!");
     if (stage.kind === "critter" && level.critter) speak(level.critter.cheer);
-    // auto-advance
     setActive(Math.min(stages.length - 1, i + 1));
   }
+
 
   const activeStage = stages[active];
 
@@ -685,7 +767,7 @@ function StageModal({
       exit={{ opacity: 0 }}
       role="dialog"
       aria-modal="true"
-      onClick={onClose}
+      onClick={() => { playClick("soft"); onClose(); }}
     >
       <motion.div
         initial={{ scale: 0.85, opacity: 0, y: 20 }}
@@ -713,7 +795,7 @@ function StageModal({
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => { playClick("soft"); onClose(); }}
             aria-label="Close"
             className="grid h-8 w-8 place-items-center rounded-full bg-parchment/90 font-black text-ink"
           >
@@ -730,17 +812,20 @@ function StageModal({
               <li key={i} className="flex flex-1 items-center gap-1">
                 <button
                   type="button"
-                  onClick={() => setActive(i)}
+                  onClick={() => { if (isUnlocked(i)) { playClick("soft"); setActive(i); } else { playClick("soft"); } }}
+                  disabled={!isUnlocked(i)}
                   className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-black ring-2 transition-colors ${
                     isDone
                       ? "bg-shard-emerald text-ink ring-ink/20"
                       : isActive
                         ? "bg-shard-sun text-ink ring-ink/30"
-                        : "bg-muted text-ink/50 ring-ink/10"
+                        : isUnlocked(i)
+                          ? "bg-muted text-ink/60 ring-ink/10"
+                          : "bg-muted/60 text-ink/30 ring-ink/10 cursor-not-allowed"
                   }`}
-                  aria-label={`Stage ${i + 1}: ${s.title}${isDone ? " (done)" : ""}`}
+                  aria-label={`Stage ${i + 1}: ${s.title}${isDone ? " (done)" : isUnlocked(i) ? "" : " (locked)"}`}
                 >
-                  {isDone ? "✓" : s.icon}
+                  {isDone ? "✓" : isUnlocked(i) ? s.icon : "🔒"}
                 </button>
                 {i < stages.length - 1 && (
                   <span
@@ -774,15 +859,22 @@ function StageModal({
               <button
                 type="button"
                 onClick={() => finishStage(active)}
-                className="rounded-full bg-ink px-5 py-2.5 font-display text-sm font-black text-parchment shadow-md hover:scale-[1.02] transition-transform"
+                disabled={!isUnlocked(active)}
+                className={`rounded-full px-5 py-2.5 font-display text-sm font-black shadow-md transition-transform ${
+                  isUnlocked(active)
+                    ? "bg-ink text-parchment hover:scale-[1.02]"
+                    : "bg-muted text-ink/40 cursor-not-allowed"
+                }`}
               >
-                {activeStage.kind === "video"
-                  ? "I watched it ▶︎"
-                  : activeStage.kind === "puzzle"
-                    ? "I solved it 🧩"
-                    : activeStage.kind === "challenge"
-                      ? "Challenge done ⚔️"
-                      : `Defeat ${level.critter?.name ?? "the critter"} ${activeStage.icon}`}
+                {!isUnlocked(active)
+                  ? `🔒 Finish step ${unlockedUpTo + 1} first`
+                  : activeStage.kind === "video"
+                    ? "I watched it ▶︎"
+                    : activeStage.kind === "puzzle"
+                      ? "I solved it 🧩"
+                      : activeStage.kind === "challenge"
+                        ? "Challenge done ⚔️"
+                        : `Defeat ${level.critter?.name ?? "the critter"} ${activeStage.icon}`}
               </button>
             ) : (
               <div className="rounded-full bg-shard-emerald/30 px-4 py-1.5 text-center text-xs font-black uppercase tracking-widest text-ink">
@@ -792,7 +884,7 @@ function StageModal({
             <button
               type="button"
               disabled={!allDone}
-              onClick={onComplete}
+              onClick={() => { playClick("unlock"); onComplete(); }}
               className={`rounded-full px-5 py-2.5 font-display text-sm font-black shadow-md transition ${
                 allDone
                   ? "bg-shard-sun text-ink ring-2 ring-ink/20 hover:scale-[1.02]"
@@ -804,6 +896,7 @@ function StageModal({
           </div>
         </div>
       </motion.div>
+
     </motion.div>
   );
 }
