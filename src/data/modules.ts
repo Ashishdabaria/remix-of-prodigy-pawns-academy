@@ -9,6 +9,9 @@ import cavernsBg from "@/assets/modules/module3-caverns.jpg";
 import forgeBg from "@/assets/modules/module4-forge.jpg";
 import skyBg from "@/assets/modules/module5-sky.jpg";
 import groveBg from "@/assets/modules/module6-grove.jpg";
+import pinFactoryBg from "@/assets/modules/module7-pinfactory.jpg";
+
+
 
 import type { StarPiece } from "@/components/realm/CatchTheStar";
 
@@ -37,7 +40,7 @@ export interface ClimbLevel {
   promotionRun?: boolean;
 }
 
-export type TrackVariant = "meadow" | "farmlands" | "caverns" | "forge" | "sky" | "grove";
+export type TrackVariant = "meadow" | "farmlands" | "caverns" | "forge" | "sky" | "grove" | "factory";
 
 export interface ModuleConfig {
   id: string;
