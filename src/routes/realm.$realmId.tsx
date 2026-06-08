@@ -315,28 +315,47 @@ function ModulesInRealm({ realmId }: { realmId: string }) {
         </Link>
       </div>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
-        {mods.map((m) => (
-          <div
-            key={m.id}
-            className="rounded-xl border-2 border-dashed border-ink/20 bg-parchment/60 p-3"
-          >
-            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-              <span>Module {m.number}</span>
-              <span
-                className={`rounded-full px-2 py-0.5 ring-1 ${
-                  m.status === "playable"
-                    ? "bg-shard-emerald/25 text-ink ring-shard-emerald/40"
-                    : "bg-muted text-ink/60 ring-ink/10"
-                }`}
-              >
-                {m.status === "playable" ? "Playable" : "Coming soon"}
-              </span>
+        {mods.map((m) => {
+          const playable = m.status === "playable";
+          const inner = (
+            <>
+              <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                <span>Module {m.number}</span>
+                <span
+                  className={`rounded-full px-2 py-0.5 ring-1 ${
+                    playable
+                      ? "bg-shard-emerald/25 text-ink ring-shard-emerald/40"
+                      : "bg-muted text-ink/60 ring-ink/10"
+                  }`}
+                >
+                  {playable ? "Play →" : "Coming soon"}
+                </span>
+              </div>
+              <div className="mt-1 font-display text-base font-black">{m.title}</div>
+              <p className="text-xs text-ink/75">{m.theme}</p>
+            </>
+          );
+          return playable ? (
+            <Link
+              key={m.id}
+              to="/realm/$realmId_/path"
+              params={{ realmId }}
+              search={{ module: m.id }}
+              className="block rounded-xl border-2 border-shard-emerald/40 bg-shard-emerald/10 p-3 transition-transform hover:scale-[1.02]"
+            >
+              {inner}
+            </Link>
+          ) : (
+            <div
+              key={m.id}
+              className="rounded-xl border-2 border-dashed border-ink/20 bg-parchment/60 p-3"
+            >
+              {inner}
             </div>
-            <div className="mt-1 font-display text-base font-black">{m.title}</div>
-            <p className="text-xs text-ink/75">{m.theme}</p>
-          </div>
-        ))}
+          );
+        })}
       </div>
+
     </section>
   );
 }
