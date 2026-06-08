@@ -267,13 +267,11 @@ export const MODULE8_TASKS: Record<number, NodeTasks> = {
   10: {
     lesson: {
       id: "m8-10-l", badge: "MATE IN 1",
-      fen: "4k3/8/4K3/8/8/8/8/4Q3 w - - 0 1",
-      prompt: "Qe1 to e7 — diagonal escort mate? No — slide up!",
-      hint: "Actually slide Qe1 → e8 is blocked by the king on e6's line. Try Qe1 → e7? It's protected.",
-      goal: { kind: "any-of", moves: [
-        { from: "e1", to: "e7" },
-      ]},
-      highlightFrom: "e1", highlightTo: "e7",
+      fen: "6k1/5ppp/8/8/8/8/8/4R2K w - - 0 1",
+      prompt: "Re1 to e8 — find the back-rank mate!",
+      hint: "Rook slides up the e-file. Re8#.",
+      goal: { kind: "move", from: "e1", to: "e8" },
+      highlightFrom: "e1", highlightTo: "e8",
     },
     puzzle: {
       id: "m8-10-p", badge: "MATE IN 1",
