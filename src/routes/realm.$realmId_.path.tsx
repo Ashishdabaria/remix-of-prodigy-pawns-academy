@@ -918,22 +918,34 @@ function StageModal({
 function StageBody({ stage, level }: { stage: Stage; level: ClimbLevel }) {
   if (stage.kind === "video") {
     return (
-      <div className="relative aspect-video w-full overflow-hidden rounded-xl border-2 border-ink/20 bg-ink">
-        {/* Storybook video placeholder — swap src with a real tutorial when ready. */}
-        <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-indigo-900 via-ink to-amber-900 text-parchment">
+      <div
+        className="relative aspect-video w-full overflow-hidden rounded-xl border-2 border-ink/20"
+        style={{ background: level.sceneTint ?? "linear-gradient(135deg, #312e81 0%, #92400e 100%)" }}
+      >
+        {/* Themed scene icon as decorative backdrop */}
+        {level.sceneIcon && (
+          <span
+            aria-hidden
+            className="pointer-events-none absolute right-3 bottom-2 select-none text-7xl opacity-30 drop-shadow"
+          >
+            {level.sceneIcon}
+          </span>
+        )}
+        <div className="absolute inset-0 grid place-items-center text-ink">
           <div className="text-center">
-            <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-shard-sun text-2xl text-ink shadow-xl">
+            <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-parchment/95 text-2xl text-ink shadow-xl ring-2 ring-ink/20">
               ▶︎
             </div>
-            <div className="mt-2 font-display text-sm font-black">Tutorial video</div>
-            <div className="text-[10px] uppercase tracking-widest opacity-80">
-              Coming soon — Mariposa explains {level.name}
+            <div className="mt-2 font-display text-sm font-black drop-shadow-[0_1px_0_rgba(255,255,255,0.6)]">Tutorial video</div>
+            <div className="text-[10px] font-bold uppercase tracking-widest text-ink/75">
+              Mariposa explains {level.name}
             </div>
           </div>
         </div>
       </div>
     );
   }
+
   if (stage.kind === "puzzle" || stage.kind === "challenge") {
     // Module 1: render the real mini-game on the challenge stage.
     if (stage.kind === "challenge" && level.promotionRun) {
