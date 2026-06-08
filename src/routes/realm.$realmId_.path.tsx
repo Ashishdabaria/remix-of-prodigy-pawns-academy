@@ -201,6 +201,12 @@ function RealmPathPage() {
       window.setTimeout(() => setLockedMsg(null), 1800);
       return;
     }
+    setOpenLevelId(level.id);
+    speak("Tap each step — start with the tutorial video!");
+  }
+
+  function completeLevel(level: ClimbLevel) {
+    setOpenLevelId(null);
     setPopping(level.id);
     const stars = (2 + Math.round(Math.random())) as 2 | 3;
     window.setTimeout(() => {
@@ -215,6 +221,8 @@ function RealmPathPage() {
       }
     }, 550);
   }
+
+  const openLevel = openLevelId != null ? LEVELS.find((l) => l.id === openLevelId) ?? null : null;
 
   return (
     <div className="fixed inset-0 z-40 h-[100dvh] w-screen overflow-hidden">
