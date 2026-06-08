@@ -26,7 +26,8 @@ export const Route = createFileRoute("/realm/$realmId_/path")({
     return { module: m };
   },
   loader: ({ params, location }) => {
-    const requestedModule = typeof location.search.module === "string" ? location.search.module : undefined;
+    const rawSearch = location.search as Record<string, unknown>;
+    const requestedModule = typeof rawSearch.module === "string" ? rawSearch.module : undefined;
     const fallbackRealmId = requestedModule ? MODULES_BY_ID[requestedModule]?.realmId : undefined;
     const realm = getRealm(params.realmId) ?? (fallbackRealmId ? getRealm(fallbackRealmId) : undefined);
     if (!realm) throw notFound();
