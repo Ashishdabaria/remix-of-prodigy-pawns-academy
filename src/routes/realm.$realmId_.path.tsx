@@ -62,21 +62,22 @@ const LEVELS: ClimbLevel[] = [
 ];
 
 // Serpentine race-track positions (% of width / % of height inside path area).
+// Spaced so 12 nodes + START/FINISH fit on phone widths without overlapping.
 const NODE_POS: { x: number; y: number }[] = [
-  { x: 10, y: 90 }, // 1 START (bottom-left)
-  { x: 28, y: 86 },
-  { x: 46, y: 82 },
-  { x: 64, y: 78 },
-  { x: 82, y: 72 }, // curve at right
-  { x: 86, y: 58 },
-  { x: 70, y: 54 },
-  { x: 52, y: 50 },
-  { x: 32, y: 46 }, // curve at left
-  { x: 14, y: 36 },
-  { x: 32, y: 24 },
-  { x: 56, y: 18 }, // 12 boss
+  { x: 12, y: 92 }, // 1 START (bottom-left)
+  { x: 36, y: 88 },
+  { x: 62, y: 84 },
+  { x: 86, y: 76 }, // curve at right
+  { x: 88, y: 64 },
+  { x: 66, y: 60 },
+  { x: 40, y: 56 },
+  { x: 14, y: 50 }, // curve at left
+  { x: 16, y: 38 },
+  { x: 40, y: 34 },
+  { x: 66, y: 28 },
+  { x: 50, y: 14 }, // 12 boss (center-top)
 ];
-const PRIZE_POS = { x: 84, y: 12 };
+const PRIZE_POS = { x: 86, y: 10 };
 
 const RING: Record<LevelType, { color: string; label: string; icon: string }> = {
   lesson:    { color: "oklch(0.65 0.17 150)", label: "Lesson",    icon: "✦" },
