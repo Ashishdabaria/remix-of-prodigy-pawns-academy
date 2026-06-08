@@ -932,8 +932,31 @@ function StageModal({
   );
 }
 
-function StageBody({ stage, level }: { stage: Stage; level: ClimbLevel }) {
+function StageBody({
+  stage,
+  level,
+  moduleId,
+  onAutoComplete,
+}: {
+  stage: Stage;
+  level: ClimbLevel;
+  moduleId: string;
+  onAutoComplete: () => void;
+}) {
+  const isFarm = moduleId === "farmer-and-piggies";
+  const farmTasks = isFarm ? MODULE2_TASKS[level.id] : undefined;
+
   if (stage.kind === "video") {
+    // Farm tutorial — play the lesson board inline so the kid does the move.
+    if (farmTasks?.lesson) {
+      return (
+        <FarmBoard
+          task={farmTasks.lesson}
+          onSolve={onAutoComplete}
+          onMiss={() => { /* gentle — handled inside FarmBoard */ }}
+        />
+      );
+    }
     return (
       <div
         className="relative aspect-video w-full overflow-hidden rounded-xl border-2 border-ink/20"
@@ -966,10 +989,21 @@ function StageBody({ stage, level }: { stage: Stage; level: ClimbLevel }) {
   if (stage.kind === "puzzle" || stage.kind === "challenge") {
     // Module 1: render the real mini-game on the challenge stage.
     if (stage.kind === "challenge" && level.promotionRun) {
-      return <PawnPromotionRun />;
+      return <PawnPromotionRun onSolved={onAutoComplete} />;
     }
     if (stage.kind === "challenge" && level.starPiece) {
       return <CatchTheStar piece={level.starPiece} />;
+    }
+    // Module 2: real interactive farm board for puzzle + challenge.
+    if (farmTasks) {
+      const task = stage.kind === "puzzle" ? farmTasks.puzzle : farmTasks.challenge;
+      return (
+        <FarmBoard
+          task={task}
+          onSolve={onAutoComplete}
+          onMiss={() => { /* gentle */ }}
+        />
+      );
     }
     return (
       <div className="rounded-xl border-2 border-ink/15 bg-parchment p-3">
