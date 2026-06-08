@@ -890,6 +890,13 @@ function StageBody({ stage, level }: { stage: Stage; level: ClimbLevel }) {
     );
   }
   if (stage.kind === "puzzle" || stage.kind === "challenge") {
+    // Module 1: render the real mini-game on the challenge stage.
+    if (stage.kind === "challenge" && level.promotionRun) {
+      return <PawnPromotionRun />;
+    }
+    if (stage.kind === "challenge" && level.starPiece) {
+      return <CatchTheStar piece={level.starPiece} />;
+    }
     return (
       <div className="rounded-xl border-2 border-ink/15 bg-parchment p-3">
         <div className="grid grid-cols-8 overflow-hidden rounded-md ring-2 ring-ink/30">
