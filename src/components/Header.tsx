@@ -3,6 +3,7 @@ import { Mariposa } from "./Mariposa";
 
 const NAV = [
   { to: "/",           label: "Quest Map" },
+  { to: "/curriculum", label: "Curriculum" },
   { to: "/student",    label: "My Quest" },
   { to: "/companions", label: "Companions" },
   { to: "/parent",     label: "For Parents" },
