@@ -101,6 +101,11 @@ function stagesFor(level: ClimbLevel, moduleId?: string): Stage[] {
       puzzle:    { kind: "puzzle",    title: "Pin drill",         desc: "Lock the piece down.",                         icon: "📌" },
       challenge: { kind: "challenge", title: "Skewer challenge",  desc: "Chain the trap — win material!",               icon: "🍢" },
     },
+    "game-phases": {
+      lesson:    { kind: "video",     title: "Summit tutorial",   desc: "Mariposa points the way — try the move!",       icon: "🏔️" },
+      puzzle:    { kind: "puzzle",    title: "Phase puzzle",      desc: "Pick the right move for this phase.",           icon: "🧭" },
+      challenge: { kind: "challenge", title: "Navigator challenge", desc: "Checks, Captures, Threats — go!",             icon: "⚡" },
+    },
   };
   const t = (moduleId && themes[moduleId]) || {
     lesson:    { kind: "video",     title: "Watch the tutorial", desc: "A short story-video from Mariposa.", icon: "▶︎" } as Stage,
