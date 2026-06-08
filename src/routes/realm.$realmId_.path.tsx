@@ -233,25 +233,34 @@ function RealmPathPage() {
   const litD = litCount >= 2 ? buildSmoothPath(allPoints.slice(0, litCount)) : "";
 
   function handleTap(level: ClimbLevel) {
-    if (cleared[level.id] !== undefined) return;
+    if (cleared[level.id] !== undefined) { playClick("soft"); return; }
     if (level.id !== currentId) {
+      playClick("soft");
       const line = LOCKED_LINES[Math.floor(Math.random() * LOCKED_LINES.length)];
       setLockedMsg(line);
       speak(line);
       window.setTimeout(() => setLockedMsg(null), 1800);
       return;
     }
+    playClick("tap");
     setOpenLevelId(level.id);
     speak("Tap each step — start with the tutorial video!");
   }
 
   function completeLevel(level: ClimbLevel) {
+    playClick("unlock");
     setOpenLevelId(null);
     setPopping(level.id);
     const stars = (2 + Math.round(Math.random())) as 2 | 3;
     window.setTimeout(() => {
       setCleared((c) => ({ ...c, [level.id]: stars }));
       setPopping(null);
+      // Launch a flying Mariposa from this node to the next node (or to the prize).
+      const idx = LEVELS.findIndex((l) => l.id === level.id);
+      const from = NODE_POS[idx];
+      const to = idx + 1 < NODE_POS.length ? NODE_POS[idx + 1] : PRIZE_POS;
+      setFlight({ from, to, key: Date.now() });
+      window.setTimeout(() => setFlight(null), 1400);
       if (level.id === 12) {
         setVictory(true);
         speak("WE DID IT! The Pearl Shard is yours!");
