@@ -18,6 +18,11 @@ import { MODULE7_TASKS } from "@/data/realm7/tasks";
 import { MODULE9_TASKS } from "@/data/realm9/tasks";
 import { MODULE8_TASKS } from "@/data/realm8/tasks";
 import { MODULE10_TASKS } from "@/data/realm10/tasks";
+import { MODULE11_TASKS } from "@/data/realm11/tasks";
+import { MODULE12_TASKS } from "@/data/realm12/tasks";
+import { MODULE13_TASKS } from "@/data/realm13/tasks";
+import { MODULE14_TASKS } from "@/data/realm14/tasks";
+import { MODULE15_TASKS } from "@/data/realm15/tasks";
 import {
   MODULES_BY_ID,
   defaultModuleForRealm,
@@ -118,6 +123,31 @@ function stagesFor(level: ClimbLevel, moduleId?: string): Stage[] {
       puzzle:    { kind: "puzzle",    title: "Value drill",       desc: "Grab the most valuable piece.",                  icon: "⚖️" },
       challenge: { kind: "challenge", title: "Trade challenge",   desc: "Win the trade — count attackers & defenders!",   icon: "★" },
     },
+    "discovered-attacks": {
+      lesson:    { kind: "video",     title: "Shadow tutorial",   desc: "Move one piece — unleash another!",              icon: "🌒" },
+      puzzle:    { kind: "puzzle",    title: "Discovery drill",   desc: "Spot the hidden weapon.",                        icon: "🔍" },
+      challenge: { kind: "challenge", title: "Unmask challenge",  desc: "Discover the winning attack!",                   icon: "⚡" },
+    },
+    "endgame-mastery": {
+      lesson:    { kind: "video",     title: "Dune tutorial",     desc: "March pawn and king together!",                  icon: "🏜️" },
+      puzzle:    { kind: "puzzle",    title: "Pawn drill",        desc: "Push toward the crown.",                         icon: "♙" },
+      challenge: { kind: "challenge", title: "Crown challenge",   desc: "Promote — win the endgame!",                     icon: "👑" },
+    },
+    "positional-chess": {
+      lesson:    { kind: "video",     title: "Atrium tutorial",   desc: "Mariposa shows the perfect square!",             icon: "📐" },
+      puzzle:    { kind: "puzzle",    title: "Position drill",    desc: "Place the piece where it shines.",               icon: "✨" },
+      challenge: { kind: "challenge", title: "Architect challenge", desc: "Build the best position!",                     icon: "🏛️" },
+    },
+    "combinations-sacrifices": {
+      lesson:    { kind: "video",     title: "Spire tutorial",    desc: "Chain tactics — combinations win!",              icon: "⚔️" },
+      puzzle:    { kind: "puzzle",    title: "Combo drill",       desc: "Find the winning sequence.",                     icon: "🧨" },
+      challenge: { kind: "challenge", title: "Sacrifice challenge", desc: "Give a little, win a lot!",                    icon: "🎁" },
+    },
+    "tournament-prep": {
+      lesson:    { kind: "video",     title: "Arena tutorial",    desc: "Tournament moves — show your best!",             icon: "🏟️" },
+      puzzle:    { kind: "puzzle",    title: "Game drill",        desc: "Solve under the bright lights.",                 icon: "💡" },
+      challenge: { kind: "challenge", title: "Champion challenge", desc: "Win the round — earn THE CROWN!",               icon: "🏆" },
+    },
   };
   const t = (moduleId && themes[moduleId]) || {
     lesson:    { kind: "video",     title: "Watch the tutorial", desc: "A short story-video from Mariposa.", icon: "▶︎" } as Stage,
@@ -212,6 +242,11 @@ const TRACK_STYLE: Record<TrackVariant, { dim: string; lit: string; glow: string
   peaks:     { dim: "rgba(200,225,255,0.98)", halo: "rgba(10,25,60,0.9)",   lit: "oklch(0.85 0.15 240)", glow: "oklch(0.85 0.15 240 / 0.95)", dash: "1.8 1.6", litWidth: "8px",   dimWidth: "7px" },
   castle:    { dim: "rgba(255,220,200,0.98)", halo: "rgba(40,15,40,0.9)",   lit: "oklch(0.78 0.18 25)",  glow: "oklch(0.78 0.18 25 / 0.95)",  dash: "2.4 1.6", litWidth: "8.5px", dimWidth: "7px" },
   labyrinth: { dim: "rgba(230,210,255,0.98)", halo: "rgba(30,10,50,0.9)",   lit: "oklch(0.78 0.20 305)", glow: "oklch(0.78 0.20 305 / 0.95)", dash: "2 1.6",   litWidth: "8.5px", dimWidth: "7px" },
+  shadows:   { dim: "rgba(220,200,255,0.98)", halo: "rgba(20,5,40,0.92)",   lit: "oklch(0.72 0.22 290)", glow: "oklch(0.72 0.22 290 / 0.95)", dash: "1.8 2",   litWidth: "8px",   dimWidth: "7px" },
+  dunes:     { dim: "rgba(255,220,170,0.98)", halo: "rgba(60,30,5,0.92)",   lit: "oklch(0.80 0.18 60)",  glow: "oklch(0.80 0.18 60 / 0.95)",  dash: "2.6 1.6", litWidth: "9px",   dimWidth: "8px" },
+  atrium:    { dim: "rgba(180,240,220,0.98)", halo: "rgba(30,40,15,0.9)",   lit: "oklch(0.78 0.16 180)", glow: "oklch(0.78 0.16 180 / 0.95)", dash: "2.2 1.6", litWidth: "8px",   dimWidth: "7px" },
+  citadel:   { dim: "rgba(200,180,255,0.98)", halo: "rgba(30,5,50,0.92)",   lit: "oklch(0.72 0.22 305)", glow: "oklch(0.72 0.22 305 / 0.95)", dash: "1.6 2",   litWidth: "8.5px", dimWidth: "7px" },
+  arena:     { dim: "rgba(255,230,160,0.98)", halo: "rgba(50,20,40,0.92)",  lit: "oklch(0.85 0.18 90)",  glow: "oklch(0.85 0.18 90 / 0.95)",  dash: "2.8 1.4", litWidth: "9.5px", dimWidth: "8px" },
 };
 
 function RealmPathPage() {
@@ -1035,6 +1070,11 @@ function StageBody({
     : moduleId === "game-phases"             ? MODULE9_TASKS[level.id]
     : moduleId === "quick-mates"             ? MODULE8_TASKS[level.id]
     : moduleId === "counting-material"       ? MODULE10_TASKS[level.id]
+    : moduleId === "discovered-attacks"      ? MODULE11_TASKS[level.id]
+    : moduleId === "endgame-mastery"         ? MODULE12_TASKS[level.id]
+    : moduleId === "positional-chess"        ? MODULE13_TASKS[level.id]
+    : moduleId === "combinations-sacrifices" ? MODULE14_TASKS[level.id]
+    : moduleId === "tournament-prep"         ? MODULE15_TASKS[level.id]
     : undefined;
 
 
