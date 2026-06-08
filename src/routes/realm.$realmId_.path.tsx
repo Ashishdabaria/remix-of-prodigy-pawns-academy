@@ -8,7 +8,11 @@ import { playClick } from "@/lib/sound";
 import { CatchTheStar } from "@/components/realm/CatchTheStar";
 import { PawnPromotionRun } from "@/components/realm/PawnPromotionRun";
 import { FarmBoard } from "@/components/realm/FarmBoard";
+import { QuestBoard } from "@/components/realm/QuestBoard";
 import { MODULE2_TASKS } from "@/data/realm2/tasks";
+import { MODULE3_TASKS } from "@/data/realm3/tasks";
+import { MODULE4_TASKS } from "@/data/realm4/tasks";
+import { MODULE5_TASKS } from "@/data/realm5/tasks";
 import {
   MODULES_BY_ID,
   defaultModuleForRealm,
@@ -63,18 +67,34 @@ type StageKind = "video" | "puzzle" | "challenge" | "critter";
 interface Stage { kind: StageKind; title: string; desc: string; icon: string; }
 
 function stagesFor(level: ClimbLevel, moduleId?: string): Stage[] {
-  const isFarm = moduleId === "farmer-and-piggies";
-  const s: Stage[] = isFarm
-    ? [
-        { kind: "video",     title: "Farm tutorial",       desc: "A quick board demo — try the move yourself!", icon: "🌾" },
-        { kind: "puzzle",    title: "Practice patch",      desc: "Solve a friendly farm puzzle.",                icon: "🧩" },
-        { kind: "challenge", title: "Quest challenge",     desc: "A trickier patch — show off your skill!",      icon: "⚔️" },
-      ]
-    : [
-        { kind: "video",     title: "Watch the tutorial",  desc: "A short story-video from Mariposa.", icon: "▶︎" },
-        { kind: "puzzle",    title: "Practice puzzle",     desc: "A gentle warm-up puzzle.",            icon: "🧩" },
-        { kind: "challenge", title: "Quest challenge",     desc: "A trickier mini-quest.",              icon: "⚔️" },
-      ];
+  const themes: Record<string, { lesson: Stage; puzzle: Stage; challenge: Stage }> = {
+    "farmer-and-piggies": {
+      lesson:    { kind: "video",     title: "Farm tutorial",     desc: "A quick board demo — try the move yourself!", icon: "🌾" },
+      puzzle:    { kind: "puzzle",    title: "Practice patch",    desc: "Solve a friendly farm puzzle.",                icon: "🧩" },
+      challenge: { kind: "challenge", title: "Quest challenge",   desc: "A trickier patch — show off your skill!",      icon: "⚔️" },
+    },
+    "check-checkmate-stalemate": {
+      lesson:    { kind: "video",     title: "Cavern tutorial",   desc: "Mariposa lights the crystal — try the move!", icon: "💎" },
+      puzzle:    { kind: "puzzle",    title: "Crystal puzzle",    desc: "Solve the glowing mini-quest.",                icon: "🔮" },
+      challenge: { kind: "challenge", title: "Echo challenge",    desc: "A trickier shadow puzzle.",                    icon: "🌀" },
+    },
+    "basic-checkmates": {
+      lesson:    { kind: "video",     title: "Forge tutorial",    desc: "Hammer out the technique — try it yourself!", icon: "🔥" },
+      puzzle:    { kind: "puzzle",    title: "Forge drill",       desc: "Stamp the mate cleanly.",                      icon: "🔨" },
+      challenge: { kind: "challenge", title: "Anvil challenge",   desc: "A tougher swing — land the mate!",             icon: "⚒️" },
+    },
+    "opening-principles": {
+      lesson:    { kind: "video",     title: "Sky tutorial",      desc: "Pick the cloud-soaring move!",                 icon: "☁️" },
+      puzzle:    { kind: "puzzle",    title: "Wind puzzle",       desc: "Find the breezy best move.",                   icon: "🌬️" },
+      challenge: { kind: "challenge", title: "Sky challenge",     desc: "A trickier flight — show your wings!",         icon: "🦅" },
+    },
+  };
+  const t = (moduleId && themes[moduleId]) || {
+    lesson:    { kind: "video",     title: "Watch the tutorial", desc: "A short story-video from Mariposa.", icon: "▶︎" } as Stage,
+    puzzle:    { kind: "puzzle",    title: "Practice puzzle",    desc: "A gentle warm-up puzzle.",            icon: "🧩" } as Stage,
+    challenge: { kind: "challenge", title: "Quest challenge",    desc: "A trickier mini-quest.",              icon: "⚔️" } as Stage,
+  };
+  const s: Stage[] = [t.lesson, t.puzzle, t.challenge];
   if (level.critter) {
     s.push({
       kind: "critter",
@@ -971,6 +991,11 @@ function StageBody({
 }) {
   const isFarm = moduleId === "farmer-and-piggies";
   const farmTasks = isFarm ? MODULE2_TASKS[level.id] : undefined;
+  const questTasks =
+    moduleId === "check-checkmate-stalemate" ? MODULE3_TASKS[level.id]
+    : moduleId === "basic-checkmates"        ? MODULE4_TASKS[level.id]
+    : moduleId === "opening-principles"      ? MODULE5_TASKS[level.id]
+    : undefined;
 
   if (stage.kind === "video") {
     // Farm tutorial — play the lesson board inline so the kid does the move.
@@ -980,6 +1005,15 @@ function StageBody({
           task={farmTasks.lesson}
           onSolve={onAutoComplete}
           onMiss={() => { /* gentle — handled inside FarmBoard */ }}
+        />
+      );
+    }
+    if (questTasks?.lesson) {
+      return (
+        <QuestBoard
+          task={questTasks.lesson}
+          onSolve={onAutoComplete}
+          onMiss={() => { /* gentle */ }}
         />
       );
     }
@@ -1025,6 +1059,17 @@ function StageBody({
       const task = stage.kind === "puzzle" ? farmTasks.puzzle : farmTasks.challenge;
       return (
         <FarmBoard
+          task={task}
+          onSolve={onAutoComplete}
+          onMiss={() => { /* gentle */ }}
+        />
+      );
+    }
+    // Modules 3, 4, 5: QuestBoard for puzzle + challenge.
+    if (questTasks) {
+      const task = stage.kind === "puzzle" ? questTasks.puzzle : questTasks.challenge;
+      return (
+        <QuestBoard
           task={task}
           onSolve={onAutoComplete}
           onMiss={() => { /* gentle */ }}
