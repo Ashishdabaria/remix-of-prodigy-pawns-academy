@@ -3,6 +3,7 @@ import { QuestMap } from "@/components/QuestMap";
 import { CrownProgress } from "@/components/CrownProgress";
 import { ShardBadge } from "@/components/ShardBadge";
 import { Mariposa } from "@/components/Mariposa";
+import { QuickTour } from "@/components/QuickTour";
 import { REALMS, SHARDS } from "@/data/realms";
 import { STUDENT } from "@/data/student";
 
