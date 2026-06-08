@@ -767,7 +767,7 @@ function StageModal({
       exit={{ opacity: 0 }}
       role="dialog"
       aria-modal="true"
-      onClick={onClose}
+      onClick={() => { playClick("soft"); onClose(); }}
     >
       <motion.div
         initial={{ scale: 0.85, opacity: 0, y: 20 }}
