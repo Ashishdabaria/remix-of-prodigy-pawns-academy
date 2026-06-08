@@ -191,6 +191,7 @@ const TRACK_STYLE: Record<TrackVariant, { dim: string; lit: string; glow: string
   sky:       { dim: "rgba(255,255,255,0.98)", halo: "rgba(80,50,120,0.85)", lit: "oklch(0.88 0.14 320)", glow: "oklch(0.88 0.14 320 / 0.95)", dash: "1.6 1.8", litWidth: "7.5px", dimWidth: "6.5px" },
   grove:     { dim: "rgba(220,255,210,0.98)", halo: "rgba(10,40,15,0.9)",   lit: "oklch(0.82 0.18 150)", glow: "oklch(0.82 0.18 150 / 0.95)", dash: "2.2 1.6", litWidth: "8px",   dimWidth: "7px" },
   factory:   { dim: "rgba(255,230,170,0.98)", halo: "rgba(40,20,50,0.9)",   lit: "oklch(0.82 0.18 80)",  glow: "oklch(0.82 0.18 80 / 0.95)",  dash: "2.6 1.6", litWidth: "8.5px", dimWidth: "7px" },
+  peaks:     { dim: "rgba(200,225,255,0.98)", halo: "rgba(10,25,60,0.9)",   lit: "oklch(0.85 0.15 240)", glow: "oklch(0.85 0.15 240 / 0.95)", dash: "1.8 1.6", litWidth: "8px",   dimWidth: "7px" },
 };
 
 function RealmPathPage() {
