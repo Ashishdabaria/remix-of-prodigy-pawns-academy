@@ -87,11 +87,11 @@ export const MODULE8_TASKS: Record<number, NodeTasks> = {
     },
     challenge: {
       id: "m8-3-c", badge: "BACK RANK",
-      fen: "6k1/5ppp/8/8/8/8/8/5Q1K w - - 0 1",
-      prompt: "Queen f1 to f8 — finish on the back rank!",
-      hint: "Slide the queen up the f-file.",
-      goal: { kind: "move", from: "f1", to: "f8" },
-      highlightFrom: "f1", highlightTo: "f8",
+      fen: "6k1/5ppp/8/8/8/8/8/2Q4K w - - 0 1",
+      prompt: "Queen c1 to c8 — finish on the back rank!",
+      hint: "Slide the queen up the c-file.",
+      goal: { kind: "move", from: "c1", to: "c8" },
+      highlightFrom: "c1", highlightTo: "c8",
     },
   },
 
