@@ -71,11 +71,11 @@ export const MODULE10_TASKS: Record<number, NodeTasks> = {
   3: {
     lesson: {
       id: "m10-3-l", badge: "BISHOP = 3",
-      fen: "4k3/8/8/8/4b3/8/8/B3K3 w - - 0 1",
-      prompt: "Bishops are worth 3. Long diagonal — Bxe4!",
-      hint: "Bishop a1 slides up the a1-h8 diagonal.",
-      goal: { kind: "move", from: "a1", to: "e4" },
-      highlightFrom: "a1", highlightTo: "e4",
+      fen: "4k3/8/8/8/4b3/8/8/4K2B w - - 0 1",
+      prompt: "Bishops are worth 3. Diagonal — Bxe4!",
+      hint: "Bishop h1 slides up the h1-e4 diagonal.",
+      goal: { kind: "move", from: "h1", to: "e4" },
+      highlightFrom: "h1", highlightTo: "e4",
     },
     puzzle: {
       id: "m10-3-p", badge: "BISHOP = 3",
