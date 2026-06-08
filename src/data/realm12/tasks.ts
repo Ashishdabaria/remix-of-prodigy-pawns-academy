@@ -210,8 +210,8 @@ export const MODULE12_TASKS: Record<number, NodeTasks> = {
   8: {
     lesson: {
       id: "m12-8-l", badge: "KEY SQUARE",
-      fen: "4k3/8/8/8/3P4/3K4/8/8 w - - 0 1",
-      prompt: "King to d5 — key square!",
+      fen: "4k3/8/8/8/8/3K4/3P4/8 w - - 0 1",
+      prompt: "King to d4 — key square!",
       hint: "King leads the pawn.",
       goal: { kind: "move", from: "d3", to: "d4" },
       highlightFrom: "d3", highlightTo: "d4",
@@ -226,7 +226,7 @@ export const MODULE12_TASKS: Record<number, NodeTasks> = {
     },
     challenge: {
       id: "m12-8-c", badge: "KEY SQUARE",
-      fen: "4k3/8/3K4/3P4/8/8/8/8 w - - 0 1",
+      fen: "7k/8/3K4/3P4/8/8/8/8 w - - 0 1",
       prompt: "Kd7 — clear the way to promote!",
       hint: "King to d7.",
       goal: { kind: "move", from: "d6", to: "d7" },
@@ -238,11 +238,11 @@ export const MODULE12_TASKS: Record<number, NodeTasks> = {
   9: {
     lesson: {
       id: "m12-9-l", badge: "PHILIDOR",
-      fen: "4k3/8/8/8/8/3r4/8/3K3R w - - 0 1",
-      prompt: "Trade rooks — Rxd3+!",
-      hint: "Take the rook with check.",
-      goal: { kind: "move", from: "h1", to: "d1" },
-      highlightFrom: "h1", highlightTo: "d1",
+      fen: "4k3/8/8/8/8/3r4/8/3RK3 w - - 0 1",
+      prompt: "Trade rooks — Rxd3!",
+      hint: "Rook takes rook.",
+      goal: { kind: "move", from: "d1", to: "d3" },
+      highlightFrom: "d1", highlightTo: "d3",
     },
     puzzle: {
       id: "m12-9-p", badge: "PHILIDOR",
@@ -294,7 +294,7 @@ export const MODULE12_TASKS: Record<number, NodeTasks> = {
   11: {
     lesson: {
       id: "m12-11-l", badge: "FINISH",
-      fen: "4k3/8/3K4/3P4/8/8/8/8 w - - 0 1",
+      fen: "4k3/8/4K3/3P4/8/8/8/8 w - - 0 1",
       prompt: "Push! d6 — pawn marches!",
       hint: "Pawn forward.",
       goal: { kind: "move", from: "d5", to: "d6" },
@@ -310,7 +310,7 @@ export const MODULE12_TASKS: Record<number, NodeTasks> = {
     },
     challenge: {
       id: "m12-11-c", badge: "FINISH",
-      fen: "4k3/4P3/3K4/8/8/8/8/8 w - - 0 1",
+      fen: "5k2/4P3/3K4/8/8/8/8/8 w - - 0 1",
       prompt: "e8=Q+ — promote and win!",
       hint: "Crown the pawn.",
       goal: { kind: "move", from: "e7", to: "e8" },
@@ -330,7 +330,7 @@ export const MODULE12_TASKS: Record<number, NodeTasks> = {
     },
     puzzle: {
       id: "m12-12-p", badge: "BOSS",
-      fen: "4k3/8/3K4/3P4/8/8/8/8 w - - 0 1",
+      fen: "7k/8/3K4/3P4/8/8/8/8 w - - 0 1",
       prompt: "Boss 2 — Kd7 escorts the pawn!",
       hint: "King to d7.",
       goal: { kind: "move", from: "d6", to: "d7" },

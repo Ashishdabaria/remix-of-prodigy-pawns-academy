@@ -71,10 +71,10 @@ export const MODULE13_TASKS: Record<number, NodeTasks> = {
     lesson: {
       id: "m13-3-l", badge: "OUTPOST",
       fen: "4k3/8/8/8/8/3N4/8/4K3 w - - 0 1",
-      prompt: "Plant a knight outpost — Nd5!",
-      hint: "Knight leaps to d5.",
-      goal: { kind: "move", from: "d3", to: "d5" },
-      highlightFrom: "d3", highlightTo: "d5",
+      prompt: "Plant a knight outpost — Ne5!",
+      hint: "Knight leaps to e5.",
+      goal: { kind: "move", from: "d3", to: "e5" },
+      highlightFrom: "d3", highlightTo: "e5",
     },
     puzzle: {
       id: "m13-3-p", badge: "OUTPOST",
