@@ -795,7 +795,7 @@ function StageModal({
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => { playClick("soft"); onClose(); }}
             aria-label="Close"
             className="grid h-8 w-8 place-items-center rounded-full bg-parchment/90 font-black text-ink"
           >
