@@ -202,6 +202,7 @@ function RealmPathPage() {
   const [victory, setVictory] = useState(false);
   const [lockedMsg, setLockedMsg] = useState<string | null>(null);
   const [openLevelId, setOpenLevelId] = useState<number | null>(null);
+  const [flight, setFlight] = useState<{ from: { x: number; y: number }; to: { x: number; y: number }; key: number } | null>(null);
 
   useEffect(() => {
     try {
