@@ -561,7 +561,7 @@ function Pill({ children, highlight }: { children: React.ReactNode; highlight?: 
   );
 }
 
-function GrandPrize({ won }: { won: boolean }) {
+function GrandPrize({ won, icon }: { won: boolean; icon: string }) {
   return (
     <div className="flex flex-col items-center">
       <div
@@ -580,11 +580,12 @@ function GrandPrize({ won }: { won: boolean }) {
           fontSize: "clamp(1.25rem, 4vw, 1.875rem)",
         }}
       >
-        ☾
+        {icon}
       </motion.div>
     </div>
   );
 }
+
 
 function TrackNode({
   level,
