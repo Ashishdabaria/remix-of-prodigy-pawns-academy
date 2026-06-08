@@ -25,8 +25,11 @@ export const Route = createFileRoute("/realm/$realmId_/path")({
     const m = typeof search.module === "string" ? search.module : undefined;
     return { module: m };
   },
-  loader: ({ params }) => {
-    const realm = getRealm(params.realmId);
+  loader: ({ params, location }) => {
+    const rawSearch = location.search as Record<string, unknown>;
+    const requestedModule = typeof rawSearch.module === "string" ? rawSearch.module : undefined;
+    const fallbackRealmId = requestedModule ? MODULES_BY_ID[requestedModule]?.realmId : undefined;
+    const realm = getRealm(params.realmId) ?? (fallbackRealmId ? getRealm(fallbackRealmId) : undefined);
     if (!realm) throw notFound();
     return { realm };
   },
@@ -204,8 +207,9 @@ function RealmPathPage() {
   );
   const doneCount = Object.keys(cleared).length;
 
-  // Build full smooth trail through all nodes + prize
-  const allPoints = [...NODE_POS, PRIZE_POS];
+  // Build a full, continuous trail through every level node, then the prize.
+  const nodePositions = NODE_POS.slice(0, TOTAL);
+  const allPoints = [...nodePositions, PRIZE_POS];
   const pathD = buildSmoothPath(allPoints);
   const litCount = doneCount + (doneCount === TOTAL ? 1 : 0);
   const litD = litCount >= 2 ? buildSmoothPath(allPoints.slice(0, litCount)) : "";
@@ -234,8 +238,8 @@ function RealmPathPage() {
       setCleared((c) => ({ ...c, [level.id]: stars }));
       setPopping(null);
       const idx = LEVELS.findIndex((l) => l.id === level.id);
-      const from = NODE_POS[idx];
-      const to = idx + 1 < NODE_POS.length ? NODE_POS[idx + 1] : PRIZE_POS;
+      const from = nodePositions[idx] ?? nodePositions[0];
+      const to = idx + 1 < nodePositions.length ? nodePositions[idx + 1] : PRIZE_POS;
       setFlight({ from, to, key: Date.now() });
       window.setTimeout(() => setFlight(null), 1400);
       if (level.id === TOTAL) {
@@ -329,7 +333,7 @@ function RealmPathPage() {
           <svg
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
-            className="absolute inset-0 h-full w-full"
+            className="pointer-events-none absolute inset-0 z-0 h-full w-full overflow-visible"
             aria-hidden
           >
             {/* Dark halo for contrast on any background */}
@@ -347,6 +351,18 @@ function RealmPathPage() {
               fill="none"
               stroke={trackStyle.dim}
               strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="0.9"
+              vectorEffect="non-scaling-stroke"
+              style={{ strokeWidth: "5px", filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.28))" } as React.CSSProperties}
+            />
+            {/* Sparkle dashes on top so the route reads as one connected trail */}
+            <path
+              d={pathD}
+              fill="none"
+              stroke="rgba(255,255,245,0.95)"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               strokeDasharray={trackStyle.dash}
               vectorEffect="non-scaling-stroke"
               style={{ strokeWidth: trackStyle.dimWidth } as React.CSSProperties}
@@ -382,7 +398,7 @@ function RealmPathPage() {
           {/* START marker */}
           <div
             className="absolute -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${NODE_POS[0].x}%`, top: `${NODE_POS[0].y + 9}%` }}
+            style={{ left: `${nodePositions[0].x}%`, top: `${nodePositions[0].y + 9}%` }}
           >
             <div className="flex items-end gap-1">
               <Mariposa size={48} />
@@ -403,7 +419,7 @@ function RealmPathPage() {
 
           {/* Level nodes */}
           {LEVELS.map((lvl, i) => {
-            const p = NODE_POS[i];
+            const p = nodePositions[i];
             const stars = cleared[lvl.id];
             const state: "locked" | "current" | "done" =
               stars !== undefined ? "done" : lvl.id === currentId ? "current" : "locked";
