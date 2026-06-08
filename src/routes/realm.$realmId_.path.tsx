@@ -732,16 +732,18 @@ function TrackNode({
 
 function StageModal({
   level,
+  moduleId,
   onClose,
   onComplete,
   speak,
 }: {
   level: ClimbLevel;
+  moduleId: string;
   onClose: () => void;
   onComplete: () => void;
   speak: (t: string) => void;
 }) {
-  const stages = useMemo(() => stagesFor(level), [level]);
+  const stages = useMemo(() => stagesFor(level, moduleId), [level, moduleId]);
   const [done, setDone] = useState<boolean[]>(() => stages.map(() => false));
   const [active, setActive] = useState(0);
   const ring = RING[level.type];
