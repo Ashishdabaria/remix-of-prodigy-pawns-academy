@@ -162,6 +162,7 @@ function RealmPathPage() {
   const [popping, setPopping] = useState<number | null>(null);
   const [victory, setVictory] = useState(false);
   const [lockedMsg, setLockedMsg] = useState<string | null>(null);
+  const [openLevelId, setOpenLevelId] = useState<number | null>(null);
 
   useEffect(() => {
     try {
