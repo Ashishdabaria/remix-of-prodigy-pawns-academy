@@ -447,6 +447,7 @@ function RealmPathPage() {
           <StageModal
             key={openLevel.id}
             level={openLevel}
+            moduleId={mod.id}
             onClose={() => setOpenLevelId(null)}
             onComplete={() => completeLevel(openLevel)}
             speak={speak}
