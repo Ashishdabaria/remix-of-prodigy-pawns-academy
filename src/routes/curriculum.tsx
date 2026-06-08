@@ -49,9 +49,10 @@ function CurriculumPage() {
                   return (
                     <Link
                       key={m.id}
-                      to="/realm/$realmId/path"
+                      to="/realm/$realmId_/path"
                       params={{ realmId: realm.id }}
-                      className="block rounded-2xl border-2 border-ink/15 bg-card p-4 card-pop transition-transform hover:scale-[1.01]"
+                      search={playable ? { module: m.id } : {}}
+                      className={`block rounded-2xl border-2 border-ink/15 bg-card p-4 card-pop transition-transform hover:scale-[1.01] ${playable ? "" : "opacity-70"}`}
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
