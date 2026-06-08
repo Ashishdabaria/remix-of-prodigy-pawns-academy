@@ -495,10 +495,11 @@ function RealmPathPage() {
                 transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
                 className="mx-auto grid h-24 w-24 place-items-center rounded-full bg-shard-pearl text-5xl shadow-2xl ring-4 ring-shard-sun"
               >
-                ☾
+                {mod.finishIcon}
               </motion.div>
               <h2 className="mt-4 font-display text-2xl font-black text-ink ink-shadow">WE DID IT!</h2>
-              <p className="mt-1 text-sm font-bold text-ink/80">The Pearl Shard is yours, brave hero!</p>
+              <p className="mt-1 text-sm font-bold text-ink/80">The {mod.finishLabel} is yours, brave hero!</p>
+
               <div className="mt-5 flex flex-col gap-2">
                 <Link
                   to="/realm/$realmId"
