@@ -5,11 +5,24 @@ import { getRealm, type Realm } from "@/data/realms";
 import { Mariposa } from "@/components/Mariposa";
 import { MuteToggle } from "@/components/realm/MariposaSay";
 import { playClick } from "@/lib/sound";
-import { CatchTheStar, type StarPiece } from "@/components/realm/CatchTheStar";
+import { CatchTheStar } from "@/components/realm/CatchTheStar";
 import { PawnPromotionRun } from "@/components/realm/PawnPromotionRun";
-import villageBg from "@/assets/pawn-village-map.jpg";
+import {
+  MODULES_BY_ID,
+  defaultModuleForRealm,
+  modulesInRealm,
+  type ClimbLevel,
+  type LevelType,
+  type ModuleConfig,
+  type TrackVariant,
+} from "@/data/modules";
+
 
 export const Route = createFileRoute("/realm/$realmId_/path")({
+  validateSearch: (search: Record<string, unknown>) => {
+    const m = typeof search.module === "string" ? search.module : undefined;
+    return { module: m };
+  },
   loader: ({ params }) => {
     const realm = getRealm(params.realmId);
     if (!realm) throw notFound();
@@ -20,7 +33,7 @@ export const Route = createFileRoute("/realm/$realmId_/path")({
     return {
       meta: [
         { title: r ? `${r.name} — Quest Path` : "Quest Path" },
-        { name: "description", content: "Race across the Pawn Village to win the Pearl Shard." },
+        { name: "description", content: "Race the magical path to win the Shard." },
       ],
     };
   },
@@ -39,50 +52,7 @@ export const Route = createFileRoute("/realm/$realmId_/path")({
   component: RealmPathPage,
 });
 
-// ---------------- Level data ----------------
-
-type LevelType = "lesson" | "challenge" | "miniboss" | "treasure" | "boss";
-
-interface Critter {
-  emoji: string;
-  name: string;
-  taunt: string;
-  cheer: string;
-}
-
-interface ClimbLevel {
-  id: number;
-  name: string;
-  type: LevelType;
-  blurb: string;
-  critter?: Critter;
-  /** Module 1 — render a Catch the Star mini-game for this piece in the challenge stage. */
-  starPiece?: StarPiece;
-  /** Module 1 boss — render the Pawn Promotion Run in the challenge stage. */
-  promotionRun?: boolean;
-}
-
-const CRITTERS: Record<string, Critter> = {
-  hoppy:    { emoji: "🐇",  name: "Hoppy the Hare",       taunt: "Catch me if you can!",                       cheer: "Hop-tastic! You got me!" },
-  acorn:    { emoji: "🐿️", name: "Acorn the Squirrel",   taunt: "These nuts are MINE!",                       cheer: "Okay okay, share the acorns!" },
-  guardian: { emoji: "🗿",  name: "The Board Guardian",   taunt: "None pass without 64 squares of wisdom.",    cheer: "The path is yours, Apprentice." },
-};
-
-// ───── Module 1: Meet the Army — Kingdom Parade + Catch the Star + Promotion Run ─────
-const LEVELS: ClimbLevel[] = [
-  { id: 1,  name: "Meet the King",    type: "lesson",    blurb: "The slow, precious ruler." },
-  { id: 2,  name: "Meet the Knight",  type: "lesson",    blurb: "The acrobatic L-shaped jumper." },
-  { id: 3,  name: "Meet the Pawn",    type: "lesson",    blurb: "The brave little foot soldier." },
-  { id: 4,  name: "Meet the Rook",    type: "lesson",    blurb: "The Tower of Power." },
-  { id: 5,  name: "Meet the Bishop",  type: "lesson",    blurb: "The diagonal whisperer." },
-  { id: 6,  name: "Meet the Queen",   type: "lesson",    blurb: "The all-powerful warrior queen." },
-  { id: 7,  name: "Catch the Star: King",   type: "challenge", blurb: "Tap every square the King can reach.",   starPiece: "king" },
-  { id: 8,  name: "Catch the Star: Knight", type: "challenge", blurb: "L-shaped leaps across the board.",       starPiece: "knight", critter: CRITTERS.hoppy },
-  { id: 9,  name: "Catch the Star: Rook",   type: "challenge", blurb: "Straight-line stars only.",              starPiece: "rook" },
-  { id: 10, name: "Catch the Star: Bishop", type: "treasure",  blurb: "Diagonals — light and dark.",            starPiece: "bishop" },
-  { id: 11, name: "Catch the Star: Queen",  type: "challenge", blurb: "Every direction, every star.",           starPiece: "queen", critter: CRITTERS.acorn },
-  { id: 12, name: "Pawn Promotion Run",     type: "boss",      blurb: "Race a pawn to rank 8 — promote!",       promotionRun: true, critter: CRITTERS.guardian },
-];
+// ---------------- Stage stepper data ----------------
 
 type StageKind = "video" | "puzzle" | "challenge" | "critter";
 interface Stage { kind: StageKind; title: string; desc: string; icon: string; }
@@ -103,6 +73,7 @@ function stagesFor(level: ClimbLevel): Stage[] {
   }
   return s;
 }
+
 
 // Serpentine race-track positions (% of width / % of height inside path area).
 // Spaced so 12 nodes + START/FINISH fit on phone widths without overlapping.
@@ -162,10 +133,32 @@ function speak(text: string) {
 
 // Click sound helper now lives in @/lib/sound (playClick).
 
-const STORAGE_KEY = "pp.pawn-village.climb";
+// Per-module storage key — progress is scoped to (realm, module).
+function storageKey(moduleId: string) {
+  return `pp.module.${moduleId}.climb`;
+}
+
+// Track stroke styling per environment.
+const TRACK_STYLE: Record<TrackVariant, { dim: string; lit: string; glow: string; dash: string; litWidth: string }> = {
+  meadow:    { dim: "rgba(40,20,8,0.55)",   lit: "oklch(0.85 0.18 85)",  glow: "oklch(0.85 0.18 85 / 0.9)",  dash: "1.2 2",   litWidth: "6px" },
+  farmlands: { dim: "rgba(60,30,8,0.6)",    lit: "oklch(0.72 0.16 65)",  glow: "oklch(0.72 0.16 65 / 0.9)",  dash: "2 1.5",   litWidth: "7px" },
+  caverns:   { dim: "rgba(140,180,255,0.45)", lit: "oklch(0.85 0.16 230)", glow: "oklch(0.85 0.16 230 / 0.95)", dash: "0.6 1.6", litWidth: "5px" },
+  forge:     { dim: "rgba(80,20,10,0.55)",  lit: "oklch(0.78 0.20 45)",  glow: "oklch(0.78 0.20 45 / 0.95)",  dash: "1.5 1.5", litWidth: "6.5px" },
+  sky:       { dim: "rgba(255,255,255,0.55)", lit: "oklch(0.88 0.14 320)", glow: "oklch(0.88 0.14 320 / 0.95)", dash: "0.8 1.4", litWidth: "5.5px" },
+};
 
 function RealmPathPage() {
   const { realm } = Route.useLoaderData() as { realm: Realm };
+  const search = Route.useSearch();
+  const mod: ModuleConfig =
+    (search.module && MODULES_BY_ID[search.module]) || defaultModuleForRealm(realm.id);
+  const realmMods = modulesInRealm(realm.id);
+
+  const LEVELS = mod.levels;
+  const TOTAL = LEVELS.length;
+  const STORAGE_KEY = storageKey(mod.id);
+  const trackStyle = TRACK_STYLE[mod.track];
+
   const [cleared, setCleared] = useState<Record<number, number>>({});
   const [popping, setPopping] = useState<number | null>(null);
   const [victory, setVictory] = useState(false);
@@ -173,20 +166,28 @@ function RealmPathPage() {
   const [openLevelId, setOpenLevelId] = useState<number | null>(null);
   const [flight, setFlight] = useState<{ from: { x: number; y: number }; to: { x: number; y: number }; key: number } | null>(null);
 
+  // Reset state when the module changes (user switched within the realm).
   useEffect(() => {
+    setCleared({});
+    setVictory(false);
+    setOpenLevelId(null);
+    setPopping(null);
+    setFlight(null);
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) setCleared(JSON.parse(raw));
     } catch { /* ignore */ }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mod.id]);
+
   useEffect(() => {
     try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cleared)); } catch { /* ignore */ }
-  }, [cleared]);
+  }, [cleared, STORAGE_KEY]);
 
   const currentId = useMemo(() => {
     for (const l of LEVELS) if (cleared[l.id] === undefined) return l.id;
     return null;
-  }, [cleared]);
+  }, [cleared, LEVELS]);
 
   const totalStars = useMemo(
     () => Object.values(cleared).reduce((a, b) => a + b, 0),
@@ -197,8 +198,7 @@ function RealmPathPage() {
   // Build full smooth trail through all nodes + prize
   const allPoints = [...NODE_POS, PRIZE_POS];
   const pathD = buildSmoothPath(allPoints);
-  // Lit portion: through cleared nodes only (+ prize if all 12 done)
-  const litCount = doneCount + (doneCount === 12 ? 1 : 0);
+  const litCount = doneCount + (doneCount === TOTAL ? 1 : 0);
   const litD = litCount >= 2 ? buildSmoothPath(allPoints.slice(0, litCount)) : "";
 
   function handleTap(level: ClimbLevel) {
@@ -224,15 +224,14 @@ function RealmPathPage() {
     window.setTimeout(() => {
       setCleared((c) => ({ ...c, [level.id]: stars }));
       setPopping(null);
-      // Launch a flying Mariposa from this node to the next node (or to the prize).
       const idx = LEVELS.findIndex((l) => l.id === level.id);
       const from = NODE_POS[idx];
       const to = idx + 1 < NODE_POS.length ? NODE_POS[idx + 1] : PRIZE_POS;
       setFlight({ from, to, key: Date.now() });
       window.setTimeout(() => setFlight(null), 1400);
-      if (level.id === 12) {
+      if (level.id === TOTAL) {
         setVictory(true);
-        speak("WE DID IT! The Pearl Shard is yours!");
+        speak(`WE DID IT! The ${mod.finishLabel} is yours!`);
       } else {
         const cheer = CHEERS[Math.floor(Math.random() * CHEERS.length)];
         speak(cheer);
@@ -244,25 +243,23 @@ function RealmPathPage() {
 
   return (
     <div className="fixed inset-0 z-40 h-[100dvh] w-screen overflow-hidden">
-      {/* Full-bleed village background */}
+      {/* Full-bleed themed background */}
       <img
-        src={villageBg}
+        key={mod.id}
+        src={mod.background}
         alt=""
         aria-hidden
-        className="absolute inset-0 -z-20 h-full w-full object-cover"
+        className="absolute inset-0 -z-20 h-full w-full object-cover animate-fade-in"
       />
-      {/* Warm overlay + vignette for legibility */}
+      {/* Themed overlay + vignette for legibility */}
       <div
         aria-hidden
         className="absolute inset-0 -z-10"
-        style={{
-          background:
-            "radial-gradient(ellipse at center, rgba(255,236,189,0.18) 0%, rgba(58,32,12,0.45) 100%), linear-gradient(to bottom, rgba(255,220,160,0.15), rgba(40,20,8,0.35))",
-        }}
+        style={{ background: mod.overlay }}
       />
 
-      {/* Sticky header */}
-      <header className="absolute inset-x-0 top-0 z-30 border-b-4 border-shard-sun/70 bg-parchment/90 backdrop-blur">
+      {/* Sticky frosted header */}
+      <header className={`absolute inset-x-0 top-0 z-30 border-b-4 ${mod.accentClass} bg-parchment/85 backdrop-blur-md`}>
         <div className="mx-auto flex max-w-3xl flex-col gap-1.5 px-4 py-2">
           <div className="flex items-center gap-2">
             <Link
@@ -275,21 +272,46 @@ function RealmPathPage() {
             </Link>
             <div className="flex-1 text-center">
               <h1 className="font-display text-lg font-black leading-none text-ink ink-shadow">
-                The Pawn Village
+                {mod.title}
               </h1>
               <p className="mt-0.5 text-[10px] font-bold text-ink/70">
-                Race all 12 quests to win the Pearl Shard!
+                {mod.subtitle}
               </p>
             </div>
             <MuteToggle />
           </div>
           <div className="flex flex-wrap items-center justify-center gap-1.5">
-            <Pill>Quests {doneCount}/12</Pill>
+            <Pill>Quests {doneCount}/{TOTAL}</Pill>
             <Pill>★ {totalStars}</Pill>
-            <Pill highlight>☾ Pearl Shard + Apprentice Cape</Pill>
+            <Pill highlight>{mod.finishIcon} {mod.finishLabel}</Pill>
           </div>
+          {/* Module switcher — only show when realm has more than one module */}
+          {realmMods.length > 1 && (
+            <div className="flex flex-wrap items-center justify-center gap-1 pt-1">
+              <span className="text-[9px] font-black uppercase tracking-widest text-ink/50">Module:</span>
+              {realmMods.map((m, i) => {
+                const active = m.id === mod.id;
+                return (
+                  <Link
+                    key={m.id}
+                    to="/realm/$realmId_/path"
+                    params={{ realmId: realm.id }}
+                    search={{ module: m.id }}
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ring-2 transition-colors ${
+                      active
+                        ? "bg-ink text-parchment ring-ink/30"
+                        : "bg-parchment/80 text-ink/70 ring-ink/15 hover:bg-parchment"
+                    }`}
+                  >
+                    {i + 1}. {m.title.replace(/^The /, "")}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </div>
       </header>
+
 
       {/* Single-screen race-track board */}
       <div className="absolute inset-x-0 bottom-0 top-[96px]">
@@ -305,26 +327,36 @@ function RealmPathPage() {
             <path
               d={pathD}
               fill="none"
-              stroke="rgba(40,20,8,0.55)"
+              stroke={trackStyle.dim}
               strokeLinecap="round"
-              strokeDasharray="1.2 2"
+              strokeDasharray={trackStyle.dash}
               vectorEffect="non-scaling-stroke"
               style={{ strokeWidth: "4px" } as React.CSSProperties}
             />
-            {/* Bright gold lit portion */}
+            {/* Bright themed lit portion */}
             {litD && (
               <path
                 d={litD}
                 fill="none"
-                stroke="oklch(0.85 0.18 85)"
+                stroke={trackStyle.lit}
                 strokeLinecap="round"
-                strokeDasharray="1.2 2"
+                strokeDasharray={trackStyle.dash}
                 vectorEffect="non-scaling-stroke"
                 style={{
-                  strokeWidth: "6px",
-                  filter: "drop-shadow(0 0 6px oklch(0.85 0.18 85 / 0.9))",
+                  strokeWidth: trackStyle.litWidth,
+                  filter: `drop-shadow(0 0 6px ${trackStyle.glow})`,
                 } as React.CSSProperties}
-              />
+              >
+                {mod.track === "caverns" || mod.track === "sky" ? (
+                  <animate
+                    attributeName="stroke-dashoffset"
+                    from="0"
+                    to="-8"
+                    dur="1.6s"
+                    repeatCount="indefinite"
+                  />
+                ) : null}
+              </path>
             )}
           </svg>
 
@@ -346,8 +378,9 @@ function RealmPathPage() {
             className="absolute -translate-x-1/2 -translate-y-1/2"
             style={{ left: `${PRIZE_POS.x}%`, top: `${PRIZE_POS.y}%` }}
           >
-            <GrandPrize won={victory || doneCount === 12} />
+            <GrandPrize won={victory || doneCount === TOTAL} icon={mod.finishIcon} />
           </div>
+
 
           {/* Level nodes */}
           {LEVELS.map((lvl, i) => {
@@ -462,10 +495,11 @@ function RealmPathPage() {
                 transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
                 className="mx-auto grid h-24 w-24 place-items-center rounded-full bg-shard-pearl text-5xl shadow-2xl ring-4 ring-shard-sun"
               >
-                ☾
+                {mod.finishIcon}
               </motion.div>
               <h2 className="mt-4 font-display text-2xl font-black text-ink ink-shadow">WE DID IT!</h2>
-              <p className="mt-1 text-sm font-bold text-ink/80">The Pearl Shard is yours, brave hero!</p>
+              <p className="mt-1 text-sm font-bold text-ink/80">The {mod.finishLabel} is yours, brave hero!</p>
+
               <div className="mt-5 flex flex-col gap-2">
                 <Link
                   to="/realm/$realmId"
@@ -527,7 +561,7 @@ function Pill({ children, highlight }: { children: React.ReactNode; highlight?: 
   );
 }
 
-function GrandPrize({ won }: { won: boolean }) {
+function GrandPrize({ won, icon }: { won: boolean; icon: string }) {
   return (
     <div className="flex flex-col items-center">
       <div
@@ -546,11 +580,12 @@ function GrandPrize({ won }: { won: boolean }) {
           fontSize: "clamp(1.25rem, 4vw, 1.875rem)",
         }}
       >
-        ☾
+        {icon}
       </motion.div>
     </div>
   );
 }
+
 
 function TrackNode({
   level,
@@ -746,19 +781,28 @@ function StageModal({
         className="relative w-full max-w-md overflow-hidden rounded-3xl border-4 bg-parchment text-ink shadow-2xl"
         style={{ borderColor: ring.color }}
       >
-        {/* Header */}
+        {/* Header — uses per-sub-quest sceneTint for a unique look on every node */}
         <div
-          className="flex items-center gap-2 px-4 py-2.5"
-          style={{ background: ring.color }}
+          className="relative flex items-center gap-2 px-4 py-2.5"
+          style={{ background: level.sceneTint ?? ring.color }}
         >
-          <span className="grid h-8 w-8 place-items-center rounded-full bg-parchment text-base font-black ring-2 ring-ink/20">
+          {/* Decorative scene icon, large + faded, floats behind the header text */}
+          {level.sceneIcon && (
+            <span
+              aria-hidden
+              className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 select-none text-5xl opacity-30 drop-shadow"
+            >
+              {level.sceneIcon}
+            </span>
+          )}
+          <span className="relative z-10 grid h-8 w-8 place-items-center rounded-full bg-parchment text-base font-black ring-2 ring-ink/20">
             {level.id}
           </span>
-          <div className="flex-1 leading-tight">
-            <div className="font-display text-base font-black text-parchment ink-shadow">
+          <div className="relative z-10 flex-1 leading-tight">
+            <div className="font-display text-base font-black text-ink drop-shadow-[0_1px_0_rgba(255,255,255,0.6)]">
               {level.name}
             </div>
-            <div className="text-[10px] font-bold uppercase tracking-widest text-parchment/85">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-ink/80">
               {ring.label} · {level.blurb}
             </div>
           </div>
@@ -766,11 +810,12 @@ function StageModal({
             type="button"
             onClick={() => { playClick("soft"); onClose(); }}
             aria-label="Close"
-            className="grid h-8 w-8 place-items-center rounded-full bg-parchment/90 font-black text-ink"
+            className="relative z-10 grid h-8 w-8 place-items-center rounded-full bg-parchment/90 font-black text-ink"
           >
             ×
           </button>
         </div>
+
 
         {/* Stage stepper */}
         <ol className="flex items-center gap-1 border-b-2 border-ink/10 bg-parchment/80 px-3 py-2">
@@ -873,22 +918,34 @@ function StageModal({
 function StageBody({ stage, level }: { stage: Stage; level: ClimbLevel }) {
   if (stage.kind === "video") {
     return (
-      <div className="relative aspect-video w-full overflow-hidden rounded-xl border-2 border-ink/20 bg-ink">
-        {/* Storybook video placeholder — swap src with a real tutorial when ready. */}
-        <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-indigo-900 via-ink to-amber-900 text-parchment">
+      <div
+        className="relative aspect-video w-full overflow-hidden rounded-xl border-2 border-ink/20"
+        style={{ background: level.sceneTint ?? "linear-gradient(135deg, #312e81 0%, #92400e 100%)" }}
+      >
+        {/* Themed scene icon as decorative backdrop */}
+        {level.sceneIcon && (
+          <span
+            aria-hidden
+            className="pointer-events-none absolute right-3 bottom-2 select-none text-7xl opacity-30 drop-shadow"
+          >
+            {level.sceneIcon}
+          </span>
+        )}
+        <div className="absolute inset-0 grid place-items-center text-ink">
           <div className="text-center">
-            <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-shard-sun text-2xl text-ink shadow-xl">
+            <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-parchment/95 text-2xl text-ink shadow-xl ring-2 ring-ink/20">
               ▶︎
             </div>
-            <div className="mt-2 font-display text-sm font-black">Tutorial video</div>
-            <div className="text-[10px] uppercase tracking-widest opacity-80">
-              Coming soon — Mariposa explains {level.name}
+            <div className="mt-2 font-display text-sm font-black drop-shadow-[0_1px_0_rgba(255,255,255,0.6)]">Tutorial video</div>
+            <div className="text-[10px] font-bold uppercase tracking-widest text-ink/75">
+              Mariposa explains {level.name}
             </div>
           </div>
         </div>
       </div>
     );
   }
+
   if (stage.kind === "puzzle" || stage.kind === "challenge") {
     // Module 1: render the real mini-game on the challenge stage.
     if (stage.kind === "challenge" && level.promotionRun) {

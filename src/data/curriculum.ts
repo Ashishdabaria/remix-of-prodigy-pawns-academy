@@ -51,7 +51,7 @@ export const CURRICULUM: CurriculumModule[] = [
     ],
     challenge: "March to the Barn",
     badgeId: "pawn-champion",
-    status: "placeholder",
+    status: "playable",
   },
   {
     number: 3,
@@ -67,7 +67,7 @@ export const CURRICULUM: CurriculumModule[] = [
     ],
     challenge: "King's Escape Room",
     badgeId: "escape-artist",
-    status: "placeholder",
+    status: "playable",
   },
   {
     number: 4,
@@ -83,7 +83,7 @@ export const CURRICULUM: CurriculumModule[] = [
     ],
     challenge: "Box the King",
     badgeId: "endgame-executioner",
-    status: "placeholder",
+    status: "playable",
   },
   {
     number: 5,
@@ -99,7 +99,7 @@ export const CURRICULUM: CurriculumModule[] = [
     ],
     challenge: "Connect the Rooks",
     badgeId: "opening-scholar",
-    status: "placeholder",
+    status: "playable",
   },
   // ───────── INTERMEDIATE ─────────
   {
