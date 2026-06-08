@@ -1018,6 +1018,7 @@ function StageBody({
     : moduleId === "opening-principles"      ? MODULE5_TASKS[level.id]
     : moduleId === "tactics-grove"           ? MODULE6_TASKS[level.id]
     : moduleId === "pins-and-skewers"        ? MODULE7_TASKS[level.id]
+    : moduleId === "game-phases"             ? MODULE9_TASKS[level.id]
     : undefined;
 
 
