@@ -104,19 +104,19 @@ export const CURRICULUM: CurriculumModule[] = [
   // ───────── INTERMEDIATE ─────────
   {
     number: 6,
-    id: "double-attack",
-    title: "The Art of the Double Attack",
+    id: "tactics-grove",
+    title: "Tactics Grove — Forks, Pins & Skewers",
     level: "intermediate",
     realmId: "detective-forest",
-    theme: "Forks, double attacks — Killer Knives, Fearsome Forks, Soft Spoons.",
+    theme: "Forks, pins, skewers, discovered attacks, and double attacks.",
     lessons: [
-      "Killer Knives: long-line double attacks",
-      "Fearsome Forks: knight & pawn forks",
-      "Soft Spoons: tactics that don't work",
+      "Knight & pawn forks",
+      "Pins and skewers",
+      "Discovered & double attacks",
     ],
-    challenge: "Cutlery Classification",
+    challenge: "Grand Detective",
     badgeId: "tactical-chef",
-    status: "placeholder",
+    status: "playable",
   },
   {
     number: 7,
