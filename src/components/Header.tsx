@@ -8,6 +8,7 @@ const NAV = [
   { to: "/parent",     label: "For Parents" },
   { to: "/codex",      label: "Codex" },
   { to: "/poster",     label: "Poster" },
+  { to: "/settings",   label: "Settings" },
 ] as const;
 
 export function Header() {
