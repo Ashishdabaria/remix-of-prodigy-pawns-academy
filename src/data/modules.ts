@@ -10,6 +10,7 @@ import forgeBg from "@/assets/modules/module4-forge.jpg";
 import skyBg from "@/assets/modules/module5-sky.jpg";
 import groveBg from "@/assets/modules/module6-grove.jpg";
 import pinFactoryBg from "@/assets/modules/module7-pinfactory.jpg";
+import peaksBg from "@/assets/modules/module9-peaks.jpg";
 
 
 
