@@ -8,6 +8,7 @@ import { MiniBossEncounter, BossEncounter, TreasureChest } from "@/components/re
 import { WildEncounter } from "@/components/realm/WildEncounter";
 import { MEMBER_REALM_IDS } from "@/data/pets";
 import { Buddy } from "@/components/Buddy";
+import { modulesForRealm } from "@/data/curriculum";
 
 export const Route = createFileRoute("/realm/$realmId")({
   loader: ({ params }) => {
@@ -118,6 +119,10 @@ function RealmPage() {
             ))}
           </ul>
         </section>
+
+        {/* Curriculum modules covered in this realm */}
+        <ModulesInRealm realmId={realm.id} />
+
 
         {/* Mariposa */}
         <aside className="rounded-2xl border-2 border-ink/15 bg-shard-amethyst/10 p-5 card-pop">
@@ -297,3 +302,42 @@ function RealmPage() {
     </div>
   );
 }
+
+function ModulesInRealm({ realmId }: { realmId: string }) {
+  const mods = modulesForRealm(realmId);
+  if (mods.length === 0) return null;
+  return (
+    <section className="rounded-2xl border-2 border-ink/15 bg-card p-5 card-pop lg:col-span-3">
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <h2 className="font-display text-2xl font-black">Curriculum modules in this realm</h2>
+        <Link to="/curriculum" className="text-xs font-black text-ink/70 underline">
+          Full curriculum →
+        </Link>
+      </div>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        {mods.map((m) => (
+          <div
+            key={m.id}
+            className="rounded-xl border-2 border-dashed border-ink/20 bg-parchment/60 p-3"
+          >
+            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+              <span>Module {m.number}</span>
+              <span
+                className={`rounded-full px-2 py-0.5 ring-1 ${
+                  m.status === "playable"
+                    ? "bg-shard-emerald/25 text-ink ring-shard-emerald/40"
+                    : "bg-muted text-ink/60 ring-ink/10"
+                }`}
+              >
+                {m.status === "playable" ? "Playable" : "Coming soon"}
+              </span>
+            </div>
+            <div className="mt-1 font-display text-base font-black">{m.title}</div>
+            <p className="text-xs text-ink/75">{m.theme}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+

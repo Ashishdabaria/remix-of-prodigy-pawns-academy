@@ -5,6 +5,8 @@ import { getRealm, type Realm } from "@/data/realms";
 import { Mariposa } from "@/components/Mariposa";
 import { MuteToggle } from "@/components/realm/MariposaSay";
 import { playClick } from "@/lib/sound";
+import { CatchTheStar, type StarPiece } from "@/components/realm/CatchTheStar";
+import { PawnPromotionRun } from "@/components/realm/PawnPromotionRun";
 import villageBg from "@/assets/pawn-village-map.jpg";
 
 export const Route = createFileRoute("/realm/$realmId_/path")({
@@ -54,29 +56,32 @@ interface ClimbLevel {
   type: LevelType;
   blurb: string;
   critter?: Critter;
+  /** Module 1 — render a Catch the Star mini-game for this piece in the challenge stage. */
+  starPiece?: StarPiece;
+  /** Module 1 boss — render the Pawn Promotion Run in the challenge stage. */
+  promotionRun?: boolean;
 }
 
 const CRITTERS: Record<string, Critter> = {
   hoppy:    { emoji: "🐇",  name: "Hoppy the Hare",       taunt: "Catch me if you can!",                       cheer: "Hop-tastic! You got me!" },
   acorn:    { emoji: "🐿️", name: "Acorn the Squirrel",   taunt: "These nuts are MINE!",                       cheer: "Okay okay, share the acorns!" },
-  bramble:  { emoji: "🦔",  name: "Bramble the Hedgehog", taunt: "Prickly puzzle for you!",                    cheer: "Ouch-less! Well played, hero." },
-  knight:   { emoji: "🐴",  name: "The Lost Knight",      taunt: "I forgot my L-moves!",                       cheer: "Phew! Home to the stable I go." },
   guardian: { emoji: "🗿",  name: "The Board Guardian",   taunt: "None pass without 64 squares of wisdom.",    cheer: "The path is yours, Apprentice." },
 };
 
+// ───── Module 1: Meet the Army — Kingdom Parade + Catch the Star + Promotion Run ─────
 const LEVELS: ClimbLevel[] = [
-  { id: 1,  name: "Meet the board",    type: "lesson",    blurb: "Light & dark squares, ranks & files." },
-  { id: 2,  name: "Meet the King",     type: "lesson",    blurb: "One royal step in any direction." },
-  { id: 3,  name: "Pawn & Rook",       type: "lesson",    blurb: "Tiny pawn, mighty rook lines.", critter: CRITTERS.hoppy },
-  { id: 4,  name: "Bishop & Queen",    type: "lesson",    blurb: "Diagonals and the all-powerful queen." },
-  { id: 5,  name: "Knight's hop",      type: "lesson",    blurb: "The L-shaped leap over pieces." },
-  { id: 6,  name: "Move-it challenge", type: "challenge", blurb: "Mix all the pieces in tiny puzzles.", critter: CRITTERS.acorn },
-  { id: 7,  name: "Lost Knight",       type: "miniboss",  blurb: "Help the knight find its way home.",  critter: CRITTERS.knight },
-  { id: 8,  name: "Capture safely",    type: "lesson",    blurb: "Take pieces without losing yours." },
-  { id: 9,  name: "Capture 3 targets", type: "challenge", blurb: "A captures-only puzzle sprint.",      critter: CRITTERS.bramble },
-  { id: 10, name: "Piece values",      type: "treasure",  blurb: "Pawn 1 · Knight & Bishop 3 · Rook 5 · Queen 9." },
-  { id: 11, name: "Set up the board",  type: "lesson",    blurb: "Every piece on its proper starting square." },
-  { id: 12, name: "Board Guardian",    type: "boss",      blurb: "The final test of the Pawn Village.", critter: CRITTERS.guardian },
+  { id: 1,  name: "Meet the King",    type: "lesson",    blurb: "The slow, precious ruler." },
+  { id: 2,  name: "Meet the Knight",  type: "lesson",    blurb: "The acrobatic L-shaped jumper." },
+  { id: 3,  name: "Meet the Pawn",    type: "lesson",    blurb: "The brave little foot soldier." },
+  { id: 4,  name: "Meet the Rook",    type: "lesson",    blurb: "The Tower of Power." },
+  { id: 5,  name: "Meet the Bishop",  type: "lesson",    blurb: "The diagonal whisperer." },
+  { id: 6,  name: "Meet the Queen",   type: "lesson",    blurb: "The all-powerful warrior queen." },
+  { id: 7,  name: "Catch the Star: King",   type: "challenge", blurb: "Tap every square the King can reach.",   starPiece: "king" },
+  { id: 8,  name: "Catch the Star: Knight", type: "challenge", blurb: "L-shaped leaps across the board.",       starPiece: "knight", critter: CRITTERS.hoppy },
+  { id: 9,  name: "Catch the Star: Rook",   type: "challenge", blurb: "Straight-line stars only.",              starPiece: "rook" },
+  { id: 10, name: "Catch the Star: Bishop", type: "treasure",  blurb: "Diagonals — light and dark.",            starPiece: "bishop" },
+  { id: 11, name: "Catch the Star: Queen",  type: "challenge", blurb: "Every direction, every star.",           starPiece: "queen", critter: CRITTERS.acorn },
+  { id: 12, name: "Pawn Promotion Run",     type: "boss",      blurb: "Race a pawn to rank 8 — promote!",       promotionRun: true, critter: CRITTERS.guardian },
 ];
 
 type StageKind = "video" | "puzzle" | "challenge" | "critter";
@@ -885,6 +890,13 @@ function StageBody({ stage, level }: { stage: Stage; level: ClimbLevel }) {
     );
   }
   if (stage.kind === "puzzle" || stage.kind === "challenge") {
+    // Module 1: render the real mini-game on the challenge stage.
+    if (stage.kind === "challenge" && level.promotionRun) {
+      return <PawnPromotionRun />;
+    }
+    if (stage.kind === "challenge" && level.starPiece) {
+      return <CatchTheStar piece={level.starPiece} />;
+    }
     return (
       <div className="rounded-xl border-2 border-ink/15 bg-parchment p-3">
         <div className="grid grid-cols-8 overflow-hidden rounded-md ring-2 ring-ink/30">

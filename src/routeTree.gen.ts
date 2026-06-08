@@ -13,6 +13,7 @@ import { Route as StudentRouteImport } from './routes/student'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as PosterRouteImport } from './routes/poster'
 import { Route as ParentRouteImport } from './routes/parent'
+import { Route as CurriculumRouteImport } from './routes/curriculum'
 import { Route as CompanionsRouteImport } from './routes/companions'
 import { Route as CodexRouteImport } from './routes/codex'
 import { Route as IndexRouteImport } from './routes/index'
@@ -39,6 +40,11 @@ const PosterRoute = PosterRouteImport.update({
 const ParentRoute = ParentRouteImport.update({
   id: '/parent',
   path: '/parent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CurriculumRoute = CurriculumRouteImport.update({
+  id: '/curriculum',
+  path: '/curriculum',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CompanionsRoute = CompanionsRouteImport.update({
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/codex': typeof CodexRoute
   '/companions': typeof CompanionsRoute
+  '/curriculum': typeof CurriculumRoute
   '/parent': typeof ParentRoute
   '/poster': typeof PosterRoute
   '/settings': typeof SettingsRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/codex': typeof CodexRoute
   '/companions': typeof CompanionsRoute
+  '/curriculum': typeof CurriculumRoute
   '/parent': typeof ParentRoute
   '/poster': typeof PosterRoute
   '/settings': typeof SettingsRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/codex': typeof CodexRoute
   '/companions': typeof CompanionsRoute
+  '/curriculum': typeof CurriculumRoute
   '/parent': typeof ParentRoute
   '/poster': typeof PosterRoute
   '/settings': typeof SettingsRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/'
     | '/codex'
     | '/companions'
+    | '/curriculum'
     | '/parent'
     | '/poster'
     | '/settings'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/'
     | '/codex'
     | '/companions'
+    | '/curriculum'
     | '/parent'
     | '/poster'
     | '/settings'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/'
     | '/codex'
     | '/companions'
+    | '/curriculum'
     | '/parent'
     | '/poster'
     | '/settings'
@@ -163,6 +175,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CodexRoute: typeof CodexRoute
   CompanionsRoute: typeof CompanionsRoute
+  CurriculumRoute: typeof CurriculumRoute
   ParentRoute: typeof ParentRoute
   PosterRoute: typeof PosterRoute
   SettingsRoute: typeof SettingsRoute
@@ -201,6 +214,13 @@ declare module '@tanstack/react-router' {
       path: '/parent'
       fullPath: '/parent'
       preLoaderRoute: typeof ParentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/curriculum': {
+      id: '/curriculum'
+      path: '/curriculum'
+      fullPath: '/curriculum'
+      preLoaderRoute: typeof CurriculumRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/companions': {
@@ -259,6 +279,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CodexRoute: CodexRoute,
   CompanionsRoute: CompanionsRoute,
+  CurriculumRoute: CurriculumRoute,
   ParentRoute: ParentRoute,
   PosterRoute: PosterRoute,
   SettingsRoute: SettingsRoute,
@@ -271,13 +292,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
