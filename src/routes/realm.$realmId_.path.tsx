@@ -402,8 +402,33 @@ function RealmPathPage() {
               </div>
             );
           })}
+
+          {/* Flying Mariposa: from cleared node → next current node */}
+          <AnimatePresence>
+            {flight && (
+              <motion.div
+                key={flight.key}
+                className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2"
+                initial={{ left: `${flight.from.x}%`, top: `${flight.from.y}%`, scale: 0.8, opacity: 0 }}
+                animate={{
+                  left: [`${flight.from.x}%`, `${(flight.from.x + flight.to.x) / 2}%`, `${flight.to.x}%`],
+                  top:  [`${flight.from.y}%`, `${Math.min(flight.from.y, flight.to.y) - 6}%`, `${flight.to.y}%`],
+                  scale: [0.8, 1.15, 1],
+                  opacity: [0, 1, 0.9],
+                  rotate: [-8, 6, 0],
+                }}
+                exit={{ opacity: 0, scale: 0.6 }}
+                transition={{ duration: 1.2, ease: "easeInOut", times: [0, 0.5, 1] }}
+              >
+                <div className="relative">
+                  <Mariposa size={44} />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
+
 
       {/* Stage modal */}
       <AnimatePresence>
