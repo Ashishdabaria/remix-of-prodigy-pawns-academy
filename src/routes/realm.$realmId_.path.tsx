@@ -59,12 +59,19 @@ export const Route = createFileRoute("/realm/$realmId_/path")({
 type StageKind = "video" | "puzzle" | "challenge" | "critter";
 interface Stage { kind: StageKind; title: string; desc: string; icon: string; }
 
-function stagesFor(level: ClimbLevel): Stage[] {
-  const s: Stage[] = [
-    { kind: "video",     title: "Watch the tutorial",  desc: "A short story-video from Mariposa.", icon: "▶︎" },
-    { kind: "puzzle",    title: "Practice puzzle",     desc: "A gentle warm-up puzzle.",            icon: "🧩" },
-    { kind: "challenge", title: "Quest challenge",     desc: "A trickier mini-quest.",              icon: "⚔️" },
-  ];
+function stagesFor(level: ClimbLevel, moduleId?: string): Stage[] {
+  const isFarm = moduleId === "farmer-and-piggies";
+  const s: Stage[] = isFarm
+    ? [
+        { kind: "video",     title: "Farm tutorial",       desc: "A quick board demo — try the move yourself!", icon: "🌾" },
+        { kind: "puzzle",    title: "Practice patch",      desc: "Solve a friendly farm puzzle.",                icon: "🧩" },
+        { kind: "challenge", title: "Quest challenge",     desc: "A trickier patch — show off your skill!",      icon: "⚔️" },
+      ]
+    : [
+        { kind: "video",     title: "Watch the tutorial",  desc: "A short story-video from Mariposa.", icon: "▶︎" },
+        { kind: "puzzle",    title: "Practice puzzle",     desc: "A gentle warm-up puzzle.",            icon: "🧩" },
+        { kind: "challenge", title: "Quest challenge",     desc: "A trickier mini-quest.",              icon: "⚔️" },
+      ];
   if (level.critter) {
     s.push({
       kind: "critter",
