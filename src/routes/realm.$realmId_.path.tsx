@@ -781,19 +781,28 @@ function StageModal({
         className="relative w-full max-w-md overflow-hidden rounded-3xl border-4 bg-parchment text-ink shadow-2xl"
         style={{ borderColor: ring.color }}
       >
-        {/* Header */}
+        {/* Header — uses per-sub-quest sceneTint for a unique look on every node */}
         <div
-          className="flex items-center gap-2 px-4 py-2.5"
-          style={{ background: ring.color }}
+          className="relative flex items-center gap-2 px-4 py-2.5"
+          style={{ background: level.sceneTint ?? ring.color }}
         >
-          <span className="grid h-8 w-8 place-items-center rounded-full bg-parchment text-base font-black ring-2 ring-ink/20">
+          {/* Decorative scene icon, large + faded, floats behind the header text */}
+          {level.sceneIcon && (
+            <span
+              aria-hidden
+              className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 select-none text-5xl opacity-30 drop-shadow"
+            >
+              {level.sceneIcon}
+            </span>
+          )}
+          <span className="relative z-10 grid h-8 w-8 place-items-center rounded-full bg-parchment text-base font-black ring-2 ring-ink/20">
             {level.id}
           </span>
-          <div className="flex-1 leading-tight">
-            <div className="font-display text-base font-black text-parchment ink-shadow">
+          <div className="relative z-10 flex-1 leading-tight">
+            <div className="font-display text-base font-black text-ink drop-shadow-[0_1px_0_rgba(255,255,255,0.6)]">
               {level.name}
             </div>
-            <div className="text-[10px] font-bold uppercase tracking-widest text-parchment/85">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-ink/80">
               {ring.label} · {level.blurb}
             </div>
           </div>
@@ -801,11 +810,12 @@ function StageModal({
             type="button"
             onClick={() => { playClick("soft"); onClose(); }}
             aria-label="Close"
-            className="grid h-8 w-8 place-items-center rounded-full bg-parchment/90 font-black text-ink"
+            className="relative z-10 grid h-8 w-8 place-items-center rounded-full bg-parchment/90 font-black text-ink"
           >
             ×
           </button>
         </div>
+
 
         {/* Stage stepper */}
         <ol className="flex items-center gap-1 border-b-2 border-ink/10 bg-parchment/80 px-3 py-2">
