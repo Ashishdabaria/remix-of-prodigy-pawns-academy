@@ -332,7 +332,16 @@ function RealmPathPage() {
             className="absolute inset-0 h-full w-full"
             aria-hidden
           >
-            {/* Faint dashed full trail */}
+            {/* Dark halo for contrast on any background */}
+            <path
+              d={pathD}
+              fill="none"
+              stroke={trackStyle.halo}
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+              style={{ strokeWidth: "10px", opacity: 0.55 } as React.CSSProperties}
+            />
+            {/* Bright dashed full trail */}
             <path
               d={pathD}
               fill="none"
@@ -340,8 +349,9 @@ function RealmPathPage() {
               strokeLinecap="round"
               strokeDasharray={trackStyle.dash}
               vectorEffect="non-scaling-stroke"
-              style={{ strokeWidth: "4px" } as React.CSSProperties}
+              style={{ strokeWidth: trackStyle.dimWidth } as React.CSSProperties}
             />
+
             {/* Bright themed lit portion */}
             {litD && (
               <path
