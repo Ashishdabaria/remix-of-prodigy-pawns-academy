@@ -17,6 +17,7 @@ import { MODULE6_TASKS } from "@/data/realm6/tasks";
 import { MODULE7_TASKS } from "@/data/realm7/tasks";
 import { MODULE9_TASKS } from "@/data/realm9/tasks";
 import { MODULE8_TASKS } from "@/data/realm8/tasks";
+import { MODULE10_TASKS } from "@/data/realm10/tasks";
 import {
   MODULES_BY_ID,
   defaultModuleForRealm,
@@ -112,6 +113,11 @@ function stagesFor(level: ClimbLevel, moduleId?: string): Stage[] {
       puzzle:    { kind: "puzzle",    title: "Mate drill",        desc: "Land the quick checkmate.",                      icon: "⚡" },
       challenge: { kind: "challenge", title: "Castle challenge",  desc: "Trickier mate — protect the keep!",              icon: "🛡️" },
     },
+    "counting-material": {
+      lesson:    { kind: "video",     title: "Vault tutorial",    desc: "Mariposa counts the gems — make the capture!",   icon: "💎" },
+      puzzle:    { kind: "puzzle",    title: "Value drill",       desc: "Grab the most valuable piece.",                  icon: "⚖️" },
+      challenge: { kind: "challenge", title: "Trade challenge",   desc: "Win the trade — count attackers & defenders!",   icon: "★" },
+    },
   };
   const t = (moduleId && themes[moduleId]) || {
     lesson:    { kind: "video",     title: "Watch the tutorial", desc: "A short story-video from Mariposa.", icon: "▶︎" } as Stage,
@@ -205,6 +211,7 @@ const TRACK_STYLE: Record<TrackVariant, { dim: string; lit: string; glow: string
   factory:   { dim: "rgba(255,230,170,0.98)", halo: "rgba(40,20,50,0.9)",   lit: "oklch(0.82 0.18 80)",  glow: "oklch(0.82 0.18 80 / 0.95)",  dash: "2.6 1.6", litWidth: "8.5px", dimWidth: "7px" },
   peaks:     { dim: "rgba(200,225,255,0.98)", halo: "rgba(10,25,60,0.9)",   lit: "oklch(0.85 0.15 240)", glow: "oklch(0.85 0.15 240 / 0.95)", dash: "1.8 1.6", litWidth: "8px",   dimWidth: "7px" },
   castle:    { dim: "rgba(255,220,200,0.98)", halo: "rgba(40,15,40,0.9)",   lit: "oklch(0.78 0.18 25)",  glow: "oklch(0.78 0.18 25 / 0.95)",  dash: "2.4 1.6", litWidth: "8.5px", dimWidth: "7px" },
+  labyrinth: { dim: "rgba(230,210,255,0.98)", halo: "rgba(30,10,50,0.9)",   lit: "oklch(0.78 0.20 305)", glow: "oklch(0.78 0.20 305 / 0.95)", dash: "2 1.6",   litWidth: "8.5px", dimWidth: "7px" },
 };
 
 function RealmPathPage() {
@@ -1027,6 +1034,7 @@ function StageBody({
     : moduleId === "pins-and-skewers"        ? MODULE7_TASKS[level.id]
     : moduleId === "game-phases"             ? MODULE9_TASKS[level.id]
     : moduleId === "quick-mates"             ? MODULE8_TASKS[level.id]
+    : moduleId === "counting-material"       ? MODULE10_TASKS[level.id]
     : undefined;
 
 
