@@ -274,12 +274,14 @@ function RealmPathPage() {
   );
   const doneCount = Object.keys(cleared).length;
 
-  // Build a full, continuous trail through every level node, then the prize.
-  const nodePositions = NODE_POS.slice(0, TOTAL);
-  const allPoints = [...nodePositions, PRIZE_POS];
-  const pathD = buildSmoothPath(allPoints);
-  const litCount = doneCount + (doneCount === TOTAL ? 1 : 0);
-  const litD = litCount >= 2 ? buildSmoothPath(allPoints.slice(0, litCount)) : "";
+  // Resolve the per-realm hand-tuned stone path layout.
+  const layout = getPathLayout(realm.id);
+  const nodePositions = layout.nodes.slice(0, TOTAL);
+  const startPos = layout.start;
+  const prizePos = layout.prize;
+  const trailPoints = [startPos, ...nodePositions, prizePos];
+  const litCount = doneCount + 1 + (doneCount === TOTAL ? 1 : 0); // +1 to always light the start
+
 
   function handleTap(level: ClimbLevel) {
     if (cleared[level.id] !== undefined) { playClick("soft"); return; }
