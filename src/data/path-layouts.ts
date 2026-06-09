@@ -94,42 +94,42 @@ export const DEFAULT_PATH_LAYOUT: RealmPathLayout = {
 // switchbacks for mountains, gentle curves for the meadow village…).
 const PAWN_VILLAGE: RealmPathLayout = {
   start: { x: 14, y: 94 },
-  nodes: serpentine({ amp: 26, bias: 50, topY: 22, bottomY: 86, swirls: 2 }),
+  nodes: shiftEarlyNodes(serpentine({ amp: 26, bias: 50, topY: 22, bottomY: 86, swirls: 2 })),
   prize: { x: 50, y: 10 },
 };
 const CASTLE: RealmPathLayout = {
   start: { x: 16, y: 94 },
-  nodes: serpentine({ amp: 30, bias: 50, topY: 20, bottomY: 86, swirls: 2.5 }),
+  nodes: shiftEarlyNodes(serpentine({ amp: 30, bias: 50, topY: 20, bottomY: 86, swirls: 2.5 })),
   prize: { x: 50, y: 8 },
 };
 const PLAINS: RealmPathLayout = {
   start: { x: 10, y: 92 },
-  nodes: serpentine({ amp: 36, bias: 52, topY: 22, bottomY: 84, swirls: 1.75 }),
+  nodes: shiftEarlyNodes(serpentine({ amp: 36, bias: 52, topY: 22, bottomY: 84, swirls: 1.75 })),
   prize: { x: 78, y: 10 },
 };
 const FOREST: RealmPathLayout = {
   start: { x: 14, y: 94 },
-  nodes: serpentine({ amp: 28, bias: 48, topY: 20, bottomY: 86, swirls: 2.75 }),
+  nodes: shiftEarlyNodes(serpentine({ amp: 28, bias: 48, topY: 20, bottomY: 86, swirls: 2.75 })),
   prize: { x: 50, y: 8 },
 };
 const MOUNTAINS: RealmPathLayout = {
   start: { x: 14, y: 94 },
-  nodes: serpentine({ amp: 34, bias: 50, topY: 18, bottomY: 86, swirls: 3 }),
+  nodes: shiftEarlyNodes(serpentine({ amp: 34, bias: 50, topY: 18, bottomY: 86, swirls: 3 })),
   prize: { x: 56, y: 6 },
 };
 const LABYRINTH: RealmPathLayout = {
   start: { x: 16, y: 94 },
-  nodes: serpentine({ amp: 32, bias: 50, topY: 20, bottomY: 86, swirls: 3.25 }),
+  nodes: shiftEarlyNodes(serpentine({ amp: 32, bias: 50, topY: 20, bottomY: 86, swirls: 3.25 })),
   prize: { x: 50, y: 8 },
 };
 const DESERT: RealmPathLayout = {
   start: { x: 10, y: 92 },
-  nodes: serpentine({ amp: 38, bias: 50, topY: 22, bottomY: 84, swirls: 1.85 }),
+  nodes: shiftEarlyNodes(serpentine({ amp: 38, bias: 50, topY: 22, bottomY: 84, swirls: 1.85 })),
   prize: { x: 60, y: 10 },
 };
 const CITADEL: RealmPathLayout = {
   start: { x: 16, y: 94 },
-  nodes: serpentine({ amp: 30, bias: 50, topY: 16, bottomY: 86, swirls: 2.5 }),
+  nodes: shiftEarlyNodes(serpentine({ amp: 30, bias: 50, topY: 16, bottomY: 86, swirls: 2.5 })),
   prize: { x: 50, y: 4 },
 };
 
