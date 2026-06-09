@@ -397,77 +397,19 @@ function RealmPathPage() {
 
       {/* Single-screen race-track board */}
       <div className="absolute inset-x-0 bottom-0 top-[96px]">
-        <div className="relative mx-auto h-full w-full max-w-5xl">
-          {/* Trail */}
-          <svg
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-            className="pointer-events-none absolute inset-0 z-0 h-full w-full overflow-visible"
-            aria-hidden
-          >
-            {/* Dark halo for contrast on any background */}
-            <path
-              d={pathD}
-              fill="none"
-              stroke={trackStyle.halo}
-              strokeLinecap="round"
-              vectorEffect="non-scaling-stroke"
-              style={{ strokeWidth: "10px", opacity: 0.55 } as React.CSSProperties}
-            />
-            {/* Bright dashed full trail */}
-            <path
-              d={pathD}
-              fill="none"
-              stroke={trackStyle.dim}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              opacity="0.9"
-              vectorEffect="non-scaling-stroke"
-              style={{ strokeWidth: "5px", filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.28))" } as React.CSSProperties}
-            />
-            {/* Sparkle dashes on top so the route reads as one connected trail */}
-            <path
-              d={pathD}
-              fill="none"
-              stroke="rgba(255,255,245,0.95)"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeDasharray={trackStyle.dash}
-              vectorEffect="non-scaling-stroke"
-              style={{ strokeWidth: trackStyle.dimWidth } as React.CSSProperties}
-            />
-
-            {/* Bright themed lit portion */}
-            {litD && (
-              <path
-                d={litD}
-                fill="none"
-                stroke={trackStyle.lit}
-                strokeLinecap="round"
-                strokeDasharray={trackStyle.dash}
-                vectorEffect="non-scaling-stroke"
-                style={{
-                  strokeWidth: trackStyle.litWidth,
-                  filter: `drop-shadow(0 0 6px ${trackStyle.glow})`,
-                } as React.CSSProperties}
-              >
-                {mod.track === "caverns" || mod.track === "sky" ? (
-                  <animate
-                    attributeName="stroke-dashoffset"
-                    from="0"
-                    to="-8"
-                    dur="1.6s"
-                    repeatCount="indefinite"
-                  />
-                ) : null}
-              </path>
-            )}
-          </svg>
+        <div className="relative mx-auto h-full min-h-[560px] w-full max-w-5xl sm:min-h-[640px]">
+          {/* Stone path trail */}
+          <StonePath
+            points={trailPoints}
+            litCount={litCount}
+            trackStyle={trackStyle}
+            animateLit={mod.track === "caverns" || mod.track === "sky"}
+          />
 
           {/* START marker */}
           <div
             className="absolute -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${nodePositions[0].x}%`, top: `${nodePositions[0].y + 9}%` }}
+            style={{ left: `${startPos.x}%`, top: `${startPos.y}%` }}
           >
             <div className="flex items-end gap-1">
               <Mariposa size={48} />
@@ -480,7 +422,7 @@ function RealmPathPage() {
           {/* FINISH / Grand Prize */}
           <div
             className="absolute -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${PRIZE_POS.x}%`, top: `${PRIZE_POS.y}%` }}
+            style={{ left: `${prizePos.x}%`, top: `${prizePos.y}%` }}
           >
             <GrandPrize won={victory || doneCount === TOTAL} icon={mod.finishIcon} />
           </div>
@@ -498,16 +440,18 @@ function RealmPathPage() {
                 className="absolute -translate-x-1/2 -translate-y-1/2"
                 style={{ left: `${p.x}%`, top: `${p.y}%` }}
               >
-                <TrackNode
+                <QuestNode
                   level={lvl}
                   state={state}
                   stars={stars ?? 0}
                   popping={popping === lvl.id}
+                  isCurrent={lvl.id === currentId}
                   onTap={() => handleTap(lvl)}
                 />
               </div>
             );
           })}
+
 
           {/* Flying Mariposa: from cleared node → next current node */}
           <AnimatePresence>
