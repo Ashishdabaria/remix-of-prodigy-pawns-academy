@@ -609,24 +609,44 @@ function Pill({ children, highlight }: { children: React.ReactNode; highlight?: 
 
 function GrandPrize({ won, icon }: { won: boolean; icon: string }) {
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center gap-1">
       <div
-        className="rounded-2xl border-2 border-ink/20 bg-parchment/95 font-display font-black uppercase tracking-widest text-ink shadow"
-        style={{ padding: "0.1rem 0.5rem", fontSize: "clamp(8px, 1.6vw, 11px)" }}
+        className="rounded-md border-2 border-ink/30 bg-parchment/95 px-2 py-0.5 font-display font-black uppercase tracking-widest text-ink shadow"
+        style={{ fontSize: "clamp(8px, 1.5vw, 11px)" }}
       >
-        🏁 Finish
+        ♛ Boss Den
       </div>
+      {/* Stone temple/den housing the boss silhouette */}
       <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-        className={`mt-1.5 grid place-items-center rounded-full bg-shard-pearl shadow-2xl ring-4 ${won ? "ring-shard-sun animate-glow" : "ring-parchment/80"}`}
+        animate={won ? { y: [0, -4, 0] } : undefined}
+        transition={won ? { duration: 2, repeat: Infinity, ease: "easeInOut" } : undefined}
+        className={`relative grid place-items-center shadow-2xl ring-4 ${won ? "ring-shard-sun animate-glow" : "ring-ink/40"}`}
         style={{
-          width: "clamp(2.75rem, 9vw, 4rem)",
-          height: "clamp(2.75rem, 9vw, 4rem)",
-          fontSize: "clamp(1.25rem, 4vw, 1.875rem)",
+          width: "clamp(3rem, 11vw, 4.5rem)",
+          height: "clamp(3.25rem, 12vw, 5rem)",
+          background: "linear-gradient(180deg, #b9b3a5 0%, #7a7468 55%, #4a4438 100%)",
+          borderRadius: "40% 40% 14% 14% / 30% 30% 14% 14%",
+          border: "2px solid rgba(20,12,5,0.6)",
+          boxShadow: "inset 0 -8px 0 rgba(0,0,0,0.3), 0 12px 22px rgba(0,0,0,0.5)",
         }}
       >
-        {icon}
+        {/* Mossy crown vines */}
+        <span aria-hidden className="pointer-events-none absolute -left-1 top-2 h-3 w-4 rounded-full bg-emerald-700/70 blur-[1px]" />
+        <span aria-hidden className="pointer-events-none absolute -right-1 top-4 h-3 w-3 rounded-full bg-emerald-600/70 blur-[1px]" />
+        {/* Doorway with boss icon */}
+        <div
+          className="grid place-items-center rounded-t-full bg-ink/85"
+          style={{
+            width: "55%",
+            height: "65%",
+            marginTop: "20%",
+            boxShadow: "inset 0 0 12px rgba(0,0,0,0.7)",
+          }}
+        >
+          <span style={{ fontSize: "clamp(1rem, 3.5vw, 1.6rem)" }} className="drop-shadow">
+            {icon}
+          </span>
+        </div>
       </motion.div>
     </div>
   );
