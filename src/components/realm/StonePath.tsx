@@ -1,4 +1,4 @@
-import { buildSmoothPath, interpolateStones, type PathPoint } from "@/data/path-layouts";
+import { interpolateStones, type PathPoint } from "@/data/path-layouts";
 
 export interface TrackStyle {
   dim: string;
@@ -21,20 +21,12 @@ interface StonePathProps {
 }
 
 /**
- * StonePath renders the winding stepping-stone trail underneath the quest nodes.
+ * StonePath renders only the winding stepping-stone trail underneath the quest nodes.
+ * No connecting lines — just discrete stones so the path feels like a trail you hop along.
  *
- * Layer order (bottom → top):
- *   1. Sandstone ellipses (the physical "stones") interpolated between every pair of points.
- *   2. Dark halo stroke for legibility on any background.
- *   3. Themed dim dashed trail.
- *   4. Bright lit dashed trail covering completed segments.
- *
- * Lives in a percent-based SVG so it scales perfectly with its parent container —
- * works from 375px phones up to large desktops without re-layout.
+ * Lives in a percent-based SVG so it scales perfectly with its parent container.
  */
-export function StonePath({ points, litCount, trackStyle, animateLit = false }: StonePathProps) {
-  const pathD = buildSmoothPath(points);
-  const litD = litCount >= 2 ? buildSmoothPath(points.slice(0, litCount)) : "";
+export function StonePath({ points, trackStyle }: StonePathProps) {
   const stones = interpolateStones(points, 3);
 
   return (
@@ -63,7 +55,6 @@ export function StonePath({ points, litCount, trackStyle, animateLit = false }: 
         </filter>
       </defs>
 
-      {/* 1) Stones */}
       <g filter="url(#stone-shadow)">
         {stones.map((s, i) => (
           <ellipse
@@ -79,64 +70,7 @@ export function StonePath({ points, litCount, trackStyle, animateLit = false }: 
           />
         ))}
       </g>
-
-      {/* 2) Dark halo for contrast */}
-      <path
-        d={pathD}
-        fill="none"
-        stroke={trackStyle.halo}
-        strokeLinecap="round"
-        vectorEffect="non-scaling-stroke"
-        style={{ strokeWidth: "10px", opacity: 0.55 } as React.CSSProperties}
-      />
-
-      {/* 3) Themed dim dashed trail */}
-      <path
-        d={pathD}
-        fill="none"
-        stroke={trackStyle.dim}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        opacity={0.9}
-        vectorEffect="non-scaling-stroke"
-        style={{ strokeWidth: "5px", filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.28))" } as React.CSSProperties}
-      />
-      <path
-        d={pathD}
-        fill="none"
-        stroke="rgba(255,255,245,0.95)"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeDasharray={trackStyle.dash}
-        vectorEffect="non-scaling-stroke"
-        style={{ strokeWidth: trackStyle.dimWidth } as React.CSSProperties}
-      />
-
-      {/* 4) Bright themed lit portion */}
-      {litD && (
-        <path
-          d={litD}
-          fill="none"
-          stroke={trackStyle.lit}
-          strokeLinecap="round"
-          strokeDasharray={trackStyle.dash}
-          vectorEffect="non-scaling-stroke"
-          style={{
-            strokeWidth: trackStyle.litWidth,
-            filter: `drop-shadow(0 0 6px ${trackStyle.glow})`,
-          } as React.CSSProperties}
-        >
-          {animateLit ? (
-            <animate
-              attributeName="stroke-dashoffset"
-              from="0"
-              to="-8"
-              dur="1.6s"
-              repeatCount="indefinite"
-            />
-          ) : null}
-        </path>
-      )}
     </svg>
   );
 }
+
