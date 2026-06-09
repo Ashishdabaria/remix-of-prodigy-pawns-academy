@@ -30,57 +30,45 @@ function serpentine(opts: {
 }): PathPoint[] {
   const amp = opts.amp ?? 32;
   const bias = opts.bias ?? 50;
-  const topY = opts.topY ?? 18;
-  const bottomY = opts.bottomY ?? 88;
-  const swirls = opts.swirls ?? 2.25;
+  const topY = opts.topY ?? 10;
+  const bottomY = opts.bottomY ?? 92;
+  const swirls = opts.swirls ?? 2.5;
   const N = 12;
 
-  // 1) Densely sample the parametric curve.
-  const SAMPLES = 600;
-  const curve: PathPoint[] = [];
-  for (let i = 0; i <= SAMPLES; i++) {
-    const t = i / SAMPLES;
+  // Distribute Y evenly across the full canvas so nodes spread top→bottom.
+  // X follows a phase-shifted sine wave for a storybook switchback.
+  const pts: PathPoint[] = [];
+  for (let i = 0; i < N; i++) {
+    const t = i / (N - 1);
     const y = bottomY + (topY - bottomY) * t;
-    const x = bias + Math.sin(t * Math.PI * swirls) * amp * (1 - t * 0.15);
-    curve.push({ x: Math.max(8, Math.min(92, x)), y });
+    const x = bias + Math.sin(t * Math.PI * swirls + Math.PI) * amp;
+    pts.push({ x: Math.max(10, Math.min(90, x)), y });
   }
 
-  // 2) Compute cumulative arc length.
-  const cum: number[] = [0];
-  for (let i = 1; i < curve.length; i++) {
-    const dx = curve[i].x - curve[i - 1].x;
-    const dy = curve[i].y - curve[i - 1].y;
-    cum.push(cum[i - 1] + Math.hypot(dx, dy));
-  }
-  const total = cum[cum.length - 1];
-
-  // 3) Pick N points at equal arc-length intervals so visual spacing is uniform.
-  const out: PathPoint[] = [];
-  for (let k = 0; k < N; k++) {
-    const target = (total * k) / (N - 1);
-    let lo = 0;
-    let hi = cum.length - 1;
-    while (lo < hi) {
-      const mid = (lo + hi) >> 1;
-      if (cum[mid] < target) lo = mid + 1;
-      else hi = mid;
+  // Enforce minimum 2D separation so pedestals never visually overlap.
+  const MIN_DIST = 15;
+  for (let pass = 0; pass < 4; pass++) {
+    for (let i = 1; i < pts.length; i++) {
+      const a = pts[i - 1];
+      const b = pts[i];
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const d = Math.hypot(dx, dy) || 0.01;
+      if (d < MIN_DIST) {
+        const push = (MIN_DIST - d) / 2 + 0.3;
+        const ux = dx / d;
+        a.x = Math.max(8, Math.min(92, a.x - ux * push));
+        b.x = Math.max(8, Math.min(92, b.x + ux * push));
+      }
     }
-    out.push(curve[lo]);
   }
-  return out;
+  return pts;
 }
 
-// Shift the first 4 nodes left + slightly up so they hug the lower-left
-// terrace of every background and don't crowd the middle.
-function shiftEarlyNodes(nodes: PathPoint[], dx = -10, dy = -4): PathPoint[] {
-  return nodes.map((n, i) => {
-    if (i >= 4) return n;
-    const falloff = 1 - i / 4; // node 1 = full shift, node 4 = none
-    return {
-      x: Math.max(6, Math.min(94, n.x + dx * falloff)),
-      y: Math.max(4, Math.min(96, n.y + dy * falloff)),
-    };
-  });
+// Identity wrapper kept for layout compatibility (no early-node shift now —
+// the new serpentine already distributes nodes across the full canvas).
+function shiftEarlyNodes(nodes: PathPoint[]): PathPoint[] {
+  return nodes;
 }
 
 export const DEFAULT_PATH_LAYOUT: RealmPathLayout = {
