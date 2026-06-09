@@ -437,6 +437,7 @@ function RealmPathPage() {
             const stars = cleared[lvl.id];
             const state: "locked" | "current" | "done" =
               stars !== undefined ? "done" : lvl.id === currentId ? "current" : "locked";
+            const enemy = TRACK_ENEMIES[mod.track];
             return (
               <div
                 key={lvl.id}
@@ -449,6 +450,8 @@ function RealmPathPage() {
                   stars={stars ?? 0}
                   popping={popping === lvl.id}
                   isCurrent={lvl.id === currentId}
+                  enemyEmoji={enemy?.emoji}
+                  enemyName={enemy?.name}
                   onTap={() => handleTap(lvl)}
                 />
               </div>
