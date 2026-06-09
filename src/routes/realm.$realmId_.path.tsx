@@ -6,7 +6,7 @@ import { Mariposa } from "@/components/Mariposa";
 import { MuteToggle } from "@/components/realm/MariposaSay";
 import { StonePath } from "@/components/realm/StonePath";
 import { QuestNode } from "@/components/realm/QuestNode";
-import { getPathLayout } from "@/data/path-layouts";
+import { getPathLayout, TRACK_ENEMIES } from "@/data/path-layouts";
 import { playClick } from "@/lib/sound";
 import { CatchTheStar } from "@/components/realm/CatchTheStar";
 import { PawnPromotionRun } from "@/components/realm/PawnPromotionRun";
