@@ -422,13 +422,15 @@ function RealmPathPage() {
             </div>
           </div>
 
-          {/* FINISH / Grand Prize */}
-          <div
-            className="absolute -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${prizePos.x}%`, top: `${prizePos.y}%` }}
-          >
-            <GrandPrize won={victory || doneCount === TOTAL} icon={mod.finishIcon} />
-          </div>
+          {/* FINISH / Grand Prize — only shown after victory, as a floating shard above the boss den */}
+          {(victory || doneCount === TOTAL) && (
+            <div
+              className="absolute -translate-x-1/2 -translate-y-1/2"
+              style={{ left: `${prizePos.x}%`, top: `${prizePos.y}%` }}
+            >
+              <GrandPrize won icon={mod.finishIcon} />
+            </div>
+          )}
 
 
           {/* Level nodes */}
@@ -438,6 +440,7 @@ function RealmPathPage() {
             const state: "locked" | "current" | "done" =
               stars !== undefined ? "done" : lvl.id === currentId ? "current" : "locked";
             const enemy = TRACK_ENEMIES[mod.track];
+            const isBossDen = i === LEVELS.length - 1;
             return (
               <div
                 key={lvl.id}
@@ -450,6 +453,8 @@ function RealmPathPage() {
                   stars={stars ?? 0}
                   popping={popping === lvl.id}
                   isCurrent={lvl.id === currentId}
+                  isBossDen={isBossDen}
+                  bossIcon={mod.finishIcon}
                   enemyEmoji={enemy?.emoji}
                   enemyName={enemy?.name}
                   onTap={() => handleTap(lvl)}
