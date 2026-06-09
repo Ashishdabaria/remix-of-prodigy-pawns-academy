@@ -167,31 +167,8 @@ function stagesFor(level: ClimbLevel, moduleId?: string): Stage[] {
 }
 
 
-// Serpentine race-track positions (% of width / % of height inside path area).
-// Spaced so 12 nodes + START/FINISH fit on phone widths without overlapping.
-const NODE_POS: { x: number; y: number }[] = [
-  { x: 12, y: 92 }, // 1 START (bottom-left)
-  { x: 36, y: 88 },
-  { x: 62, y: 84 },
-  { x: 86, y: 76 }, // curve at right
-  { x: 88, y: 64 },
-  { x: 66, y: 60 },
-  { x: 40, y: 56 },
-  { x: 14, y: 50 }, // curve at left
-  { x: 16, y: 38 },
-  { x: 40, y: 34 },
-  { x: 66, y: 28 },
-  { x: 50, y: 14 }, // 12 boss (center-top)
-];
-const PRIZE_POS = { x: 86, y: 10 };
-
-const RING: Record<LevelType, { color: string; label: string; icon: string }> = {
-  lesson:    { color: "oklch(0.65 0.17 150)", label: "Lesson",    icon: "✦" },
-  challenge: { color: "oklch(0.65 0.16 240)", label: "Challenge", icon: "⚔" },
-  miniboss:  { color: "oklch(0.72 0.18 50)",  label: "Mini-boss", icon: "🐴" },
-  treasure:  { color: "oklch(0.82 0.17 85)",  label: "Treasure",  icon: "🎁" },
-  boss:      { color: "oklch(0.55 0.22 25)",  label: "Boss",      icon: "♛" },
-};
+// Per-realm node layouts now live in src/data/path-layouts.ts and are
+// resolved at render time via getPathLayout(realm.id).
 
 const CHEERS = [
   "Yes! You cleared it!",
