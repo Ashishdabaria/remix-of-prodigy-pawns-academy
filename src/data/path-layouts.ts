@@ -34,12 +34,38 @@ function serpentine(opts: {
   const bottomY = opts.bottomY ?? 88;
   const swirls = opts.swirls ?? 2.25;
   const N = 12;
-  const out: PathPoint[] = [];
-  for (let i = 0; i < N; i++) {
-    const t = i / (N - 1); // 0..1
+
+  // 1) Densely sample the parametric curve.
+  const SAMPLES = 600;
+  const curve: PathPoint[] = [];
+  for (let i = 0; i <= SAMPLES; i++) {
+    const t = i / SAMPLES;
     const y = bottomY + (topY - bottomY) * t;
     const x = bias + Math.sin(t * Math.PI * swirls) * amp * (1 - t * 0.15);
-    out.push({ x: Math.max(8, Math.min(92, x)), y });
+    curve.push({ x: Math.max(8, Math.min(92, x)), y });
+  }
+
+  // 2) Compute cumulative arc length.
+  const cum: number[] = [0];
+  for (let i = 1; i < curve.length; i++) {
+    const dx = curve[i].x - curve[i - 1].x;
+    const dy = curve[i].y - curve[i - 1].y;
+    cum.push(cum[i - 1] + Math.hypot(dx, dy));
+  }
+  const total = cum[cum.length - 1];
+
+  // 3) Pick N points at equal arc-length intervals so visual spacing is uniform.
+  const out: PathPoint[] = [];
+  for (let k = 0; k < N; k++) {
+    const target = (total * k) / (N - 1);
+    let lo = 0;
+    let hi = cum.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (cum[mid] < target) lo = mid + 1;
+      else hi = mid;
+    }
+    out.push(curve[lo]);
   }
   return out;
 }
