@@ -311,7 +311,7 @@ function RealmPathPage() {
       setPopping(null);
       const idx = LEVELS.findIndex((l) => l.id === level.id);
       const from = nodePositions[idx] ?? nodePositions[0];
-      const to = idx + 1 < nodePositions.length ? nodePositions[idx + 1] : PRIZE_POS;
+      const to = idx + 1 < nodePositions.length ? nodePositions[idx + 1] : prizePos;
       setFlight({ from, to, key: Date.now() });
       window.setTimeout(() => setFlight(null), 1400);
       if (level.id === TOTAL) {
