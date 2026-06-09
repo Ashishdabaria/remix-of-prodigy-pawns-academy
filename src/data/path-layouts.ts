@@ -70,9 +70,22 @@ function serpentine(opts: {
   return out;
 }
 
+// Shift the first 4 nodes left + slightly up so they hug the lower-left
+// terrace of every background and don't crowd the middle.
+function shiftEarlyNodes(nodes: PathPoint[], dx = -10, dy = -4): PathPoint[] {
+  return nodes.map((n, i) => {
+    if (i >= 4) return n;
+    const falloff = 1 - i / 4; // node 1 = full shift, node 4 = none
+    return {
+      x: Math.max(6, Math.min(94, n.x + dx * falloff)),
+      y: Math.max(4, Math.min(96, n.y + dy * falloff)),
+    };
+  });
+}
+
 export const DEFAULT_PATH_LAYOUT: RealmPathLayout = {
-  start: { x: 14, y: 94 },
-  nodes: serpentine({ amp: 30, bias: 50, topY: 20, bottomY: 86, swirls: 2.25 }),
+  start: { x: 10, y: 92 },
+  nodes: shiftEarlyNodes(serpentine({ amp: 30, bias: 50, topY: 20, bottomY: 86, swirls: 2.25 })),
   prize: { x: 50, y: 8 },
 };
 
