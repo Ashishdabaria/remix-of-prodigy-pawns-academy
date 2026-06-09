@@ -15,33 +15,58 @@ export interface QuestNodeProps {
   stars: number;
   popping: boolean;
   isCurrent: boolean;
+  /** Emoji of the enemy guarding the CURRENT node — appears next to the pedestal. */
+  enemyEmoji?: string;
+  /** Friendly name of that enemy (shown on its taunt bubble). */
+  enemyName?: string;
   onTap: () => void;
 }
 
 /**
- * QuestNode — a single medallion on the stone path.
+ * QuestNode — a story pedestal on the realm's adventure map.
  *
- * - Preserves all hover/tap animations from the previous inline TrackNode.
- * - When `isCurrent`, shows a bouncing "YOU" chip above the medallion so
- *   the player can always find their place on the trail at a glance.
- * - Locked nodes are visually dim, non-clickable, and announce themselves
- *   to screen readers as locked via aria-disabled.
+ * Visual language inspired by classic quest-map UIs:
+ *  - Mossy STONE PEDESTAL as the base for every node.
+ *  - A banner FLAG on top: "COMPLETED" (green ✓), "LOCKED" (gray 🔒),
+ *    or a bright glowing banner with the level name when current.
+ *  - When CURRENT, a small enemy creature appears next to the pedestal
+ *    that the hero must "defeat" to advance to the next pedestal.
+ *  - The BOSS pedestal (last node) is a small temple/den so it reads as
+ *    a climactic destination instead of just another stop.
  */
-export function QuestNode({ level, state, stars, popping, isCurrent, onTap }: QuestNodeProps) {
+export function QuestNode({
+  level,
+  state,
+  stars,
+  popping,
+  isCurrent,
+  enemyEmoji,
+  enemyName,
+  onTap,
+}: QuestNodeProps) {
   const ring = RING[level.type];
   const isBoss = level.type === "boss";
 
-  const medallionBg =
+  // Pedestal palette — mossy gray for normal, warm glow for current, dim for locked.
+  const pedestalGrad =
     state === "done"
-      ? "bg-shard-emerald"
+      ? "linear-gradient(180deg, #9aa39c 0%, #707a73 55%, #4b524d 100%)"
+      : state === "current"
+        ? "linear-gradient(180deg, #d6c79a 0%, #b3a070 55%, #7a6845 100%)"
+        : "linear-gradient(180deg, #8a8f8a 0%, #5e635f 55%, #3a3d3a 100%)";
+
+  // Flag/banner colors per state.
+  const flagBg =
+    state === "done"
+      ? "bg-emerald-500"
       : state === "current"
         ? "bg-shard-sun"
-        : "bg-muted";
-  const medallionText = state === "locked" ? "text-ink/40" : "text-ink";
+        : "bg-stone-500";
+  const flagText = state === "done" || state === "current" ? "text-ink" : "text-white";
 
   return (
-    <div className="flex flex-col items-center gap-0.5">
-      {/* YOU badge — pinned above the medallion when this is the active node */}
+    <div className="relative flex flex-col items-center gap-1">
+      {/* YOU bobbing arrow above the active pedestal */}
       {isCurrent && (
         <motion.div
           animate={{ y: [-2, -6, -2] }}
@@ -58,74 +83,80 @@ export function QuestNode({ level, state, stars, popping, isCurrent, onTap }: Qu
         </motion.div>
       )}
 
-
-      {/* Name tag */}
-      <div
-        className="rounded-lg border-2 border-ink/25 bg-parchment/95 text-center shadow-md"
-        style={{
-          maxWidth: "clamp(4.5rem, 18vw, 9rem)",
-          padding: "0.1rem 0.4rem",
-        }}
-      >
+      {/* Banner FLAG — the visual story label for this stop */}
+      <div className="relative flex items-end gap-0">
+        <span className={`h-3 w-[3px] rounded-sm ${state === "locked" ? "bg-stone-700" : "bg-amber-900"}`} aria-hidden />
         <div
-          className="font-display font-black leading-tight text-ink"
-          style={{ fontSize: "clamp(8px, 1.6vw, 11px)" }}
+          className={`relative -ml-px rounded-r-md px-2 py-0.5 font-display text-[9px] font-black uppercase tracking-widest shadow-md ring-1 ring-ink/30 ${flagBg} ${flagText}`}
+          style={{
+            clipPath: "polygon(0 0, 100% 0, 92% 50%, 100% 100%, 0 100%)",
+            paddingRight: "0.9rem",
+          }}
         >
-          {level.name}
+          {state === "done" ? "Completed" : state === "current" ? (isBoss ? "Boss Battle" : level.name) : "Locked"}
         </div>
       </div>
 
-      {/* Medallion */}
+      {/* PEDESTAL — the stone base + medallion */}
       <motion.button
         type="button"
         onClick={onTap}
         aria-label={`Level ${level.id}: ${level.name} — ${state}`}
         aria-disabled={state !== "current"}
         disabled={state === "done"}
-        whileHover={state === "current" ? { scale: 1.08 } : undefined}
-        whileTap={state === "current" ? { scale: 0.95 } : undefined}
+        whileHover={state === "current" ? { scale: 1.06 } : undefined}
+        whileTap={state === "current" ? { scale: 0.94 } : undefined}
         animate={
           popping
-            ? { scale: [1, 1.3, 1] }
+            ? { scale: [1, 1.25, 1] }
             : state === "current"
-              ? { y: [0, -4, 0] }
+              ? { y: [0, -3, 0] }
               : { y: 0 }
         }
         transition={
           popping
             ? { duration: 0.5 }
             : state === "current"
-              ? { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
+              ? { duration: 1.8, repeat: Infinity, ease: "easeInOut" }
               : { duration: 0 }
         }
-        className={`relative grid place-items-center rounded-full ${medallionBg} ${medallionText} shadow-xl ${
-          state === "current" ? "animate-glow cursor-pointer" : ""
-        } ${state === "locked" ? "opacity-80" : ""}`}
+        className={`relative grid place-items-center ${
+          state === "current" ? "cursor-pointer" : ""
+        } ${state === "locked" ? "opacity-90" : ""}`}
         style={{
-          width: "clamp(2.25rem, 8vw, 3rem)",
-          height: "clamp(2.25rem, 8vw, 3rem)",
-          fontSize: "clamp(0.75rem, 2.2vw, 1rem)",
-          border: "3px solid var(--parchment)",
-          boxShadow: `0 0 0 3px ${ring.color}, 0 6px 12px rgba(0,0,0,0.35)`,
+          width: isBoss ? "clamp(3rem, 11vw, 4.25rem)" : "clamp(2.5rem, 9vw, 3.5rem)",
+          height: isBoss ? "clamp(3rem, 11vw, 4.25rem)" : "clamp(2.5rem, 9vw, 3.5rem)",
+          background: pedestalGrad,
+          borderRadius: isBoss ? "12px 12px 8px 8px" : "14px 14px 10px 10px",
+          border: "2px solid rgba(20,12,5,0.55)",
+          boxShadow:
+            state === "current"
+              ? `inset 0 -6px 0 rgba(0,0,0,0.25), 0 0 0 3px ${ring.color}, 0 10px 18px rgba(0,0,0,0.45), 0 0 22px ${ring.color}`
+              : `inset 0 -6px 0 rgba(0,0,0,0.3), 0 8px 14px rgba(0,0,0,0.4)`,
         }}
       >
-        {state === "locked" && <span>🔒</span>}
-        {state === "current" && (
-          <span className="font-black">{isBoss ? "♛" : level.id}</span>
-        )}
-        {state === "done" && <span className="font-black">✓</span>}
+        {/* Moss accents on the pedestal */}
+        <span aria-hidden className="pointer-events-none absolute -left-1 -top-1 h-2 w-3 rounded-full bg-emerald-700/70 blur-[1px]" />
+        <span aria-hidden className="pointer-events-none absolute -right-1 top-1 h-2 w-2 rounded-full bg-emerald-600/60 blur-[1px]" />
+        <span aria-hidden className="pointer-events-none absolute bottom-0 left-1/2 h-1 w-6 -translate-x-1/2 rounded-full bg-emerald-800/40 blur-[1px]" />
 
-        {/* Number badge */}
+        {/* Center icon */}
+        <span
+          className="relative font-black drop-shadow"
+          style={{
+            fontSize: isBoss ? "clamp(1.1rem, 3.6vw, 1.5rem)" : "clamp(0.85rem, 2.4vw, 1.1rem)",
+            color: state === "locked" ? "rgba(255,255,255,0.85)" : "var(--color-ink)",
+          }}
+        >
+          {state === "locked" && "🔒"}
+          {state === "done" && <span className="text-emerald-100">✓</span>}
+          {state === "current" && (isBoss ? "♛" : level.id)}
+        </span>
+
+        {/* Number chip (corner) for non-current pedestals */}
         {state !== "current" && (
-          <span className="absolute -top-1 -left-1 grid h-4 w-4 place-items-center rounded-full bg-ink text-[9px] font-black text-parchment ring-2 ring-parchment">
+          <span className="absolute -top-2 -left-2 grid h-4 w-4 place-items-center rounded-full bg-ink text-[9px] font-black text-parchment ring-2 ring-parchment shadow">
             {level.id}
-          </span>
-        )}
-
-        {/* PLAY tag for current */}
-        {state === "current" && (
-          <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-ink px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-parchment shadow-md whitespace-nowrap">
-            {isBoss ? "♛ Boss" : "Play"}
           </span>
         )}
 
@@ -152,10 +183,43 @@ export function QuestNode({ level, state, stars, popping, isCurrent, onTap }: Qu
         )}
       </motion.button>
 
-      {/* Stars */}
-      <div className="mt-2 h-3 text-center" aria-label={state === "done" ? `${stars} of 3 stars` : undefined}>
+      {/* ENEMY creature — only appears next to the active pedestal */}
+      {isCurrent && enemyEmoji && (
+        <motion.div
+          className="pointer-events-none absolute -right-8 bottom-2 flex flex-col items-center sm:-right-10"
+          initial={{ opacity: 0, x: 8 }}
+          animate={{ opacity: 1, x: 0 }}
+          aria-hidden
+        >
+          <div className="relative">
+            <motion.div
+              animate={{ y: [0, -4, 0], rotate: [-4, 4, -4] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+              className="grid place-items-center rounded-full bg-ink/80 ring-2 ring-shard-sun shadow-lg"
+              style={{
+                width: "clamp(1.75rem, 6vw, 2.25rem)",
+                height: "clamp(1.75rem, 6vw, 2.25rem)",
+                fontSize: "clamp(0.9rem, 3vw, 1.2rem)",
+              }}
+            >
+              {enemyEmoji}
+            </motion.div>
+            <span className="absolute -top-1 -right-1 grid h-3.5 w-3.5 place-items-center rounded-full bg-red-600 text-[8px] font-black text-white ring-1 ring-white">
+              !
+            </span>
+          </div>
+          {enemyName && (
+            <span className="mt-0.5 max-w-[5rem] truncate rounded-full bg-parchment/95 px-1.5 py-px text-[8px] font-black uppercase tracking-wider text-ink ring-1 ring-ink/30">
+              {enemyName}
+            </span>
+          )}
+        </motion.div>
+      )}
+
+      {/* Stars for completed */}
+      <div className="h-3 text-center" aria-label={state === "done" ? `${stars} of 3 stars` : undefined}>
         {state === "done" && (
-          <span className="text-[11px] leading-none">
+          <span className="text-[10px] leading-none">
             {[1, 2, 3].map((s) => (
               <span key={s} className={s <= stars ? "text-shard-sun" : "text-ink/20"}>★</span>
             ))}
