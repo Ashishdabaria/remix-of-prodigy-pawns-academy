@@ -4,6 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getRealm, type Realm } from "@/data/realms";
 import { Mariposa } from "@/components/Mariposa";
 import { MuteToggle } from "@/components/realm/MariposaSay";
+import { StonePath } from "@/components/realm/StonePath";
+import { QuestNode } from "@/components/realm/QuestNode";
+import { getPathLayout } from "@/data/path-layouts";
 import { playClick } from "@/lib/sound";
 import { CatchTheStar } from "@/components/realm/CatchTheStar";
 import { PawnPromotionRun } from "@/components/realm/PawnPromotionRun";
@@ -167,31 +170,8 @@ function stagesFor(level: ClimbLevel, moduleId?: string): Stage[] {
 }
 
 
-// Serpentine race-track positions (% of width / % of height inside path area).
-// Spaced so 12 nodes + START/FINISH fit on phone widths without overlapping.
-const NODE_POS: { x: number; y: number }[] = [
-  { x: 12, y: 92 }, // 1 START (bottom-left)
-  { x: 36, y: 88 },
-  { x: 62, y: 84 },
-  { x: 86, y: 76 }, // curve at right
-  { x: 88, y: 64 },
-  { x: 66, y: 60 },
-  { x: 40, y: 56 },
-  { x: 14, y: 50 }, // curve at left
-  { x: 16, y: 38 },
-  { x: 40, y: 34 },
-  { x: 66, y: 28 },
-  { x: 50, y: 14 }, // 12 boss (center-top)
-];
-const PRIZE_POS = { x: 86, y: 10 };
-
-const RING: Record<LevelType, { color: string; label: string; icon: string }> = {
-  lesson:    { color: "oklch(0.65 0.17 150)", label: "Lesson",    icon: "✦" },
-  challenge: { color: "oklch(0.65 0.16 240)", label: "Challenge", icon: "⚔" },
-  miniboss:  { color: "oklch(0.72 0.18 50)",  label: "Mini-boss", icon: "🐴" },
-  treasure:  { color: "oklch(0.82 0.17 85)",  label: "Treasure",  icon: "🎁" },
-  boss:      { color: "oklch(0.55 0.22 25)",  label: "Boss",      icon: "♛" },
-};
+// Per-realm node layouts now live in src/data/path-layouts.ts and are
+// resolved at render time via getPathLayout(realm.id).
 
 const CHEERS = [
   "Yes! You cleared it!",
@@ -297,12 +277,14 @@ function RealmPathPage() {
   );
   const doneCount = Object.keys(cleared).length;
 
-  // Build a full, continuous trail through every level node, then the prize.
-  const nodePositions = NODE_POS.slice(0, TOTAL);
-  const allPoints = [...nodePositions, PRIZE_POS];
-  const pathD = buildSmoothPath(allPoints);
-  const litCount = doneCount + (doneCount === TOTAL ? 1 : 0);
-  const litD = litCount >= 2 ? buildSmoothPath(allPoints.slice(0, litCount)) : "";
+  // Resolve the per-realm hand-tuned stone path layout.
+  const layout = getPathLayout(realm.id);
+  const nodePositions = layout.nodes.slice(0, TOTAL);
+  const startPos = layout.start;
+  const prizePos = layout.prize;
+  const trailPoints = [startPos, ...nodePositions, prizePos];
+  const litCount = doneCount + 1 + (doneCount === TOTAL ? 1 : 0); // +1 to always light the start
+
 
   function handleTap(level: ClimbLevel) {
     if (cleared[level.id] !== undefined) { playClick("soft"); return; }
@@ -329,7 +311,7 @@ function RealmPathPage() {
       setPopping(null);
       const idx = LEVELS.findIndex((l) => l.id === level.id);
       const from = nodePositions[idx] ?? nodePositions[0];
-      const to = idx + 1 < nodePositions.length ? nodePositions[idx + 1] : PRIZE_POS;
+      const to = idx + 1 < nodePositions.length ? nodePositions[idx + 1] : prizePos;
       setFlight({ from, to, key: Date.now() });
       window.setTimeout(() => setFlight(null), 1400);
       if (level.id === TOTAL) {
@@ -418,77 +400,19 @@ function RealmPathPage() {
 
       {/* Single-screen race-track board */}
       <div className="absolute inset-x-0 bottom-0 top-[96px]">
-        <div className="relative mx-auto h-full w-full max-w-5xl">
-          {/* Trail */}
-          <svg
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-            className="pointer-events-none absolute inset-0 z-0 h-full w-full overflow-visible"
-            aria-hidden
-          >
-            {/* Dark halo for contrast on any background */}
-            <path
-              d={pathD}
-              fill="none"
-              stroke={trackStyle.halo}
-              strokeLinecap="round"
-              vectorEffect="non-scaling-stroke"
-              style={{ strokeWidth: "10px", opacity: 0.55 } as React.CSSProperties}
-            />
-            {/* Bright dashed full trail */}
-            <path
-              d={pathD}
-              fill="none"
-              stroke={trackStyle.dim}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              opacity="0.9"
-              vectorEffect="non-scaling-stroke"
-              style={{ strokeWidth: "5px", filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.28))" } as React.CSSProperties}
-            />
-            {/* Sparkle dashes on top so the route reads as one connected trail */}
-            <path
-              d={pathD}
-              fill="none"
-              stroke="rgba(255,255,245,0.95)"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeDasharray={trackStyle.dash}
-              vectorEffect="non-scaling-stroke"
-              style={{ strokeWidth: trackStyle.dimWidth } as React.CSSProperties}
-            />
-
-            {/* Bright themed lit portion */}
-            {litD && (
-              <path
-                d={litD}
-                fill="none"
-                stroke={trackStyle.lit}
-                strokeLinecap="round"
-                strokeDasharray={trackStyle.dash}
-                vectorEffect="non-scaling-stroke"
-                style={{
-                  strokeWidth: trackStyle.litWidth,
-                  filter: `drop-shadow(0 0 6px ${trackStyle.glow})`,
-                } as React.CSSProperties}
-              >
-                {mod.track === "caverns" || mod.track === "sky" ? (
-                  <animate
-                    attributeName="stroke-dashoffset"
-                    from="0"
-                    to="-8"
-                    dur="1.6s"
-                    repeatCount="indefinite"
-                  />
-                ) : null}
-              </path>
-            )}
-          </svg>
+        <div className="relative mx-auto h-full min-h-[560px] w-full max-w-5xl sm:min-h-[640px]">
+          {/* Stone path trail */}
+          <StonePath
+            points={trailPoints}
+            litCount={litCount}
+            trackStyle={trackStyle}
+            animateLit={mod.track === "caverns" || mod.track === "sky"}
+          />
 
           {/* START marker */}
           <div
             className="absolute -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${nodePositions[0].x}%`, top: `${nodePositions[0].y + 9}%` }}
+            style={{ left: `${startPos.x}%`, top: `${startPos.y}%` }}
           >
             <div className="flex items-end gap-1">
               <Mariposa size={48} />
@@ -501,7 +425,7 @@ function RealmPathPage() {
           {/* FINISH / Grand Prize */}
           <div
             className="absolute -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${PRIZE_POS.x}%`, top: `${PRIZE_POS.y}%` }}
+            style={{ left: `${prizePos.x}%`, top: `${prizePos.y}%` }}
           >
             <GrandPrize won={victory || doneCount === TOTAL} icon={mod.finishIcon} />
           </div>
@@ -519,16 +443,18 @@ function RealmPathPage() {
                 className="absolute -translate-x-1/2 -translate-y-1/2"
                 style={{ left: `${p.x}%`, top: `${p.y}%` }}
               >
-                <TrackNode
+                <QuestNode
                   level={lvl}
                   state={state}
                   stars={stars ?? 0}
                   popping={popping === lvl.id}
+                  isCurrent={lvl.id === currentId}
                   onTap={() => handleTap(lvl)}
                 />
               </div>
             );
           })}
+
 
           {/* Flying Mariposa: from cleared node → next current node */}
           <AnimatePresence>
@@ -652,24 +578,15 @@ function RealmPathPage() {
 
 // ---------------- Helpers ----------------
 
-function buildSmoothPath(points: { x: number; y: number }[]): string {
-  if (points.length === 0) return "";
-  if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
-  // Catmull-Rom-ish smoothing → cubic Beziers
-  let d = `M ${points[0].x} ${points[0].y}`;
-  for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[i - 1] ?? points[i];
-    const p1 = points[i];
-    const p2 = points[i + 1];
-    const p3 = points[i + 2] ?? p2;
-    const c1x = p1.x + (p2.x - p0.x) / 6;
-    const c1y = p1.y + (p2.y - p0.y) / 6;
-    const c2x = p2.x - (p3.x - p1.x) / 6;
-    const c2y = p2.y - (p3.y - p1.y) / 6;
-    d += ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2.x} ${p2.y}`;
-  }
-  return d;
-}
+// Ring color/label/icon per level type (used by the stage modal header).
+const RING: Record<LevelType, { color: string; label: string; icon: string }> = {
+  lesson:    { color: "oklch(0.65 0.17 150)", label: "Lesson",    icon: "✦" },
+  challenge: { color: "oklch(0.65 0.16 240)", label: "Challenge", icon: "⚔" },
+  miniboss:  { color: "oklch(0.72 0.18 50)",  label: "Mini-boss", icon: "🐴" },
+  treasure:  { color: "oklch(0.82 0.17 85)",  label: "Treasure",  icon: "🎁" },
+  boss:      { color: "oklch(0.55 0.22 25)",  label: "Boss",      icon: "♛" },
+};
+
 
 // ---------------- Sub-components ----------------
 
@@ -712,137 +629,8 @@ function GrandPrize({ won, icon }: { won: boolean; icon: string }) {
   );
 }
 
+// TrackNode was extracted into src/components/realm/QuestNode.tsx (now <QuestNode />).
 
-function TrackNode({
-  level,
-  state,
-  stars,
-  popping,
-  onTap,
-}: {
-  level: ClimbLevel;
-  state: "locked" | "current" | "done";
-  stars: number;
-  popping: boolean;
-  onTap: () => void;
-}) {
-  const ring = RING[level.type];
-  const isBoss = level.type === "boss";
-
-  const medallionBg =
-    state === "done"
-      ? "bg-shard-emerald"
-      : state === "current"
-        ? "bg-shard-sun"
-        : "bg-muted";
-  const medallionText = state === "locked" ? "text-ink/40" : "text-ink";
-
-  return (
-    <div className="flex flex-col items-center gap-0.5">
-      {/* Name tag */}
-      <div
-        className="rounded-lg border-2 border-ink/25 bg-parchment/95 text-center shadow-md"
-        style={{
-          maxWidth: "clamp(4.5rem, 18vw, 9rem)",
-          padding: "0.1rem 0.4rem",
-        }}
-      >
-        <div
-          className="font-display font-black leading-tight text-ink"
-          style={{ fontSize: "clamp(8px, 1.6vw, 11px)" }}
-        >
-          {level.name}
-        </div>
-      </div>
-
-      {/* Medallion */}
-      <motion.button
-        type="button"
-        onClick={onTap}
-        aria-label={`Level ${level.id}: ${level.name} — ${state}`}
-        aria-disabled={state !== "current"}
-        disabled={state === "done"}
-        animate={
-          popping
-            ? { scale: [1, 1.3, 1] }
-            : state === "current"
-              ? { y: [0, -4, 0] }
-              : { y: 0 }
-        }
-        transition={
-          popping
-            ? { duration: 0.5 }
-            : state === "current"
-              ? { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
-              : { duration: 0 }
-        }
-        className={`relative grid place-items-center rounded-full ${medallionBg} ${medallionText} shadow-xl ${
-          state === "current" ? "animate-glow cursor-pointer" : ""
-        } ${state === "locked" ? "opacity-80" : ""}`}
-        style={{
-          width: "clamp(2.25rem, 8vw, 3rem)",
-          height: "clamp(2.25rem, 8vw, 3rem)",
-          fontSize: "clamp(0.75rem, 2.2vw, 1rem)",
-          border: "3px solid var(--parchment)",
-          boxShadow: `0 0 0 3px ${ring.color}, 0 6px 12px rgba(0,0,0,0.35)`,
-        }}
-      >
-        {state === "locked" && <span>🔒</span>}
-        {state === "current" && (
-          <span className="font-black">{isBoss ? "♛" : level.id}</span>
-        )}
-        {state === "done" && <span className="font-black">✓</span>}
-
-        {/* Number badge */}
-        {state !== "current" && (
-          <span className="absolute -top-1 -left-1 grid h-4 w-4 place-items-center rounded-full bg-ink text-[9px] font-black text-parchment ring-2 ring-parchment">
-            {level.id}
-          </span>
-        )}
-
-        {/* PLAY tag for current */}
-        {state === "current" && (
-          <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-ink px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-parchment shadow-md whitespace-nowrap">
-            {isBoss ? "♛ Boss" : "Play"}
-          </span>
-        )}
-
-        {/* Sparkles when popping */}
-        {popping && (
-          <>
-            {[0, 60, 120, 180, 240, 300].map((deg) => (
-              <motion.span
-                key={deg}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{
-                  opacity: [0, 1, 0],
-                  scale: [0, 1.4, 0],
-                  x: Math.cos((deg * Math.PI) / 180) * 30,
-                  y: Math.sin((deg * Math.PI) / 180) * 30,
-                }}
-                transition={{ duration: 0.6 }}
-                className="pointer-events-none absolute text-shard-sun"
-              >
-                ✦
-              </motion.span>
-            ))}
-          </>
-        )}
-      </motion.button>
-
-      {/* Stars */}
-      <div className="mt-2 h-3 text-center" aria-label={state === "done" ? `${stars} of 3 stars` : undefined}>
-        {state === "done" && (
-          <span className="text-[11px] leading-none">
-            {[1, 2, 3].map((s) => (
-              <span key={s} className={s <= stars ? "text-shard-sun" : "text-ink/20"}>★</span>
-            ))}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
 
 // ---------------- Stage modal: video → puzzle → challenge → (critter) ----------------
 
