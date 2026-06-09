@@ -44,10 +44,9 @@ export function QuestNode({ level, state, stars, popping, isCurrent, onTap }: Qu
       {/* YOU badge — pinned above the medallion when this is the active node */}
       {isCurrent && (
         <motion.div
-          initial={{ y: -2, opacity: 0 }}
-          animate={{ y: [-4, -8, -4], opacity: 1 }}
-          transition={{ y: { duration: 1.4, repeat: Infinity, ease: "easeInOut" }, opacity: { duration: 0.3 } }}
-          className="pointer-events-none -mb-1 flex flex-col items-center"
+          animate={{ y: [-2, -6, -2] }}
+          transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+          className="pointer-events-none flex flex-col items-center"
           aria-hidden
         >
           <span className="rounded-full bg-shard-sun px-2 py-0.5 font-display text-[9px] font-black uppercase tracking-widest text-ink shadow-md ring-2 ring-ink/30">
@@ -58,6 +57,7 @@ export function QuestNode({ level, state, stars, popping, isCurrent, onTap }: Qu
           </span>
         </motion.div>
       )}
+
 
       {/* Name tag */}
       <div
